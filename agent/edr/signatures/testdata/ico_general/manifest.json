@@ -1,0 +1,1602 @@
+[
+  {
+    "name": "rgb-16-52-extra-0.ico",
+    "sha256": "1072a87bee82319e24d5dd29ed49ee2700ea0244d9ac49bdff5e06433be6a952",
+    "bytes": 2250,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 52,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-16-52-extra-0-gradient.ico",
+    "sha256": "05d49b70cbb13e9a42d5b81be75d698bd71e9741a9fad199fd593a72a22ee81d",
+    "bytes": 2250,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 52,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-16-52-extra-1.ico",
+    "sha256": "cd1fd2c116303cf74071fb300dc9da28cdd692bbc74c934da25c985c60ae3ac0",
+    "bytes": 2250,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 52,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-16-52-extra-1-gradient.ico",
+    "sha256": "73f418be94cf087b5c5570fc054f0f2d10af6023b439fc3c2f393476cfc81e21",
+    "bytes": 2250,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 52,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-16-56-extra-0.ico",
+    "sha256": "dc39e77870fe3254b590fbc01e5f3e447286493774ca2b1cf053e0cc11cfb3cd",
+    "bytes": 2254,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 56,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-16-56-extra-0-gradient.ico",
+    "sha256": "3ba6e4c8ce2816c21efe3d63eaedbb1bc245f22a6c96989bd67bba14c52ac4ba",
+    "bytes": 2254,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 56,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-16-56-extra-1.ico",
+    "sha256": "c185ffe281e5eba22d5aea43424070ee9bc642bd971d2fe606ffe840369ce48f",
+    "bytes": 2254,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 56,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-16-56-extra-1-gradient.ico",
+    "sha256": "6953dc1d92dec6bd06b3e2710cf75d706a80c4e50b84f235956ca6539f77c970",
+    "bytes": 2254,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 56,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-16-108-extra-0.ico",
+    "sha256": "da5789e14a349f3535d060244173fd45e181341094cdc1bd93c28db1946ad6e7",
+    "bytes": 2306,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 108,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-16-108-extra-0-gradient.ico",
+    "sha256": "d88306ccb9f23ae7df25ac93421076628242122b1a0045c9f1251f6617b37cda",
+    "bytes": 2306,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 108,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-16-108-extra-1.ico",
+    "sha256": "4840d7a98e5d0eec3d453d4fbfe8406f9f6969f360635d361aaefd638cfdc02c",
+    "bytes": 2306,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 108,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-16-108-extra-1-gradient.ico",
+    "sha256": "8a1d9cf302124ae975f0a1dd790cc465739100e9d3ee5cc69d8e498276ddefa3",
+    "bytes": 2306,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 108,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-16-124-extra-0.ico",
+    "sha256": "9b63700c40d189ae0615f3505cf94ce00ff0db5f919df67e35536068967e9b8a",
+    "bytes": 2322,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 124,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-16-124-extra-0-gradient.ico",
+    "sha256": "69d5f90302ace7e2a70a82fffd49d808f81f00e45c9f9076f5683f57d852de5f",
+    "bytes": 2322,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 124,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-16-124-extra-1.ico",
+    "sha256": "c51a4ee3ec5cd25fb5b18b88c0d9aa11f79cf4233b0b3da9665ffb8486058b51",
+    "bytes": 2322,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 124,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-16-124-extra-1-gradient.ico",
+    "sha256": "c8779d32daa91cbadc4899714ab43c2b18516945ee44472033aee338d89722cc",
+    "bytes": 2322,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 124,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-24-52-extra-0.ico",
+    "sha256": "5f164cfd6a6eb47adaa8851570426e1443497414ae64a4644db184af6d8d0196",
+    "bytes": 3274,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 24,
+    "header": 52,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-24-52-extra-0-gradient.ico",
+    "sha256": "ff0de9452ba07aa326c751e4f3eb2042b25a4b101b0f8a414452d893c08f45ec",
+    "bytes": 3274,
+    "hash": "c91336843f6ad74a",
+    "depth": 24,
+    "header": 52,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-24-52-extra-1.ico",
+    "sha256": "5da0260b337d5b3c2444fb13ffa0b2c7f83398eb7a6da4485aef079f479a9122",
+    "bytes": 3274,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 24,
+    "header": 52,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-24-52-extra-1-gradient.ico",
+    "sha256": "f31c9fba60596871b0d249ffe50e057aba8ba3746872fdeba0fa819da425f1bb",
+    "bytes": 3274,
+    "hash": "c91336843f6ad74a",
+    "depth": 24,
+    "header": 52,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-24-56-extra-0.ico",
+    "sha256": "3a81bfb8eee4e35945c84a25466c3f0eddabaecb59905c80bc69482dc7adc609",
+    "bytes": 3278,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 24,
+    "header": 56,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-24-56-extra-0-gradient.ico",
+    "sha256": "c6a0c823a68c0be523e1b7baa8b6ae8bccb9ea07273cdc3fe1901c2b50d982ae",
+    "bytes": 3278,
+    "hash": "c91336843f6ad74a",
+    "depth": 24,
+    "header": 56,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-24-56-extra-1.ico",
+    "sha256": "056399e42b13072990de5e53283d0bb702a266e9d00f17a30f11d7a550af062c",
+    "bytes": 3278,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 24,
+    "header": 56,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-24-56-extra-1-gradient.ico",
+    "sha256": "d22167aaa2f3c7182dbd869fe5319cc965c058892b80169f50dbff5d1f41988a",
+    "bytes": 3278,
+    "hash": "c91336843f6ad74a",
+    "depth": 24,
+    "header": 56,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-24-108-extra-0.ico",
+    "sha256": "52d15e1a9887068fb74de6ca7f2df5bd5efd133109bab25a7a0fa92de2819a24",
+    "bytes": 3330,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 24,
+    "header": 108,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-24-108-extra-0-gradient.ico",
+    "sha256": "93764d6a4b31ac5bfdcb28b7b001e63fe4d2100ccdb35ac35e60b510616c91e8",
+    "bytes": 3330,
+    "hash": "c91336843f6ad74a",
+    "depth": 24,
+    "header": 108,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-24-108-extra-1.ico",
+    "sha256": "a28a3d2c6b98a9bab0020926dc35bcdb30305d6098b056d16e0c9f49d6620637",
+    "bytes": 3330,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 24,
+    "header": 108,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-24-108-extra-1-gradient.ico",
+    "sha256": "37ee64ead8783fb2613d521470c4a0480627111f0e732c690867c92f8f978cf1",
+    "bytes": 3330,
+    "hash": "c91336843f6ad74a",
+    "depth": 24,
+    "header": 108,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-24-124-extra-0.ico",
+    "sha256": "488dd2e6485d4912cc3bc2633fee52a6079b1b9789d239a29b00b9a28166ab65",
+    "bytes": 3346,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 24,
+    "header": 124,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-24-124-extra-0-gradient.ico",
+    "sha256": "f8c6e966d19bb49357dee9a23808bc54a9c5b7e9059106cd95875f5acb47ceaf",
+    "bytes": 3346,
+    "hash": "c91336843f6ad74a",
+    "depth": 24,
+    "header": 124,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-24-124-extra-1.ico",
+    "sha256": "e45abbac449fd04153d5a92cc93b8c200f819ba20c477f0de234973c825e644a",
+    "bytes": 3346,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 24,
+    "header": 124,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-24-124-extra-1-gradient.ico",
+    "sha256": "1de86fd3b4c0ebd13cd7836c615ea9d768f290360d3fbd7816fef4e3edf77e5a",
+    "bytes": 3346,
+    "hash": "c91336843f6ad74a",
+    "depth": 24,
+    "header": 124,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-32-52-extra-0.ico",
+    "sha256": "b5bfb15d81f1829067990065b3ec692f51748f97b2c864b7fb2e5179b1f41f18",
+    "bytes": 4298,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 52,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-32-52-extra-0-gradient.ico",
+    "sha256": "6c97a8db55aad93cd69c38fcadc550087f0449203e234cc25540fd36c27b72cc",
+    "bytes": 4298,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 52,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-32-52-extra-1.ico",
+    "sha256": "fbf0efea113706f46fb61695d2d5648a86729f75ef0a1a421ac68a211cf424bb",
+    "bytes": 4298,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 52,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-32-52-extra-1-gradient.ico",
+    "sha256": "701273df7b6181a0504087c2886c1900c4ddc43243b14018ed1a6656ba1a8975",
+    "bytes": 4298,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 52,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-32-56-extra-0.ico",
+    "sha256": "11726781f5377f848a676c46c719266d5b3be16e3b071087898b2fa72cacf0b8",
+    "bytes": 4302,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 56,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-32-56-extra-0-gradient.ico",
+    "sha256": "7fe869f7eead12863a040035663b60efdfac06d41956c5da77e112bba1362451",
+    "bytes": 4302,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 56,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-32-56-extra-1.ico",
+    "sha256": "9b166b5fbe90cf9a57066c641cf8483dac2c7ba2f25b1bead3fd4d67fa455216",
+    "bytes": 4302,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 56,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-32-56-extra-1-gradient.ico",
+    "sha256": "55874938cea915a58fc7b312295aa0edeae8ae7dba919cb40079a6a7337134ba",
+    "bytes": 4302,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 56,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-32-108-extra-0.ico",
+    "sha256": "bfeaaaa4fcd4641e85005ca051d203b2b4e9a4bff3adcef247bbeb7fd5d743d5",
+    "bytes": 4354,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 108,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-32-108-extra-0-gradient.ico",
+    "sha256": "0280d77a12345fff4583233daaea239f76e01802740d39b9b44cb09c15505716",
+    "bytes": 4354,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 108,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-32-108-extra-1.ico",
+    "sha256": "e62afa6b02445307c55ba701f4495c264d6b16484d36116e775bf4c4f2b8aaf3",
+    "bytes": 4354,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 108,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-32-108-extra-1-gradient.ico",
+    "sha256": "ba49008ebcd044c483bd0b52f9742ab82a3244187fb48df75c2aa2d1bffed8c5",
+    "bytes": 4354,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 108,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-32-124-extra-0.ico",
+    "sha256": "9788a5eadf04c41dc5976960e7ae3bb537ac8262bf4bf151eb4043a6b6c4291d",
+    "bytes": 4370,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 124,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-32-124-extra-0-gradient.ico",
+    "sha256": "8a126084cc60261fd2e5bdc0f7477b2b8ab45ab2d96d35580d9a08eb0c08df5d",
+    "bytes": 4370,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 124,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "rgb-32-124-extra-1.ico",
+    "sha256": "acd54a79fa8a72a29012d6d1169e484bb056ad7f0da264d039f8df60eeb66975",
+    "bytes": 4370,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 124,
+    "compression": 0,
+    "pattern": "binary"
+  },
+  {
+    "name": "rgb-32-124-extra-1-gradient.ico",
+    "sha256": "4ae5dc6ec1e7735d471d20a9d611ce08d24ae13e67ebd5ef8dc06e8f55718160",
+    "bytes": 4370,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 124,
+    "compression": 0,
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb555-40.ico",
+    "sha256": "5b0ec3ec1e8b61aab3fa14e1b8aace9673cc38bdaa93636df7c68ab214d84979",
+    "bytes": 2250,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      31744,
+      992,
+      31,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb555-40-gradient.ico",
+    "sha256": "9c83ca89d3258bbb6861c3e9d91e1f4ab016bdf2041e26af6fac1dab383a8cf9",
+    "bytes": 2250,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      31744,
+      992,
+      31,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb555-52.ico",
+    "sha256": "fc215709d28c02016598462da0c7321b4a397f4437eb2bc039cc352611e25e17",
+    "bytes": 2250,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      31744,
+      992,
+      31,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb555-52-gradient.ico",
+    "sha256": "bf2daf2d6cccc99f9e5e2f7ac3368f124b04b83ed5a5f753b06622994ea422d5",
+    "bytes": 2250,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      31744,
+      992,
+      31,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb555-56.ico",
+    "sha256": "e7fe549fd42d488d45437bdaa2d34f7c26172624b1aa1ef1e6e5beb6d930f197",
+    "bytes": 2254,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      31744,
+      992,
+      31,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb555-56-gradient.ico",
+    "sha256": "ec7f6c610458a55124c947c6e54b88c532c5021d8ac0c1ee893bca556bdbe032",
+    "bytes": 2254,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      31744,
+      992,
+      31,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb555-108.ico",
+    "sha256": "62ddca972787452c04386bc65bed30f93ac45a358412bb11cf8f1a09c662aab2",
+    "bytes": 2318,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      31744,
+      992,
+      31,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb555-108-gradient.ico",
+    "sha256": "db37d91f5fb073c65d1d7b5f9648d761825e3377515e3e55e1c9997e8a9b4d8a",
+    "bytes": 2318,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      31744,
+      992,
+      31,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb555-124.ico",
+    "sha256": "9c2c6f4fce2abd843feb03d86af5da74b0fea6a65b162af020322fba766bc1d9",
+    "bytes": 2334,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      31744,
+      992,
+      31,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb555-124-gradient.ico",
+    "sha256": "98464675dd40a9d694315a922387ab161e36f7145ab9384795cfb41a33dbf573",
+    "bytes": 2334,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      31744,
+      992,
+      31,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb565-40.ico",
+    "sha256": "6cd92a5127887a63b94faa4992e765e7ed6ef4e1f6c58033c773acbc1a3412dc",
+    "bytes": 2250,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      63488,
+      2016,
+      31,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb565-40-gradient.ico",
+    "sha256": "c104702d141e4fc461dd2b32fbc5ef1fb084d7bd1b00426b6634b64989fcccb7",
+    "bytes": 2250,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      63488,
+      2016,
+      31,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb565-52.ico",
+    "sha256": "02b5cb608f8c7b6cae80a1c9988754d48e47c0830b24d78fbb79a348568a1015",
+    "bytes": 2250,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      63488,
+      2016,
+      31,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb565-52-gradient.ico",
+    "sha256": "9d74fbb78a3719f56bf6b8882dae49911bddcc9e6bb7c88c48309368f429185b",
+    "bytes": 2250,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      63488,
+      2016,
+      31,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb565-56.ico",
+    "sha256": "bd2a175e09cb7a2ee12cddb5ca4ee8ed5092889b2d8c6af686eeea8b93bb3278",
+    "bytes": 2254,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      63488,
+      2016,
+      31,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb565-56-gradient.ico",
+    "sha256": "d6de28a0a775e5f71e48badea062fd04d7d7854f1edea90752080de05cc03ac3",
+    "bytes": 2254,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      63488,
+      2016,
+      31,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb565-108.ico",
+    "sha256": "0df75fc277ae6b35177a572bb16bf88ead15540820d36b9ae97f6818046ff653",
+    "bytes": 2318,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      63488,
+      2016,
+      31,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb565-108-gradient.ico",
+    "sha256": "632d49662c68c97b47aad6bd5b22975f31e942d14941fca8a3e5bb5e42e66f6c",
+    "bytes": 2318,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      63488,
+      2016,
+      31,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb565-124.ico",
+    "sha256": "019703997e8713a13c8ba22811aca4f306372fe06feeb981222605c25ed55ca9",
+    "bytes": 2334,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      63488,
+      2016,
+      31,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb565-124-gradient.ico",
+    "sha256": "8a434ba60d907e7aa89cd63080b3b978c1aaa9583d64be9169fc991e848aa09a",
+    "bytes": 2334,
+    "hash": "c91336843f6ad74a",
+    "depth": 16,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      63488,
+      2016,
+      31,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-argb4444-40.ico",
+    "sha256": "9216642a68909b6a6472cdd3d48e5e097eb9efddcc135166ddc2c4438e1f6473",
+    "bytes": 2250,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      3840,
+      240,
+      15,
+      61440
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-argb4444-40-gradient.ico",
+    "sha256": "2f4536eff3ba830d56661fd4c5f9d97946c2a7a1c104332e10b77cf0f5959f71",
+    "bytes": 2250,
+    "hash": "c81336843f6ad74b",
+    "depth": 16,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      3840,
+      240,
+      15,
+      61440
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-argb4444-52.ico",
+    "sha256": "75db063054cbfd3ebbcf53f356f4a249bd5c4b746386f6458c9de241c83a763c",
+    "bytes": 2250,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      3840,
+      240,
+      15,
+      61440
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-argb4444-52-gradient.ico",
+    "sha256": "9e7b62a43295659fc6483cb8a38f16d54fbe2f84be466adac1c068c65b9d962b",
+    "bytes": 2250,
+    "hash": "c81336843f6ad74b",
+    "depth": 16,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      3840,
+      240,
+      15,
+      61440
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-argb4444-56.ico",
+    "sha256": "9a9c76020987e8f4d704fea8647b69281f488636653e54d04441b5250b80178c",
+    "bytes": 2254,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      3840,
+      240,
+      15,
+      61440
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-argb4444-56-gradient.ico",
+    "sha256": "166bf9dcd275501e30d186ebcf95d53daeb72873dfac5b00cc10a6e046649c9e",
+    "bytes": 2254,
+    "hash": "c81336843f6ad74b",
+    "depth": 16,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      3840,
+      240,
+      15,
+      61440
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-argb4444-108.ico",
+    "sha256": "02b2d3c65feb1864b5028c44501f1000d91a0994990b724e0d725791cc9eaa36",
+    "bytes": 2318,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      3840,
+      240,
+      15,
+      61440
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-argb4444-108-gradient.ico",
+    "sha256": "d50eddafbb75b89cfff3671264e482a60f94cfaf7607b61f475800b9ce3d8737",
+    "bytes": 2318,
+    "hash": "c81336843f6ad74b",
+    "depth": 16,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      3840,
+      240,
+      15,
+      61440
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-argb4444-124.ico",
+    "sha256": "c2afb9c11de64fffb1f13bcfc41f6ed4a1d1a8ab1460b3efb2a384da673b43fb",
+    "bytes": 2334,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 16,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      3840,
+      240,
+      15,
+      61440
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-argb4444-124-gradient.ico",
+    "sha256": "96f94a1e7011a6e8820f7ffe65df5db4524548822c34b37c88f90f4c1ea8e26c",
+    "bytes": 2334,
+    "hash": "c81336843f6ad74b",
+    "depth": 16,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      3840,
+      240,
+      15,
+      61440
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb1010102-40.ico",
+    "sha256": "e406fffd24d545a2c952d5be4f468ab790edfefb5a3266a4a7fbe9d9b566c774",
+    "bytes": 4298,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      1072693248,
+      1047552,
+      1023,
+      3221225472
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb1010102-40-gradient.ico",
+    "sha256": "c996c8df682d3980385ec20046e6539ddd0c43afbefd3578e9b4dba6d2d0e87d",
+    "bytes": 4298,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      1072693248,
+      1047552,
+      1023,
+      3221225472
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb1010102-52.ico",
+    "sha256": "1df8f4ad0325e16b7c20e68218e3925bfcfc25ad12f49d1428a02cccf378a9c7",
+    "bytes": 4298,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      1072693248,
+      1047552,
+      1023,
+      3221225472
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb1010102-52-gradient.ico",
+    "sha256": "8bea0c705f3a493fe50fca9d9e6a5400a7b6e65278ce69650ab65a82733bfacc",
+    "bytes": 4298,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      1072693248,
+      1047552,
+      1023,
+      3221225472
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb1010102-56.ico",
+    "sha256": "b69cbe0cc46025c9eff7ddcd14b55af5da422f99787d73b94c2659eadb0574ba",
+    "bytes": 4302,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      1072693248,
+      1047552,
+      1023,
+      3221225472
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb1010102-56-gradient.ico",
+    "sha256": "d60a8336f44f6cd1e919ec180a66304a34b96b94729eab3303954465e271a407",
+    "bytes": 4302,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      1072693248,
+      1047552,
+      1023,
+      3221225472
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb1010102-108.ico",
+    "sha256": "f6559c30d9abb626fd51a88b6da6ef662690353c6450661349518ab6fdbd0692",
+    "bytes": 4366,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      1072693248,
+      1047552,
+      1023,
+      3221225472
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb1010102-108-gradient.ico",
+    "sha256": "5e0c86f161de17c45219335a33d03734be8583d456e3b18b9bd5da878ad3d098",
+    "bytes": 4366,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      1072693248,
+      1047552,
+      1023,
+      3221225472
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb1010102-124.ico",
+    "sha256": "b0e12b83721bf78e8fc7d0541efdc0aa8b2f9a53cf38a0f05a69490406635de4",
+    "bytes": 4382,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      1072693248,
+      1047552,
+      1023,
+      3221225472
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb1010102-124-gradient.ico",
+    "sha256": "7137e0f32db42f5f08fdf63c643a1f0fe389d440cadd2d9326a7e29aa31bde01",
+    "bytes": 4382,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      1072693248,
+      1047552,
+      1023,
+      3221225472
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb777-40.ico",
+    "sha256": "70a597479f1d17d6f2123f2afae965fa19d16347a58fbd0bdc66e05df7908201",
+    "bytes": 4298,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      8323072,
+      32512,
+      127,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb777-40-gradient.ico",
+    "sha256": "c7558fdde696443c522841371ab393890c950632da4869870b80e4215a44fb74",
+    "bytes": 4298,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      8323072,
+      32512,
+      127,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb777-52.ico",
+    "sha256": "aee12ae47003ffaa214cabe0fe916edb580fa542cea8700730fe21501cf70e85",
+    "bytes": 4298,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      8323072,
+      32512,
+      127,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb777-52-gradient.ico",
+    "sha256": "4fc8b6c5ea2601164b5be3fddadf514667d7e2faac4eaeca0715ef9eb0116b3e",
+    "bytes": 4298,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      8323072,
+      32512,
+      127,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb777-56.ico",
+    "sha256": "e3198f391fc5befe784e724eed11f6858f718dcaf3d7a844b060515cf869c859",
+    "bytes": 4302,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      8323072,
+      32512,
+      127,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb777-56-gradient.ico",
+    "sha256": "963e4ccf6445d857a24a7700ba0eda4a4d21814588956443889943cced1b58f2",
+    "bytes": 4302,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      8323072,
+      32512,
+      127,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb777-108.ico",
+    "sha256": "62c2f09bf22366e140f7a0184f2b943fff0fe4b8011cdd7b14ea5dfedda2e519",
+    "bytes": 4366,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      8323072,
+      32512,
+      127,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb777-108-gradient.ico",
+    "sha256": "cfaf795cb46f36e0efef25a287b740bfc11680576ed3ef093e0bdfb734ed8f62",
+    "bytes": 4366,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      8323072,
+      32512,
+      127,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb777-124.ico",
+    "sha256": "a8a41097b9ebd01affec3855653354e94c404044feba0c9eaac6cbf5874685b9",
+    "bytes": 4382,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      8323072,
+      32512,
+      127,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb777-124-gradient.ico",
+    "sha256": "09d1a118e28c521f4b6751951ae90451020d999110b994ac099776671dc47cdb",
+    "bytes": 4382,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      8323072,
+      32512,
+      127,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb123-40.ico",
+    "sha256": "8e021ac305d09899f7e7733e96dcd2c82c1ce6ff1bb6a12ffd1e5b5db2d38c44",
+    "bytes": 4298,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      65536,
+      768,
+      7,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb123-40-gradient.ico",
+    "sha256": "54ff6859e01e07bbbba84b996e8098b12c52647f823f6a10fea671f8f29eef32",
+    "bytes": 4298,
+    "hash": "b992078c3f6ad14b",
+    "depth": 32,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      65536,
+      768,
+      7,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb123-52.ico",
+    "sha256": "987607936f729069d7fcf18cfd3d2bf8f226260d21a1dde8fddcaf1c9f42a087",
+    "bytes": 4298,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      65536,
+      768,
+      7,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb123-52-gradient.ico",
+    "sha256": "b83533f0b0a465c426ff4660b73acf371bce3c9e714a16cd37b932342272b35c",
+    "bytes": 4298,
+    "hash": "b992078c3f6ad14b",
+    "depth": 32,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      65536,
+      768,
+      7,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb123-56.ico",
+    "sha256": "bc1a14bd4097d2dd785d2dae21157e2d789e753f9578382d402b4aac671becdc",
+    "bytes": 4302,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      65536,
+      768,
+      7,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb123-56-gradient.ico",
+    "sha256": "312e21c491df390f08d292aa20d6b47e8e27f9124ffb9851bda2887e4e435920",
+    "bytes": 4302,
+    "hash": "b992078c3f6ad14b",
+    "depth": 32,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      65536,
+      768,
+      7,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb123-108.ico",
+    "sha256": "fabd6adcf89c06d5510390c3ead5e7812438c04374ce24634e2c1374b13e6a50",
+    "bytes": 4366,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      65536,
+      768,
+      7,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb123-108-gradient.ico",
+    "sha256": "788b81c9fe5d13ca58858663912a28542e0c2a04fe012b165b4e57d482e44086",
+    "bytes": 4366,
+    "hash": "b992078c3f6ad14b",
+    "depth": 32,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      65536,
+      768,
+      7,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-rgb123-124.ico",
+    "sha256": "4d6c8401b457ab86f01dd57ead83d9650d19ab1956328a92102c75f7a0be2fe7",
+    "bytes": 4382,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      65536,
+      768,
+      7,
+      0
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-rgb123-124-gradient.ico",
+    "sha256": "a498431978fab3733f120ef504a9524cdc7bc635418e42a1948496bde9f13701",
+    "bytes": 4382,
+    "hash": "b992078c3f6ad14b",
+    "depth": 32,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      65536,
+      768,
+      7,
+      0
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-bgr888-40.ico",
+    "sha256": "63a223d210899478f34ff6718bbdaeaf88f9612550624ff0bfad60179b1a0ac5",
+    "bytes": 4298,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      255,
+      65280,
+      16711680,
+      4278190080
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-bgr888-40-gradient.ico",
+    "sha256": "cead1a7e48f43c9f29c459124bfca4630008d7562441aaf81db47531091de23f",
+    "bytes": 4298,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 40,
+    "compression": 3,
+    "masks": [
+      255,
+      65280,
+      16711680,
+      4278190080
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-bgr888-52.ico",
+    "sha256": "376938445dc179f3c67a519a7d900ba6f0a9d2818045ee91495026ddcedb206c",
+    "bytes": 4298,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      255,
+      65280,
+      16711680,
+      4278190080
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-bgr888-52-gradient.ico",
+    "sha256": "e7ae81537536ff92246ea026e86d97a0a158ea44e65ededad802c402107d56fd",
+    "bytes": 4298,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 52,
+    "compression": 3,
+    "masks": [
+      255,
+      65280,
+      16711680,
+      4278190080
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-bgr888-56.ico",
+    "sha256": "9a3abd7002efa581bbf1eb2335b4513ff2b5c4662a659a98e663d527b21f930f",
+    "bytes": 4302,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      255,
+      65280,
+      16711680,
+      4278190080
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-bgr888-56-gradient.ico",
+    "sha256": "5c361b1e706684e70c0fc57cb6e139d832fa44aa9bbad4c5dc48832de9cc90fe",
+    "bytes": 4302,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 56,
+    "compression": 3,
+    "masks": [
+      255,
+      65280,
+      16711680,
+      4278190080
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-bgr888-108.ico",
+    "sha256": "bfc7ee514f5d8970aa834e1594213cb554dc225701834d35e2dea2227c9ea427",
+    "bytes": 4366,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      255,
+      65280,
+      16711680,
+      4278190080
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-bgr888-108-gradient.ico",
+    "sha256": "4f2443b6d392730bb5b3c861d51fc0cae4af4f03e8088d6d889c89e194caf204",
+    "bytes": 4366,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 108,
+    "compression": 3,
+    "masks": [
+      255,
+      65280,
+      16711680,
+      4278190080
+    ],
+    "pattern": "gradient"
+  },
+  {
+    "name": "bitfields-bgr888-124.ico",
+    "sha256": "90379efd4e9b58b94b4892748af49fa83ff7ffc99d252f094c22a836f5dacd06",
+    "bytes": 4382,
+    "hash": "88aba8aba8ab06fe",
+    "depth": 32,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      255,
+      65280,
+      16711680,
+      4278190080
+    ],
+    "pattern": "binary"
+  },
+  {
+    "name": "bitfields-bgr888-124-gradient.ico",
+    "sha256": "1943b9466f28892e96ccf7fc9d347241d613db33afed6a9bb6a12cd6d68109a5",
+    "bytes": 4382,
+    "hash": "c91336843f6ad74a",
+    "depth": 32,
+    "header": 124,
+    "compression": 3,
+    "masks": [
+      255,
+      65280,
+      16711680,
+      4278190080
+    ],
+    "pattern": "gradient"
+  }
+]

@@ -1,0 +1,14 @@
+//go:build !windows && !linux
+
+package watcher
+
+import "context"
+
+type Watcher struct{}
+
+func New(volumes []string, sink Sink, cursors CursorStore, excluded func(string) bool) *Watcher {
+	return &Watcher{}
+}
+
+// Run is a no-op on non-Windows platforms (USN is NTFS-only).
+func (w *Watcher) Run(ctx context.Context) { <-ctx.Done() }

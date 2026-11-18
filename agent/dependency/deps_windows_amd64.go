@@ -5,7 +5,6 @@ package dependency
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/utmstack/UTMStack/agent/config"
@@ -21,9 +20,9 @@ func GetDependencies() []Dependency {
 
 	return []Dependency{
 		{
-			Name:        "updater",
-			Version:     getUpdaterVersion(),
-			BinaryPath:  filepath.Join(basePath, UpdaterFile("")),
+			Name:       "updater",
+			Version:    getUpdaterVersion(),
+			BinaryPath: filepath.Join(basePath, UpdaterFile("")),
 			DownloadURL: func(server string) string {
 				return fmt.Sprintf(config.DependUrl, server, config.DependenciesPort, UpdaterFile(""))
 			},
@@ -32,19 +31,7 @@ func GetDependencies() []Dependency {
 			Configure:   configureUpdater,
 			Uninstall:   uninstallUpdater,
 		},
-
-		// Windows Advanced Audit Policy - ensures the Security/PowerShell
-		// channels this agent collects actually get populated (see A9 in
-		// agent/GAPS_AND_IMPROVEMENTS.md). No download - configures the
-		// OS's own audit policy and a few registry settings.
-		{
-			Name:       "audit-policy",
-			Version:    AuditPolicyVersion,
-			BinaryPath: filepath.Join(os.Getenv("windir"), "System32", "auditpol.exe"),
-			Critical:   false,
-			Configure:  configureWindowsAuditPolicy,
-			Update:     configureWindowsAuditPolicy,
-		},
+		nativeEDRDependency(basePath),
 	}
 }
 
@@ -78,7 +65,7 @@ func preDownloadUpdater() (func(), error) {
 			_ = svc.Start(config.SERVICE_UPDATER_NAME)
 		}, nil
 	}
-	
+
 	// Return cleanup function that restarts the service
 	return func() {
 		_ = svc.Start(config.SERVICE_UPDATER_NAME)

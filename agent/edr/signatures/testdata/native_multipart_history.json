@@ -1,0 +1,133 @@
+{
+  "reference": "Pinned ClamAV1.5.4 darwin/arm64; full inert file scans",
+  "cases": [
+    {
+      "name": "bounded-history-7",
+      "input_hex": "4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e58595a2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+      "files": {
+        "rules.ndb": "Bounded:0:*:414243{130-130}58595a\n"
+      },
+      "expected": "Bounded"
+    },
+    {
+      "name": "bounded-history-8",
+      "input_hex": "4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e58595a2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+      "files": {
+        "rules.ndb": "Bounded:0:*:414243{130-130}58595a\n"
+      },
+      "expected": "Bounded"
+    },
+    {
+      "name": "bounded-history-9",
+      "input_hex": "4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e58595a2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+      "files": {
+        "rules.ndb": "Bounded:0:*:414243{130-130}58595a\n"
+      },
+      "expected": "Bounded"
+    },
+    {
+      "name": "bounded-history-10",
+      "input_hex": "4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e58595a2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+      "files": {
+        "rules.ndb": "Bounded:0:*:414243{130-130}58595a\n"
+      },
+      "expected": ""
+    },
+    {
+      "name": "bounded-history-11",
+      "input_hex": "4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e58595a2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+      "files": {
+        "rules.ndb": "Bounded:0:*:414243{130-130}58595a\n"
+      },
+      "expected": ""
+    },
+    {
+      "name": "bounded-history-12",
+      "input_hex": "4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e58595a2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+      "files": {
+        "rules.ndb": "Bounded:0:*:414243{130-130}58595a\n"
+      },
+      "expected": ""
+    },
+    {
+      "name": "bounded-history-13",
+      "input_hex": "4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e4142432e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e58595a2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+      "files": {
+        "rules.ndb": "Bounded:0:*:414243{130-130}58595a\n"
+      },
+      "expected": ""
+    },
+    {
+      "name": "logical-start-count-0",
+      "input_hex": "4142432e2e2e2e2e4142432e2e2e2e2e4142432e2e2e2e2e58595a20696e657274206d756c74697061727420636f756e7420636f6e74726f6c0a",
+      "files": {
+        "rules.ldb": "Count.0;Target:0;0=0;414243*58595a\n"
+      },
+      "expected": "Count.0"
+    },
+    {
+      "name": "logical-start-count-1",
+      "input_hex": "4142432e2e2e2e2e4142432e2e2e2e2e4142432e2e2e2e2e58595a20696e657274206d756c74697061727420636f756e7420636f6e74726f6c0a",
+      "files": {
+        "rules.ldb": "Count.1;Target:0;0=1;414243*58595a\n"
+      },
+      "expected": "Count.1"
+    },
+    {
+      "name": "logical-start-count-2",
+      "input_hex": "4142432e2e2e2e2e4142432e2e2e2e2e4142432e2e2e2e2e58595a20696e657274206d756c74697061727420636f756e7420636f6e74726f6c0a",
+      "files": {
+        "rules.ldb": "Count.2;Target:0;0=2;414243*58595a\n"
+      },
+      "expected": ""
+    },
+    {
+      "name": "logical-start-count-3",
+      "input_hex": "4142432e2e2e2e2e4142432e2e2e2e2e4142432e2e2e2e2e58595a20696e657274206d756c74697061727420636f756e7420636f6e74726f6c0a",
+      "files": {
+        "rules.ldb": "Count.3;Target:0;0=3;414243*58595a\n"
+      },
+      "expected": ""
+    },
+    {
+      "name": "logical-predicate-0",
+      "input_hex": "4142432e2e2e2e2e4142432e2e2e2e2e4142432e2e2e2e2e58595a20696e657274206d756c74697061727420636f756e7420636f6e74726f6c0a",
+      "files": {
+        "rules.ldb": "Predicate.0;Target:0;0>1;414243*58595a\n"
+      },
+      "expected": ""
+    },
+    {
+      "name": "logical-predicate-1",
+      "input_hex": "4142432e2e2e2e2e4142432e2e2e2e2e4142432e2e2e2e2e58595a20696e657274206d756c74697061727420636f756e7420636f6e74726f6c0a",
+      "files": {
+        "rules.ldb": "Predicate.1;Target:0;0<2;414243*58595a\n"
+      },
+      "expected": "Predicate.1"
+    },
+    {
+      "name": "logical-predicate-2",
+      "input_hex": "4142432e2e2e2e2e4142432e2e2e2e2e4142432e2e2e2e2e58595a20696e657274206d756c74697061727420636f756e7420636f6e74726f6c0a",
+      "files": {
+        "rules.ldb": "Predicate.2;Target:0;0=3;414243*58595a\n"
+      },
+      "expected": ""
+    },
+    {
+      "name": "logical-predicate-3",
+      "input_hex": "4142432e2e2e2e2e4142432e2e2e2e2e4142432e2e2e2e2e58595a20696e657274206d756c74697061727420636f756e7420636f6e74726f6c0a",
+      "files": {
+        "rules.ldb": "Predicate.3;Target:0;0=1;414243*58595a\n"
+      },
+      "expected": "Predicate.3"
+    },
+    {
+      "name": "completion-before-first-start",
+      "input_hex": "4142432e2e2e2e2e2e2e4445462e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e5556572e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e58595a2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e",
+      "files": {
+        "rules.ndb": "Early.Start:0:*:414243*58595a\nEarly.Completion:0:*:444546*555657\n"
+      },
+      "expected": "Early.Completion"
+    }
+  ]
+}

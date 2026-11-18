@@ -1,0 +1,4284 @@
+[
+  {
+    "name": "body-length-0.tiff",
+    "bytes": 1223,
+    "sha256": "df5b9acafe6fcd451c18ced069524cf3817ffbce062e41c7c73406b5259e09ff",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "\"No more bytes\"\n",
+    "native_error": "ERROR: body-length-0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: tag `JPEGTables` did not have the expected value type"
+  },
+  {
+    "name": "body-length-1.tiff",
+    "bytes": 1223,
+    "sha256": "26542eb9546e550003f81776309312b73da176e52bc4544054f5f3f33c4eb8c0",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "\"No more bytes\"\n",
+    "native_error": "ERROR: body-length-1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: tag `JPEGTables` did not have the expected value type"
+  },
+  {
+    "name": "body-length-2.tiff",
+    "bytes": 1223,
+    "sha256": "83dc532c558b819052c2e5f500c1bdf5784e5cedab87ef69064d21a590249d2a",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "\"No more bytes\"\n",
+    "native_error": "ERROR: body-length-2.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"No more bytes\""
+  },
+  {
+    "name": "body-length-642.tiff",
+    "bytes": 1223,
+    "sha256": "767767c1769ecc06763a2867ac9cf38e60a3d7ec31d71833375d2fbd27f75b2b",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "body-length-643.tiff",
+    "bytes": 1223,
+    "sha256": "7853d8e3a3dc67cb93711b4cae1ce898d4298f03814c80db3b15b5555e28adce",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "body-prefix-ignored.tiff",
+    "bytes": 1085,
+    "sha256": "83ad0ad8aaddc0c9bc3d09835340367886c04b144f23a4a2a6d460bb41a371be",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "cmyk-as-rgba-strips-s0.tiff",
+    "bytes": 6603,
+    "sha256": "5e4a934b3a21b9a7e73ab1c53a1beb0d6ee7d1c8284f43ea204993f23991c86b",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bcaa4aabd72b87ceefdb14e66fec4cd37fe961fb2ca71404682407c0ef1ac459"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "cmyk-as-rgba-strips-s1.tiff",
+    "bytes": 1453,
+    "sha256": "f87f6bceba3482f107e86f6671114611729c742ec91fed281390d7c8320424cc",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "cmyk-as-rgba-tiles-s0.tiff",
+    "bytes": 8235,
+    "sha256": "51d8bee70f3d5b47d10348ea1fa4624db0404b4f573302e7b02e7584ad60baaf",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e8170bad8cf5fac52af5f02a58f6575d7bdb88e4792b13123b3779541d107267"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "cmyk-as-rgba-tiles-s1.tiff",
+    "bytes": 1477,
+    "sha256": "bd238e43a01353186d3dd9c1eb2a4fe2c282ccfb860df0e2aa8107884676e687",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "conflicting-tiles.tiff",
+    "bytes": 1271,
+    "sha256": "88248ae5a9e01bd7bb78b792e8c7a2ac68c3c7e24aa1846350fc44255ea1ad52",
+    "hash": null,
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": "ERROR: conflicting-tiles.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: file should contain either (StripByteCounts and StripOffsets) or (TileByteCounts and TileOffsets), other combination was found"
+  },
+  {
+    "name": "float8-format.tiff",
+    "bytes": 1241,
+    "sha256": "36d0f2210d32520d9fab22ecbd13b15026c1074f35291dc854e58e19f7e9025d",
+    "hash": null,
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": "ERROR: float8-format.tiff: Failed to calculate image fuzzy hash: Failed to load image: The decoder for Tiff does not support the format features Unhandled TIFF sample format 3 for 8 bits"
+  },
+  {
+    "name": "gray-1-photo-0.tiff",
+    "bytes": 799,
+    "sha256": "50d648ce3975baad653ed735e617d13e10d86cb50898dc636d92cfccdd4ae31b",
+    "hash": "c8e4c888f7565de8",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "8983a29780222f860631bda82040d400ab492dc65df69fb18264cfea356c02b6"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "gray-1-photo-1.tiff",
+    "bytes": 799,
+    "sha256": "0143c2b661b2738b225b5253c7640b4eda70e0347d17263c3f147bb05e3be59d",
+    "hash": "b71b377708a8a217",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "894824bb74fe11b87a2f42e54f3ec78a3f724d1f32a116a6450309c65ebb8cfa"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "gray-16-photo-0.tiff",
+    "bytes": 799,
+    "sha256": "60cc2bce4651796a69012dad2570f7317a8eeacaf83e4f604cbb7d897078b1ae",
+    "hash": "fc8e44d161f6c2b4",
+    "width": 8,
+    "height": 16,
+    "rgb": {
+      "bytes": 384,
+      "sha256": "00a79cf7b9e8fb5e4e0e0695586e1714f960a9961e9a1d21a5a1fa57d59ba617"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "gray-16-photo-1.tiff",
+    "bytes": 799,
+    "sha256": "620e8b082a1f09348cb273ee0d8938db314bf4287de4e40e888eedaf9aa5643c",
+    "hash": "8331bb2e9e093d4b",
+    "width": 8,
+    "height": 16,
+    "rgb": {
+      "bytes": 384,
+      "sha256": "5aa8abde266ce68bd8db293f2b07ab1c8623ad57c1686dd06acd9888e1999522"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t0-q31-s0.tiff",
+    "bytes": 1214,
+    "sha256": "14c7256b6a492eed750bfc4e6bf607b81f7b5d89ef26a43054ef32035ecef441",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ebd72f447b4874f2757a25e31d2464abcc2ae645081f8d559c1c58d073f3a42f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t0-q31-s1.tiff",
+    "bytes": 372,
+    "sha256": "97903dfa822f20025ba6dc236286f2ee2e5e0bb27d3fceeaeb2dd974df12ed28",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t0-q90-s0.tiff",
+    "bytes": 1952,
+    "sha256": "7e281dc451df09e14d811926ba5140af26fea028cef54ca193b6d5521b26d8b9",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3ce82143bcd871dd731ded5448e042bb33c259a799209830552b6ba0ac806496"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t0-q90-s1.tiff",
+    "bytes": 466,
+    "sha256": "5648ddea9ebfac736cba8b4a55d7c12f392aae0c161a4ff4ea5fcaf26b736332",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t1-q31-s0.tiff",
+    "bytes": 1091,
+    "sha256": "66dbb4da71b0acb3d8718128c151201070212282fccc24c5af5b5fac40cbe70b",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ebd72f447b4874f2757a25e31d2464abcc2ae645081f8d559c1c58d073f3a42f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t1-q31-s1.tiff",
+    "bytes": 389,
+    "sha256": "140c40cf05b3375caa2b611a5ddf9a75a9688ff04cf5eca68f1bce179dc04efa",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t1-q90-s0.tiff",
+    "bytes": 1829,
+    "sha256": "33a0e24d7e05f0390475a821656accff8d9df2c5db6766da39559e330770b0dc",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3ce82143bcd871dd731ded5448e042bb33c259a799209830552b6ba0ac806496"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t1-q90-s1.tiff",
+    "bytes": 481,
+    "sha256": "a80f577387ba829adb8496a37eb66475fa5006d0adf070d38b8e5918020494e9",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t2-q31-s0.tiff",
+    "bytes": 1274,
+    "sha256": "1bc70b67c5d6a2d1dbebee2e7899c066d35a734159f23f99d8306f2dc4985314",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ebd72f447b4874f2757a25e31d2464abcc2ae645081f8d559c1c58d073f3a42f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t2-q31-s1.tiff",
+    "bytes": 548,
+    "sha256": "737c766f859c89d8078cb5bcce9033470b14e88b580730c9781b3a46561b447a",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t2-q90-s0.tiff",
+    "bytes": 2118,
+    "sha256": "fbb6d76cffd0186b3816fe648e830eed7cda23d526dce9408563eabc05e18675",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3ce82143bcd871dd731ded5448e042bb33c259a799209830552b6ba0ac806496"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t2-q90-s1.tiff",
+    "bytes": 660,
+    "sha256": "1a9ebffa4859826b20904c8c2e719515f1cc19181332fd533c45e51b3a43c785",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t3-q31-s0.tiff",
+    "bytes": 1137,
+    "sha256": "e243ab6a7b49a6d19b2021297c84a545598716ad92be9343a9e6440d2dfec666",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ebd72f447b4874f2757a25e31d2464abcc2ae645081f8d559c1c58d073f3a42f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t3-q31-s1.tiff",
+    "bytes": 549,
+    "sha256": "a508693889970d82ed2c0bdfff98214a562c62c88a413284ae931b3d497a4272",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t3-q90-s0.tiff",
+    "bytes": 1979,
+    "sha256": "3a96965e4a8425fdd45e381f4a9bc8fefef771c9da0d8f6d3d36da7d8987e50d",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3ce82143bcd871dd731ded5448e042bb33c259a799209830552b6ba0ac806496"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-strips-t3-q90-s1.tiff",
+    "bytes": 661,
+    "sha256": "a283a38482ccfef949654ef794e26ee4dcb15e022bfd1505b09e4e482e0e38d5",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t0-q31-s0.tiff",
+    "bytes": 2304,
+    "sha256": "5f36a221d7cde6c2f064a394f657179af113a1903d9e617a4c8091a942e8d19a",
+    "hash": "f2442d8f7afee002",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "7ec6c8f4ef0ee9c09ed195eb29c196055a21836d98c319c586b72449279a33ec"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t0-q31-s1.tiff",
+    "bytes": 384,
+    "sha256": "dc0a73a0b6441ef842400b353a0422f1c453003be86001dbafcb6bdc48fe262d",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t0-q90-s0.tiff",
+    "bytes": 3166,
+    "sha256": "31ac4875387bf6743d87f946ceda1fe5117be7d4bc9d38c5a435af12b18b791b",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70e71d36b4056b8d2e8a8a8c6bddbeef3c5427a8d1c82b817ea5b776d7ed97f8"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t0-q90-s1.tiff",
+    "bytes": 478,
+    "sha256": "ab923e4c408451fcfae831f2998bd82247ce4f4f5508c6bfee43e7b9c2687efc",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t1-q31-s0.tiff",
+    "bytes": 1769,
+    "sha256": "d3b946d94e5d44952b95eb880609181d010fce6273d09f644295dbeff446c5fd",
+    "hash": "f2442d8f7afee002",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "7ec6c8f4ef0ee9c09ed195eb29c196055a21836d98c319c586b72449279a33ec"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t1-q31-s1.tiff",
+    "bytes": 401,
+    "sha256": "c5923ed9e111af9f37e6d42c0a5769064d9b2f019997bf8ed4faf2dbf30420c7",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t1-q90-s0.tiff",
+    "bytes": 2629,
+    "sha256": "46b9cde17537b8658ba28abfee05c481d5b5ee47293d9065109c3004f8e73910",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70e71d36b4056b8d2e8a8a8c6bddbeef3c5427a8d1c82b817ea5b776d7ed97f8"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t1-q90-s1.tiff",
+    "bytes": 493,
+    "sha256": "1a2ba30bc2aebed800da4689ea15671a724b4c94f08657dab2c537bd74078d7b",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t2-q31-s0.tiff",
+    "bytes": 2050,
+    "sha256": "ed25de3d348bf6ef07872291bb31e9f19a4e8290aef3e3907695382e35e5da41",
+    "hash": "f2442d8f7afee002",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "7ec6c8f4ef0ee9c09ed195eb29c196055a21836d98c319c586b72449279a33ec"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t2-q31-s1.tiff",
+    "bytes": 560,
+    "sha256": "1e663baa38248b4c55d6b3e0cf103a5113446e46de2ff0ee4b86507a23fa8fa4",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t2-q90-s0.tiff",
+    "bytes": 3068,
+    "sha256": "3ec205df8cef32dbacbc1eb807e7eed99edaec53e205801fadaff8979d9561ae",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70e71d36b4056b8d2e8a8a8c6bddbeef3c5427a8d1c82b817ea5b776d7ed97f8"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t2-q90-s1.tiff",
+    "bytes": 672,
+    "sha256": "349faa9dbd0d8d8009e8432167569dd891673cb33f54b14b0e74cb846a273e12",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t3-q31-s0.tiff",
+    "bytes": 1497,
+    "sha256": "e42ae2b45286506b095b675cd168859601787bdb68589e75ec862e9eabe80a83",
+    "hash": "f2442d8f7afee002",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "7ec6c8f4ef0ee9c09ed195eb29c196055a21836d98c319c586b72449279a33ec"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t3-q31-s1.tiff",
+    "bytes": 561,
+    "sha256": "79ca936c36402a21fc965966a0b45d2e31afa79e1897d4539320788d7b801170",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t3-q90-s0.tiff",
+    "bytes": 2517,
+    "sha256": "76ce9616e7822401d80b4770908a189c3111fb83d995d645f2597e62bd6e7fd3",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70e71d36b4056b8d2e8a8a8c6bddbeef3c5427a8d1c82b817ea5b776d7ed97f8"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-b-tiles-t3-q90-s1.tiff",
+    "bytes": 673,
+    "sha256": "606ded76885e815f46e32c3a3782a2a39b6ff034bcd3d014f06ed0d9d6358941",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t0-q31-s0.tiff",
+    "bytes": 1214,
+    "sha256": "c0cd79e68aef214d616fe85d5bb74f98570ce0e8ea9c89a660b45e7d4e5dd712",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ebd72f447b4874f2757a25e31d2464abcc2ae645081f8d559c1c58d073f3a42f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t0-q31-s1.tiff",
+    "bytes": 372,
+    "sha256": "8fb2c544a8c4008da34e47818d58d493bd58eeebec86d826edf1f58605b63291",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t0-q90-s0.tiff",
+    "bytes": 1952,
+    "sha256": "e7da1b2938f58edf6ebd968bcbab36f1f63ded75debd5ce36d2f841ced1d72b6",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3ce82143bcd871dd731ded5448e042bb33c259a799209830552b6ba0ac806496"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t0-q90-s1.tiff",
+    "bytes": 466,
+    "sha256": "0f7adbc5a7a51f37b0b361774b37ba8dd15ab4f6a6b3c9be2d5e08ea3b3d5ba8",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t1-q31-s0.tiff",
+    "bytes": 1091,
+    "sha256": "9f4036d892329cbae7ef2de55997b65334fd1b1a0346e8f3788536bdc7c96f20",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ebd72f447b4874f2757a25e31d2464abcc2ae645081f8d559c1c58d073f3a42f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t1-q31-s1.tiff",
+    "bytes": 389,
+    "sha256": "4054b721d93f1967dbee4933f1860afea9d0328345a3c0146676020a7938944e",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t1-q90-s0.tiff",
+    "bytes": 1829,
+    "sha256": "5520332b85effc5f9fe3495667b87ec6ea836561dd49136ad3f4bff4abbd86c3",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3ce82143bcd871dd731ded5448e042bb33c259a799209830552b6ba0ac806496"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t1-q90-s1.tiff",
+    "bytes": 481,
+    "sha256": "544bc068560bc9b99bf1bd4fc702dfb8d2490ec5cd6fdcf62a28f263c7c46c2a",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t2-q31-s0.tiff",
+    "bytes": 1274,
+    "sha256": "7e4c8eb794fac6f78f1e11bb3220d3465c553dcc89ea4008811800dff67d30fb",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ebd72f447b4874f2757a25e31d2464abcc2ae645081f8d559c1c58d073f3a42f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t2-q31-s1.tiff",
+    "bytes": 548,
+    "sha256": "fe73f2ba19a68f352de97ed33f13a93107c4da709a36566adf37baa071119c6e",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t2-q90-s0.tiff",
+    "bytes": 2118,
+    "sha256": "4f20c944a1399ccc5486d2e218611f531f7dfc8ceaae0018d32ad2404a34aad4",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3ce82143bcd871dd731ded5448e042bb33c259a799209830552b6ba0ac806496"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t2-q90-s1.tiff",
+    "bytes": 660,
+    "sha256": "390330e8b3bb6b4a93b84e5a1e55826258cbe41c8567a58bc7ffeb8d89cb96f0",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t3-q31-s0.tiff",
+    "bytes": 1137,
+    "sha256": "406a2d116e38eef44063ee434b83987a530213a99d805d844f0e3b896d2d7273",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ebd72f447b4874f2757a25e31d2464abcc2ae645081f8d559c1c58d073f3a42f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t3-q31-s1.tiff",
+    "bytes": 549,
+    "sha256": "946a252f192acab6f33feac90c34d37388a35c68ed1c6d60512436f5bfb4a4c5",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t3-q90-s0.tiff",
+    "bytes": 1979,
+    "sha256": "71376dc7be5b8cd87ec555b5e98b6e320d02bc20926444f962ed7739d009deb4",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3ce82143bcd871dd731ded5448e042bb33c259a799209830552b6ba0ac806496"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-strips-t3-q90-s1.tiff",
+    "bytes": 661,
+    "sha256": "d1fba7db874466a9a9d67548fbdf29a2a544d70de2286832dbcd170db30a3506",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t0-q31-s0.tiff",
+    "bytes": 2304,
+    "sha256": "0d0cb543f1947e3cc8370914e618b8b2fb9adc9b170a5eca1759de20a4ee6270",
+    "hash": "f2442d8f7afee002",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "7ec6c8f4ef0ee9c09ed195eb29c196055a21836d98c319c586b72449279a33ec"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t0-q31-s1.tiff",
+    "bytes": 384,
+    "sha256": "d81f259fc676ae3ab39034a3fa57ecdc1d914823ef80d4628199b1778450dff3",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t0-q90-s0.tiff",
+    "bytes": 3166,
+    "sha256": "580bc60eb221fc8aaacd1c36c66b7ba2cc919cb4c5215ae25fb8411637705eb3",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70e71d36b4056b8d2e8a8a8c6bddbeef3c5427a8d1c82b817ea5b776d7ed97f8"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t0-q90-s1.tiff",
+    "bytes": 478,
+    "sha256": "01fc573d0b73fdf2c15a4ee62b1df31dfb68ce43411ad10e54b2b17bf2bda7a7",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t1-q31-s0.tiff",
+    "bytes": 1769,
+    "sha256": "bacfeb433e970d5c58441c865b38861d0bbed6a45220835d0d588c92763e5f9f",
+    "hash": "f2442d8f7afee002",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "7ec6c8f4ef0ee9c09ed195eb29c196055a21836d98c319c586b72449279a33ec"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t1-q31-s1.tiff",
+    "bytes": 401,
+    "sha256": "1a4ecf3fc63a059f8ce65f8d4d56434573b8a3f5e563a0f2713a04c5efc46cc4",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t1-q90-s0.tiff",
+    "bytes": 2629,
+    "sha256": "489841360bd339fff53837967276d07027d79d7bd2b51951b9749506e49699a8",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70e71d36b4056b8d2e8a8a8c6bddbeef3c5427a8d1c82b817ea5b776d7ed97f8"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t1-q90-s1.tiff",
+    "bytes": 493,
+    "sha256": "6bace2dae9bfd5bf34981055409c686b4022c2547cbf1179c6f349f1b176a5f8",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t2-q31-s0.tiff",
+    "bytes": 2050,
+    "sha256": "d19e2943b38bd9a6e34ce9d87b981a4a955a396ded7fd8563a91c511e51a94d0",
+    "hash": "f2442d8f7afee002",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "7ec6c8f4ef0ee9c09ed195eb29c196055a21836d98c319c586b72449279a33ec"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t2-q31-s1.tiff",
+    "bytes": 560,
+    "sha256": "4e692409286d65960ed79481e56b88387e193aa3cf75577e1d6218b4cceda47a",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t2-q90-s0.tiff",
+    "bytes": 3068,
+    "sha256": "b44a8f6441acbfd91e644babafa7a503339a3c76b06e284b888af70000f074d4",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70e71d36b4056b8d2e8a8a8c6bddbeef3c5427a8d1c82b817ea5b776d7ed97f8"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t2-q90-s1.tiff",
+    "bytes": 672,
+    "sha256": "41964989cbaa907c40b5eae6fcc5d1d0d041d65f27cad73d90478341d6cda4ef",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t3-q31-s0.tiff",
+    "bytes": 1497,
+    "sha256": "11ce3830130d8024d271472369c8e44e31220c45dc6e4b5291381b4d96736095",
+    "hash": "f2442d8f7afee002",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "7ec6c8f4ef0ee9c09ed195eb29c196055a21836d98c319c586b72449279a33ec"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t3-q31-s1.tiff",
+    "bytes": 561,
+    "sha256": "e8ca519a48affe8a6d474565c5bb2c8daea9cfaf8e0a2c2a8c80e7701ffb2ecc",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "e599648bd5de619e49496e58f66b15567dd78067ddf1869de7ebebfcfd17e4f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t3-q90-s0.tiff",
+    "bytes": 2517,
+    "sha256": "b3b377a843677a881eabbb0cd9dacff909e6b4cb0ebebcad9187b2b24e41fb96",
+    "hash": "f2442d8f78fee003",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70e71d36b4056b8d2e8a8a8c6bddbeef3c5427a8d1c82b817ea5b776d7ed97f8"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-1-l-tiles-t3-q90-s1.tiff",
+    "bytes": 673,
+    "sha256": "5c7a6cd296f4bff659f3db7380772b8c8193d69be28f50db22595ef6d1a93cf6",
+    "hash": "84738b6492abf4d3",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "9c4507a2fa86acfc5b224e7c0b3c80a8a3f4a0be5c688409827440569a77b386"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t0-q31-s0.tiff",
+    "bytes": 2456,
+    "sha256": "8b96d05ca21cb14b50e5149aff3cb623ebd46076618ab5e8978e7f88b4198a0c",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "887f469c2c2528b98f92a588a4e952a6880479c8f18187ebef3a8b8580220331"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t0-q31-s1.tiff",
+    "bytes": 566,
+    "sha256": "8b68baab51549600429791d8b636763fde5441361614a0377a02368559b8ce44",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t0-q90-s0.tiff",
+    "bytes": 4688,
+    "sha256": "96950cce11f9ce5b89b12a0b44349991b859a51d20293dbb9aa1da128c41561e",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bcaa4aabd72b87ceefdb14e66fec4cd37fe961fb2ca71404682407c0ef1ac459"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t0-q90-s1.tiff",
+    "bytes": 854,
+    "sha256": "1d729f50318ab49cc44beebc26a273c9128db0e20361ac4f7e0bfec8efbf083b",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t1-q31-s0.tiff",
+    "bytes": 2333,
+    "sha256": "7697d0f4038221664aa09860e9534ea5410e9a02b48f6f85e95a9ec5a24ebb7c",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "887f469c2c2528b98f92a588a4e952a6880479c8f18187ebef3a8b8580220331"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t1-q31-s1.tiff",
+    "bytes": 581,
+    "sha256": "d8ebd6c1c6301ad849989ebee37e11886f70e148e7bab1d9422113fcb9ba1050",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t1-q90-s0.tiff",
+    "bytes": 4565,
+    "sha256": "e849468d26ce8ea7ec8edb1567db14173f01d09c2e05c397f22a6ad74d9ec3ef",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bcaa4aabd72b87ceefdb14e66fec4cd37fe961fb2ca71404682407c0ef1ac459"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t1-q90-s1.tiff",
+    "bytes": 871,
+    "sha256": "5bc23847e6e9762330bb7b4e15f541800d72aa32b1c408fe5d11bb67d9ea9200",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t2-q31-s0.tiff",
+    "bytes": 2540,
+    "sha256": "f6066537de883ad60822632c7a30a4a4b6e113756d7ed031c7c949b88ee8dfd7",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "887f469c2c2528b98f92a588a4e952a6880479c8f18187ebef3a8b8580220331"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t2-q31-s1.tiff",
+    "bytes": 742,
+    "sha256": "40cd705d0748b89ff35b83afe0428dd10e22a44de7f05973a0b4ef8ed30c706f",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t2-q90-s0.tiff",
+    "bytes": 5098,
+    "sha256": "a4987f1ee3de857c7147ec7c02150e831f64e6a2fe10f5e601c024837df6d697",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bcaa4aabd72b87ceefdb14e66fec4cd37fe961fb2ca71404682407c0ef1ac459"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t2-q90-s1.tiff",
+    "bytes": 1086,
+    "sha256": "1f9ee7a77f6175f06f4544e6842a982e521478f524ac8db08bf37444a63bf555",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t3-q31-s0.tiff",
+    "bytes": 2401,
+    "sha256": "c2f8a7b9d8f17d22873d8898745e83412dd4fef2e0a051acf0baf18d5e161668",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "887f469c2c2528b98f92a588a4e952a6880479c8f18187ebef3a8b8580220331"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t3-q31-s1.tiff",
+    "bytes": 741,
+    "sha256": "b2c9cd435e1167b44eda6eb41dac52d5c537ff6427bbd18c0f68f481c6bf14f7",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t3-q90-s0.tiff",
+    "bytes": 4961,
+    "sha256": "7677ff9f1c57cf33a808b47f6fba398dd1294d66f8e4e4ddb33c2f9f86d448ad",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bcaa4aabd72b87ceefdb14e66fec4cd37fe961fb2ca71404682407c0ef1ac459"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-strips-t3-q90-s1.tiff",
+    "bytes": 1085,
+    "sha256": "4091ea4141bf79ebfaba6ea02c33e3bb9afe5ba795c855297b56d8878308121c",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t0-q31-s0.tiff",
+    "bytes": 3928,
+    "sha256": "0c5363dfb267b1f2ea8df7fd453e96db837eb980a3f9c57ec32c5c5ac0e459f5",
+    "hash": "c21e2da9687ee85a",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c16ad1998ba42fa8b563bcad85e3ca95034f5ba2b55ed1886b92a91d91d1eb25"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t0-q31-s1.tiff",
+    "bytes": 578,
+    "sha256": "d4eb6ab6348c60cdc35952e20b3095ab14bf6c8d5eed9861c509b3f97a7f2a0d",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t0-q90-s0.tiff",
+    "bytes": 6556,
+    "sha256": "32e36e506d7262dca1b1459f44281823862df21f096e6d75b2f7752d82b9a1ba",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e8170bad8cf5fac52af5f02a58f6575d7bdb88e4792b13123b3779541d107267"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t0-q90-s1.tiff",
+    "bytes": 866,
+    "sha256": "0c84e6699198d37fc74d441dad24bd4d606b8cc3899f90f6a331297b3fed2944",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t1-q31-s0.tiff",
+    "bytes": 3391,
+    "sha256": "b3f949cc031b01ff27888da65176245d7c315ee456a26d3e6a45b2215687132c",
+    "hash": "c21e2da9687ee85a",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c16ad1998ba42fa8b563bcad85e3ca95034f5ba2b55ed1886b92a91d91d1eb25"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t1-q31-s1.tiff",
+    "bytes": 593,
+    "sha256": "89e1792482e85db6a4be5abc5a970d5a3681644c02a7c43a6fdf6a8b538b9a80",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t1-q90-s0.tiff",
+    "bytes": 6021,
+    "sha256": "c4d3da4263679ef916d76c566e1a7117e9e72c138997187b9c1bece78bafde68",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e8170bad8cf5fac52af5f02a58f6575d7bdb88e4792b13123b3779541d107267"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t1-q90-s1.tiff",
+    "bytes": 883,
+    "sha256": "da8cb9f63f495f24e2aaca78c2e6cfa9d290846b8155d74544dec7edba78d3e1",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t2-q31-s0.tiff",
+    "bytes": 3676,
+    "sha256": "05f3d9f34c4cae7b97d2d0cdf20f2d45e0dca9ca8a138f43fb6daead8ff64657",
+    "hash": "c21e2da9687ee85a",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c16ad1998ba42fa8b563bcad85e3ca95034f5ba2b55ed1886b92a91d91d1eb25"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t2-q31-s1.tiff",
+    "bytes": 754,
+    "sha256": "2c6ad19a3c68adcb582b5e4198a15b112a7a78001a191a89c2774cd9ba54825c",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t2-q90-s0.tiff",
+    "bytes": 6754,
+    "sha256": "9b67888cd707c281aab72be728bce692da027c3d9206135abdfc73c79ced08f2",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e8170bad8cf5fac52af5f02a58f6575d7bdb88e4792b13123b3779541d107267"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t2-q90-s1.tiff",
+    "bytes": 1098,
+    "sha256": "7aed45cfc02380bd6ffbfc09d157e52d2ce23f912194103815b0a3fb32e4551f",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t3-q31-s0.tiff",
+    "bytes": 3125,
+    "sha256": "dd0d77387a2e7784c4aa9b915c2e0286cb6ab9903c76152daff30d76d2ebad75",
+    "hash": "c21e2da9687ee85a",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c16ad1998ba42fa8b563bcad85e3ca95034f5ba2b55ed1886b92a91d91d1eb25"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t3-q31-s1.tiff",
+    "bytes": 753,
+    "sha256": "d5378287657bad57f25d05362bd04949a210c4ad4be7bd7a14f4f3012f65ef49",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t3-q90-s0.tiff",
+    "bytes": 6203,
+    "sha256": "fcb45be05c90da914855dac5f10daa5017a66cfcd3bd0a4f0255c67628728e3f",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e8170bad8cf5fac52af5f02a58f6575d7bdb88e4792b13123b3779541d107267"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-b-tiles-t3-q90-s1.tiff",
+    "bytes": 1097,
+    "sha256": "42feca790c09220bc6607404ad76202c8d1dfdbda6f000edaf719b620f77f23f",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t0-q31-s0.tiff",
+    "bytes": 2456,
+    "sha256": "ba69375b157f1665b2b8f5907613f86a26727305c60d03fc948f66143be3eb49",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "887f469c2c2528b98f92a588a4e952a6880479c8f18187ebef3a8b8580220331"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t0-q31-s1.tiff",
+    "bytes": 566,
+    "sha256": "ab4f803ae416060149b65f376aaed61414291230c53f82d048f45e0bfa1cb83b",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t0-q90-s0.tiff",
+    "bytes": 4688,
+    "sha256": "64857c6b12531a4a891c73681ba74fcda1f9831f69bfc3fc21a87c5310e0a958",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bcaa4aabd72b87ceefdb14e66fec4cd37fe961fb2ca71404682407c0ef1ac459"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t0-q90-s1.tiff",
+    "bytes": 854,
+    "sha256": "f269d8bbf0f5c05b3eb0773ea1d6e1ab19637a42834a48d959dd535e7b1241cc",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t1-q31-s0.tiff",
+    "bytes": 2333,
+    "sha256": "26ea2708d676fa0d5e352444d4b6bf7e072fc21fe654b623fbf7092e8f2621da",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "887f469c2c2528b98f92a588a4e952a6880479c8f18187ebef3a8b8580220331"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t1-q31-s1.tiff",
+    "bytes": 581,
+    "sha256": "f54ee78704d4104cec998c026afbd846a9b3c59b1cce4afc9b362398892a4057",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t1-q90-s0.tiff",
+    "bytes": 4565,
+    "sha256": "17f26a7646076fb95744bf77fd491c314cde52f17b342633126d46bca41e185f",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bcaa4aabd72b87ceefdb14e66fec4cd37fe961fb2ca71404682407c0ef1ac459"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t1-q90-s1.tiff",
+    "bytes": 871,
+    "sha256": "4783f469cd8e50f6883cc938d7f51b52e2601062f6593ecf5d68466d3785790c",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t2-q31-s0.tiff",
+    "bytes": 2540,
+    "sha256": "eb02a6ad9457e0a4cf7e330243f60110937ee4a797c95c4a3c42a66bc3d74515",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "887f469c2c2528b98f92a588a4e952a6880479c8f18187ebef3a8b8580220331"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t2-q31-s1.tiff",
+    "bytes": 742,
+    "sha256": "f140a6bde1c75b36cac0fcedf9071664101d95eb831f8561376b40c07b23ec4c",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t2-q90-s0.tiff",
+    "bytes": 5098,
+    "sha256": "860cd87f6e5318abdfb09d79257ed8ce41b2b127076595d93df85b489089cbc3",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bcaa4aabd72b87ceefdb14e66fec4cd37fe961fb2ca71404682407c0ef1ac459"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t2-q90-s1.tiff",
+    "bytes": 1086,
+    "sha256": "e6ca3a7d58fa3b766973a80da6d044fad4e1ea42a6457c2db0c883c2d60c75d2",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t3-q31-s0.tiff",
+    "bytes": 2401,
+    "sha256": "2c2d2a9450583f0245213392fd73edd92b0ce9fb016f7299b3c3d4baccaf1596",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "887f469c2c2528b98f92a588a4e952a6880479c8f18187ebef3a8b8580220331"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t3-q31-s1.tiff",
+    "bytes": 741,
+    "sha256": "104983e3a23ad979a629ff01f5282139fdc26bae1ec67a7713e6e3d120b9e0ea",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t3-q90-s0.tiff",
+    "bytes": 4961,
+    "sha256": "80ce2a09a66d2e75f9daab26a45d4fab4b7b10c65fff7b014a9eee9b791705ac",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bcaa4aabd72b87ceefdb14e66fec4cd37fe961fb2ca71404682407c0ef1ac459"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-strips-t3-q90-s1.tiff",
+    "bytes": 1085,
+    "sha256": "d344ab468960799beee6556f0497c79a971066b66450eff1d4136e23543c0864",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t0-q31-s0.tiff",
+    "bytes": 3928,
+    "sha256": "1ea159a8ed1d69f6e1361dd9d775b8e5e82cc36b2ba295f454c6efa6f67314c4",
+    "hash": "c21e2da9687ee85a",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c16ad1998ba42fa8b563bcad85e3ca95034f5ba2b55ed1886b92a91d91d1eb25"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t0-q31-s1.tiff",
+    "bytes": 578,
+    "sha256": "986f1078ba7a5548afdafa73b6e8c50fbc256df3da9def869d649f434d54e9c3",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t0-q90-s0.tiff",
+    "bytes": 6556,
+    "sha256": "b4eaedb508b0cdf0ae600a0b74e9cf2b95efa700d0d7e8acca8235671c410951",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e8170bad8cf5fac52af5f02a58f6575d7bdb88e4792b13123b3779541d107267"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t0-q90-s1.tiff",
+    "bytes": 866,
+    "sha256": "ad71496512272c65d5cc1024e7b0da24370fc948c337d1975bba3bc7572f25f5",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t1-q31-s0.tiff",
+    "bytes": 3391,
+    "sha256": "85f452ed60d8051762b2094c89d81f4e7877c2902f0f4bc1b6f38d721efd18cf",
+    "hash": "c21e2da9687ee85a",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c16ad1998ba42fa8b563bcad85e3ca95034f5ba2b55ed1886b92a91d91d1eb25"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t1-q31-s1.tiff",
+    "bytes": 593,
+    "sha256": "71618c8d719a9dac3a5e13506429e8ec914963d755c4ff371873f58d2791bdb6",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t1-q90-s0.tiff",
+    "bytes": 6021,
+    "sha256": "169dd78e2c534d6011cf3aee76e45ffaa01a54d66232335bc84c85a3d1796429",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e8170bad8cf5fac52af5f02a58f6575d7bdb88e4792b13123b3779541d107267"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t1-q90-s1.tiff",
+    "bytes": 883,
+    "sha256": "7f1bd01445ba1498d9364dbc4f5942d46aecf461226dedce435fd0c743b3e443",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t2-q31-s0.tiff",
+    "bytes": 3676,
+    "sha256": "b8c0935b0fb2164023daa29a319379bfac30c08735d66263fd77185778ee9486",
+    "hash": "c21e2da9687ee85a",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c16ad1998ba42fa8b563bcad85e3ca95034f5ba2b55ed1886b92a91d91d1eb25"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t2-q31-s1.tiff",
+    "bytes": 754,
+    "sha256": "aadbfcfc0695b06c96b0faec7852087a99ed350b56e3f0ef5088d7dd29b6946c",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t2-q90-s0.tiff",
+    "bytes": 6754,
+    "sha256": "8dd6be4fb56bb234f8bfa0887d800ba7c9200285be34d25e2f1d9fdbbdccf3d8",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e8170bad8cf5fac52af5f02a58f6575d7bdb88e4792b13123b3779541d107267"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t2-q90-s1.tiff",
+    "bytes": 1098,
+    "sha256": "81075c1ed75a503e9e38b59aded1d0a0a307a4c0ab38bb097e961023a84c918a",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t3-q31-s0.tiff",
+    "bytes": 3125,
+    "sha256": "daf49a2966fc20bcf3d6ca7722994b11ea6efb91b1ee3c291f85cfb96c1af5f4",
+    "hash": "c21e2da9687ee85a",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c16ad1998ba42fa8b563bcad85e3ca95034f5ba2b55ed1886b92a91d91d1eb25"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t3-q31-s1.tiff",
+    "bytes": 753,
+    "sha256": "8eb90dc7ae8c1f6ae2d5b34e5ba2e272181b71b57ebcb3c8c1b3c32fad411d35",
+    "hash": "b839e363962ae833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "54618e5e1f8fd6db7bbeaf92b3356e3d6b396a11e14298566764a759ebe8347c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t3-q90-s0.tiff",
+    "bytes": 6203,
+    "sha256": "07178b73763f3dbf899f769b60e9d074bc50200fe27a73df23a9db855b3ffbf8",
+    "hash": "c21e2da9687ef858",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e8170bad8cf5fac52af5f02a58f6575d7bdb88e4792b13123b3779541d107267"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-2-l-tiles-t3-q90-s1.tiff",
+    "bytes": 1097,
+    "sha256": "04458b2343a8b48b67c6addcd6002c762397bfe30f173b27816f9bd3a606551b",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t0-q31-s0.tiff",
+    "bytes": 3080,
+    "sha256": "766fb3a26e17c3a499f97cfc99ace31fbb1282c3e3543e2ff923a0f4296c9464",
+    "hash": "e4bfe2b42eb02646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ac212e9983acfbd3fbadfaca3043a92f9f810ca1a77e7c6e193c29a0c828a43d"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t0-q31-s1.tiff",
+    "bytes": 670,
+    "sha256": "551e71731571e91c04c456a35712d144acf5ce857c78bbc0f9c38b989d33af65",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t0-q90-s0.tiff",
+    "bytes": 6074,
+    "sha256": "9bf81cf26bb2d353167938eeece8e88932a03e518a0e3f2bf16561cb3bc06e09",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1824c438d84a0a448294d8c985a84dc8fba2b3d78efd547676a1a4a681f68672"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t0-q90-s1.tiff",
+    "bytes": 1060,
+    "sha256": "e4c39faaa3e277aeba9192e2f73058adeee46fae9ef219bae2b18d100d98f05a",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t1-q31-s0.tiff",
+    "bytes": 2959,
+    "sha256": "d98be734242e6b539b2171e8af83aed098e169d212a59fbce6be1ada35b927c5",
+    "hash": "e4bfe2b42eb02646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ac212e9983acfbd3fbadfaca3043a92f9f810ca1a77e7c6e193c29a0c828a43d"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t1-q31-s1.tiff",
+    "bytes": 685,
+    "sha256": "6e6d4ae63fb30a32b6642ccd85f628a8ecf912d470163fe9b480c8d0614d5d12",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t1-q90-s0.tiff",
+    "bytes": 5953,
+    "sha256": "066c57f81de3d3e41718b9cdb5e0c709c0baacb8d31910160849a3635f3b2dab",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1824c438d84a0a448294d8c985a84dc8fba2b3d78efd547676a1a4a681f68672"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t1-q90-s1.tiff",
+    "bytes": 1077,
+    "sha256": "f250d9ccd6966aec252253a8ced8d1d39c6926fa7929756630180cb71096ac51",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t2-q31-s0.tiff",
+    "bytes": 3170,
+    "sha256": "560b9edb309bacbb588eb28f781c8067d3333c42d078f1f9cee654767bf1af76",
+    "hash": "e4bfe2b42eb02646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ac212e9983acfbd3fbadfaca3043a92f9f810ca1a77e7c6e193c29a0c828a43d"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t2-q31-s1.tiff",
+    "bytes": 844,
+    "sha256": "6abf57749b8886a1975548260b666a769840349461934218d3a23920c534078c",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t2-q90-s0.tiff",
+    "bytes": 6590,
+    "sha256": "244b704882415c19b4e77c4482e884c3c3bdb883253a46097fe1bc29d43d627d",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1824c438d84a0a448294d8c985a84dc8fba2b3d78efd547676a1a4a681f68672"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t2-q90-s1.tiff",
+    "bytes": 1302,
+    "sha256": "348e90274031bb268c7a0b2427867c7a35b84e9015a40f992d2e42b5d05f3c5b",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t3-q31-s0.tiff",
+    "bytes": 3033,
+    "sha256": "ffa0aa9a238bd114846acbba59896acd9c1555a80e51a284ff8eba412ebc8c91",
+    "hash": "e4bfe2b42eb02646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ac212e9983acfbd3fbadfaca3043a92f9f810ca1a77e7c6e193c29a0c828a43d"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t3-q31-s1.tiff",
+    "bytes": 843,
+    "sha256": "36b56b33c82ee1bbeea51d2e3e87110dabb7aba51edc7fb627a6a451ed839565",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t3-q90-s0.tiff",
+    "bytes": 6453,
+    "sha256": "21897cb3d32f3c40576f2dfd0dc3ab281c65d4e81fb5d8936e899b7acd873306",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1824c438d84a0a448294d8c985a84dc8fba2b3d78efd547676a1a4a681f68672"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-strips-t3-q90-s1.tiff",
+    "bytes": 1303,
+    "sha256": "7c5aeb1a1d9b7fe60e3e80d0d7c78698c5950e69531d601b264750554cdfae60",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t0-q31-s0.tiff",
+    "bytes": 4736,
+    "sha256": "01be083b2c1c6101665df9c0cc41891cd488b02da5d6bfa545fd28b12f38bba6",
+    "hash": "e4bfe6b40eb40646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "085bebfc012fed3cb31c483c4f80a6f2bbb996c23624e4f07bbbcb51acbaec89"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t0-q31-s1.tiff",
+    "bytes": 682,
+    "sha256": "94258125456c86b90d36b1e6f21ea8781f046ca05e93f001c58ad1cf379fc2a1",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t0-q90-s0.tiff",
+    "bytes": 8262,
+    "sha256": "6614410881db52b4b64509caaa391169d4d3be9c900025504af91308dbd4e8b6",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "9b86e63550d10b807e59ba4723b7231aba76e8670ba3a45774576e5a0bc83d45"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t0-q90-s1.tiff",
+    "bytes": 1072,
+    "sha256": "7764ac921efdd2ea10c8fe3001f3ad52c836c74759c56f7291da1760a5c58863",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t1-q31-s0.tiff",
+    "bytes": 4199,
+    "sha256": "7f749f5444e9f5337ae0c3b98492952b081fc82d86c4b8a51d2547725cfc7287",
+    "hash": "e4bfe6b40eb40646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "085bebfc012fed3cb31c483c4f80a6f2bbb996c23624e4f07bbbcb51acbaec89"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t1-q31-s1.tiff",
+    "bytes": 697,
+    "sha256": "df4ab309d835c5574cc6f65d821ac433587cb25d59d4de7d2ff28b7a60212df6",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t1-q90-s0.tiff",
+    "bytes": 7727,
+    "sha256": "edff331a71165fdf187e1546b90e6f39c7f7936c37eedd0ebbc835d104ac217e",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "9b86e63550d10b807e59ba4723b7231aba76e8670ba3a45774576e5a0bc83d45"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t1-q90-s1.tiff",
+    "bytes": 1089,
+    "sha256": "a46639acd67bb65d5d1bd8cc29524d1b39f5937173ec754790cef0997503e955",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t2-q31-s0.tiff",
+    "bytes": 4486,
+    "sha256": "1d6b8a45cee259b3fef94b8af868746c5cc5ede4ab6e91a1e14f623f0f1695a3",
+    "hash": "e4bfe6b40eb40646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "085bebfc012fed3cb31c483c4f80a6f2bbb996c23624e4f07bbbcb51acbaec89"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t2-q31-s1.tiff",
+    "bytes": 856,
+    "sha256": "5a7afd333c99b1decfd5febcf43789aeb8167138470d70149e027e3833e7251e",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t2-q90-s0.tiff",
+    "bytes": 8624,
+    "sha256": "3c1a845887c5328301be5388f5f5074b299fb7386d109907f4651c9e75e28c53",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "9b86e63550d10b807e59ba4723b7231aba76e8670ba3a45774576e5a0bc83d45"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t2-q90-s1.tiff",
+    "bytes": 1314,
+    "sha256": "9f5e9f7e180ed6e4455c3030485aceb44f1c005497d158a3133d44b4deec0906",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t3-q31-s0.tiff",
+    "bytes": 3933,
+    "sha256": "23357ba1eee590ed58db41faf77d319332f0dbfd7169e474339c95e020c587e1",
+    "hash": "e4bfe6b40eb40646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "085bebfc012fed3cb31c483c4f80a6f2bbb996c23624e4f07bbbcb51acbaec89"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t3-q31-s1.tiff",
+    "bytes": 855,
+    "sha256": "e68497dee0a4d30bf024dbae8763d6cd07213b45fa42be11ef25160b4ff69e85",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t3-q90-s0.tiff",
+    "bytes": 8073,
+    "sha256": "16bdd423561f905a71cd5f1caacb6cc541c081cdadff7bf94c8324a1e5d13939",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "9b86e63550d10b807e59ba4723b7231aba76e8670ba3a45774576e5a0bc83d45"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-b-tiles-t3-q90-s1.tiff",
+    "bytes": 1315,
+    "sha256": "a97b512d0e5ffffa7b836a816f0be16928e826f259b14d4ce70416d53baf89cc",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t0-q31-s0.tiff",
+    "bytes": 3080,
+    "sha256": "7f20b1ae7496eee0ba0d58410a1c774e22d20e3340383cb00bec6299bb9c606b",
+    "hash": "e4bfe2b42eb02646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ac212e9983acfbd3fbadfaca3043a92f9f810ca1a77e7c6e193c29a0c828a43d"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t0-q31-s1.tiff",
+    "bytes": 670,
+    "sha256": "d91fea5bd0689c31cbd7746e24baa202a59950b3ee326a8301fcd8441b9eb396",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t0-q90-s0.tiff",
+    "bytes": 6074,
+    "sha256": "a395966961d94f52ccbbfcd92b9fdd875de46e900eeac8ff3e8e90facfc82aab",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1824c438d84a0a448294d8c985a84dc8fba2b3d78efd547676a1a4a681f68672"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t0-q90-s1.tiff",
+    "bytes": 1060,
+    "sha256": "0aeb9cb3801de24429b1dfd2c82bfe04225631beba11fc53bd3ef27cc4664913",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t1-q31-s0.tiff",
+    "bytes": 2959,
+    "sha256": "bd61ef50a2cae38837cc682d49904951bb135beb1757f8f76d30402c4c505c8d",
+    "hash": "e4bfe2b42eb02646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ac212e9983acfbd3fbadfaca3043a92f9f810ca1a77e7c6e193c29a0c828a43d"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t1-q31-s1.tiff",
+    "bytes": 685,
+    "sha256": "c210c15022bed36547957e52d227ebf48a540c6371f6120bd13050028af43213",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t1-q90-s0.tiff",
+    "bytes": 5953,
+    "sha256": "f8359d1da44061ea337a863dfe8d8f649d4f8646ea0d8b92b3f6d4d11d419de3",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1824c438d84a0a448294d8c985a84dc8fba2b3d78efd547676a1a4a681f68672"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t1-q90-s1.tiff",
+    "bytes": 1077,
+    "sha256": "ea5259dc23d158509865baa2a1d37bd89e2e28d7058cd88b573de7cf796bf2ce",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t2-q31-s0.tiff",
+    "bytes": 3170,
+    "sha256": "474c1427612214d547c4e4e62517f7c4a5a06ea967e1ecdd49190743113632b4",
+    "hash": "e4bfe2b42eb02646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ac212e9983acfbd3fbadfaca3043a92f9f810ca1a77e7c6e193c29a0c828a43d"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t2-q31-s1.tiff",
+    "bytes": 844,
+    "sha256": "f29c52c048f521d5ce064b7ebf84054cb490c595e18c2de081c550285cbc909c",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t2-q90-s0.tiff",
+    "bytes": 6590,
+    "sha256": "6040ffbe6f9abfa38b27da61f406eebac5f5411133377afde8f8da24a926d161",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1824c438d84a0a448294d8c985a84dc8fba2b3d78efd547676a1a4a681f68672"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t2-q90-s1.tiff",
+    "bytes": 1302,
+    "sha256": "2fe20dc64105d2577a9b8857bbd33d18d6d69abbed91921e15bc89b4f26bf128",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t3-q31-s0.tiff",
+    "bytes": 3033,
+    "sha256": "55554e0eaa7684c3112c933a335c45fe01f1561abdbdc7305306a0844b7397ae",
+    "hash": "e4bfe2b42eb02646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ac212e9983acfbd3fbadfaca3043a92f9f810ca1a77e7c6e193c29a0c828a43d"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t3-q31-s1.tiff",
+    "bytes": 843,
+    "sha256": "ab049d81f46e3e838667ecde6a36081d0fd0fd9dc12dcd4fa6c04b0403e08e91",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t3-q90-s0.tiff",
+    "bytes": 6453,
+    "sha256": "c480f6f03f83f59cccf4f6d269d2486d41c20ba8beff1c6891144da1c573f70a",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1824c438d84a0a448294d8c985a84dc8fba2b3d78efd547676a1a4a681f68672"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-strips-t3-q90-s1.tiff",
+    "bytes": 1303,
+    "sha256": "340a68e892b9403d35de6f99f2021e49a129ddddddc931dd7b529964130c8e5d",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t0-q31-s0.tiff",
+    "bytes": 4736,
+    "sha256": "301d522e4519da50ab41168c15a082fa5d60d00838a9b7ef9c006310fae569f0",
+    "hash": "e4bfe6b40eb40646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "085bebfc012fed3cb31c483c4f80a6f2bbb996c23624e4f07bbbcb51acbaec89"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t0-q31-s1.tiff",
+    "bytes": 682,
+    "sha256": "21309698d49128ca89e5ebe6eaccdf7941d96e42ae9263f98cafa81455799667",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t0-q90-s0.tiff",
+    "bytes": 8262,
+    "sha256": "f22c49e1f03ab52071115abd6f7a25b84744415a060a9e3f6b055dbff4ea4425",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "9b86e63550d10b807e59ba4723b7231aba76e8670ba3a45774576e5a0bc83d45"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t0-q90-s1.tiff",
+    "bytes": 1072,
+    "sha256": "ca50d85cdc6143c64bdbba3218778eb028506dd2d3c1a5db3877536bf7a39899",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t1-q31-s0.tiff",
+    "bytes": 4199,
+    "sha256": "70c987d8a171445b5e4be313c7ddd1761ec5649c7f9b1ec0e7a1611436deaff5",
+    "hash": "e4bfe6b40eb40646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "085bebfc012fed3cb31c483c4f80a6f2bbb996c23624e4f07bbbcb51acbaec89"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t1-q31-s1.tiff",
+    "bytes": 697,
+    "sha256": "5b2ab8e84a2706cad281df0acd9a0c1da60943304017e97c877c8db42d823a31",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t1-q90-s0.tiff",
+    "bytes": 7727,
+    "sha256": "22c01ce3df5bffd368c62abef8b30e7117a129eca541d46b5eb889accb1b9f70",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "9b86e63550d10b807e59ba4723b7231aba76e8670ba3a45774576e5a0bc83d45"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t1-q90-s1.tiff",
+    "bytes": 1089,
+    "sha256": "3bedb1e31fc619225c8a6f9af3294a21edcde5ce5c89f83e51cda23c6bca0c6c",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t2-q31-s0.tiff",
+    "bytes": 4486,
+    "sha256": "dc5940546f71b77530658fead6f27359ad4b5efe85ae65e225b3a64cee63dbca",
+    "hash": "e4bfe6b40eb40646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "085bebfc012fed3cb31c483c4f80a6f2bbb996c23624e4f07bbbcb51acbaec89"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t2-q31-s1.tiff",
+    "bytes": 856,
+    "sha256": "1874410a57213356f31a951d0b8fb73ea0f859eff4b850bb34015100a721ed86",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t2-q90-s0.tiff",
+    "bytes": 8624,
+    "sha256": "be84df1f0f28b365fa2837cd4b9a36bed05e1224a99d0990b341ecd52e0b125f",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "9b86e63550d10b807e59ba4723b7231aba76e8670ba3a45774576e5a0bc83d45"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t2-q90-s1.tiff",
+    "bytes": 1314,
+    "sha256": "e12e732c1cb0fa9081b1739be8560bd1c87ee16b40356e8e1b5fdfaefb07d46c",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t3-q31-s0.tiff",
+    "bytes": 3933,
+    "sha256": "e2904b618189878cb86e56aefe8e5aeb807fde77bd2ef4f56486c70e17bea38f",
+    "hash": "e4bfe6b40eb40646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "085bebfc012fed3cb31c483c4f80a6f2bbb996c23624e4f07bbbcb51acbaec89"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t3-q31-s1.tiff",
+    "bytes": 855,
+    "sha256": "f9cb1061bd3ad9ee45811f9c73837d06577de668cd2127a34d4be0c65adb1792",
+    "hash": "e7e31cbc6d04135c",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1676234ec41ba592ade8f3110bd35e0530441c9df4780532a5ac32f91fe0436f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t3-q90-s0.tiff",
+    "bytes": 8073,
+    "sha256": "35c41a2139b9c85524ff093046f189b0829741d57eb3b24dbbfffa3d650a562e",
+    "hash": "e5aff2b50eb00646",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "9b86e63550d10b807e59ba4723b7231aba76e8670ba3a45774576e5a0bc83d45"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-5-l-tiles-t3-q90-s1.tiff",
+    "bytes": 1315,
+    "sha256": "77d9a07142f477e35294eaa661e80dbf5248c037ef3a9fc8546d6572294577ae",
+    "hash": "c7e32cbc6d05035e",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "d4ebd31f5e3341a422fee82ea65cda6d47d40e5215f27544ab6134665170c100"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "jpeg-6-b-strips-t0-q31-s0.tiff",
+    "bytes": 1628,
+    "sha256": "468fbceb81fc81e0d86028aa6399386c6f965303c8b7b7df2a5e50836aede6ca",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t0-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t0-q31-s1.tiff",
+    "bytes": 546,
+    "sha256": "213360149ef222ca2d4aac5c3bebedfc98ddeab3eab2b5ae14e7a44a9bcb7e3d",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t0-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t0-q90-s0.tiff",
+    "bytes": 2774,
+    "sha256": "3c5821fae8df850975e58700d598cd4d20622ce19c1c82daa80b8eaadf3bf420",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t0-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t0-q90-s1.tiff",
+    "bytes": 698,
+    "sha256": "8284e9791969c884fe8924bf656a3e979c4ed5be5c3feb860892ae8e1ee22847",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t0-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t1-q31-s0.tiff",
+    "bytes": 1368,
+    "sha256": "92a55a6639a1dcf52fb922cc331c65379434c564ccd040c774405db551eb89b7",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t1-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t1-q31-s1.tiff",
+    "bytes": 562,
+    "sha256": "39d0126f428e925ff56cdda876c69e663cccf92390e07687fb7ae1ff0b0827a8",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t1-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t1-q90-s0.tiff",
+    "bytes": 2514,
+    "sha256": "63261e5766fcf7f9e02b69818aa6e2fb08b16ea06aca2b9fc11b32284ee24982",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t1-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t1-q90-s1.tiff",
+    "bytes": 714,
+    "sha256": "a87d49ad3eba2c71e9ab64ffb45946d9afa46f68260ed2ad221a1e95be560a82",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t1-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t2-q31-s0.tiff",
+    "bytes": 1756,
+    "sha256": "ed2b33a59710073b65aefd61d64ec2de7df23a4f172fad4c598907e2485ca65a",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t2-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t2-q31-s1.tiff",
+    "bytes": 896,
+    "sha256": "1bbfe088bfd1c750134203bb1e2a4e244ec67fe68cd5f44f093763a5e89c486b",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t2-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t2-q90-s0.tiff",
+    "bytes": 2966,
+    "sha256": "358d9da74b77a7e94ad0124826dc4a72097172921eb6cd145aa944b27cb55880",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t2-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t2-q90-s1.tiff",
+    "bytes": 1050,
+    "sha256": "0e7b7fb5dcd0dd60051b7d391d5c5933489770ae8fff77ec10d8492fffc3b4a7",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t2-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t3-q31-s0.tiff",
+    "bytes": 1480,
+    "sha256": "d4300051d27469fe6a4f44d0523419e352ac67bf47b177d9bf5cef9f86453c30",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t3-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t3-q31-s1.tiff",
+    "bytes": 896,
+    "sha256": "c3e437a4ffeab323e3a46c8a21bf4ab2e4544e35b9acd38d08a9d70115afa486",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t3-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t3-q90-s0.tiff",
+    "bytes": 2690,
+    "sha256": "b0e6d43f1222af652ba6b58100c15643ccdec22d79bd03c1647997770be7d591",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t3-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-strips-t3-q90-s1.tiff",
+    "bytes": 1050,
+    "sha256": "b89f8d16cdd9951e57151e0d5af32c74e7f4e63d43dad77d747042dc73617c79",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-strips-t3-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t0-q31-s0.tiff",
+    "bytes": 3396,
+    "sha256": "d3c79bb56bca884248ece50d8f8dbbf14d2465bcdc185b84bdf8b9d1ad689c53",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t0-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t0-q31-s1.tiff",
+    "bytes": 558,
+    "sha256": "a5e82d8c78fb4ff9b76b3d014b2449cf337e04ee10dc1c85fd7e997598aa1465",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t0-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t0-q90-s0.tiff",
+    "bytes": 4710,
+    "sha256": "15d91005eb5ec8052eeb44aadc6daa043341e46e6e91bd659a90d2f5e96b4646",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t0-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t0-q90-s1.tiff",
+    "bytes": 710,
+    "sha256": "deb255bd028d94ad28c64a7a630efa90f108be3d00b2e8a8cf1383ed7861a718",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t0-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t1-q31-s0.tiff",
+    "bytes": 2308,
+    "sha256": "8cd99aeb8b5031e663f03b5f0ed0f11cdf554cc018e8563f1b1f42aef0094f86",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t1-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t1-q31-s1.tiff",
+    "bytes": 574,
+    "sha256": "94662793b5ff754bae998b0f601c61ca64cb94aabeb8e994cacb9d36052b1eac",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t1-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t1-q90-s0.tiff",
+    "bytes": 3622,
+    "sha256": "17236d7572d0b2398030e899ad34f75c8274bdc7b8003ae9e03e42a33749072c",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t1-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t1-q90-s1.tiff",
+    "bytes": 726,
+    "sha256": "d8fbdb30554b2c2a8fcfef676c99ad66366d78bb8d57669b674ae9a3ca355158",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t1-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t2-q31-s0.tiff",
+    "bytes": 2938,
+    "sha256": "1a91ab26c398bd289670100714874fbc0d488fb5ac93598b0c3faccc6ccd3eff",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t2-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t2-q31-s1.tiff",
+    "bytes": 908,
+    "sha256": "8fbd4082043cba17e4197229a06964d5c142f4c489b97a647986d83445090d10",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t2-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t2-q90-s0.tiff",
+    "bytes": 4350,
+    "sha256": "dacbe11b410e6b191d9f242fe7e0441894bc6a1a1d38103e410e300d0e357096",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t2-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t2-q90-s1.tiff",
+    "bytes": 1062,
+    "sha256": "c16a27ab6c258b91a38a5415d52d6d2cc5b04135b2dd0f6b8ceb69bd25a945bd",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t2-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t3-q31-s0.tiff",
+    "bytes": 1834,
+    "sha256": "512423b54ea805131045bed3c5006683d095ee7706adba1c32288007f2b82fca",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t3-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t3-q31-s1.tiff",
+    "bytes": 908,
+    "sha256": "82df9bcbe21c2f4d2416127282940f30cf5606f15ec46d049b8a7453a02fe361",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t3-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t3-q90-s0.tiff",
+    "bytes": 3246,
+    "sha256": "56e778443fe54968a3e7a3ddd91a210cd14d85d2873b8d3017a1d22d8eca93f0",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t3-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-b-tiles-t3-q90-s1.tiff",
+    "bytes": 1062,
+    "sha256": "048370b589ac4b4f91de12d7c9aa2f853bd443669f3220c57194402c0ed37d9c",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-b-tiles-t3-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t0-q31-s0.tiff",
+    "bytes": 1628,
+    "sha256": "c907939a6ab5e46cb797092fd35958bce2155577bfc34e2267b0057033ea33d8",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t0-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t0-q31-s1.tiff",
+    "bytes": 546,
+    "sha256": "35bb98b3ff68816436cce6d88d2bd85f7c6685c5de704ad6395148bece60ea51",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t0-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t0-q90-s0.tiff",
+    "bytes": 2774,
+    "sha256": "683c602d8879e747485db68bdfc82e9c36629f7079dedba5f415797bb2787247",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t0-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t0-q90-s1.tiff",
+    "bytes": 698,
+    "sha256": "6992b54796b2c0d57b94918e20e9d47dc841b27be69ec55920d301f834df50fc",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t0-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t1-q31-s0.tiff",
+    "bytes": 1368,
+    "sha256": "7ddfea0f90c3a41ca2a593f416ddaeaaaf108dce5d2e8627dcbdfd461dff4800",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t1-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t1-q31-s1.tiff",
+    "bytes": 562,
+    "sha256": "3a1a92c4f11ba5f209f7f93d8787710f06bce3264262119f495452d8aff394c0",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t1-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t1-q90-s0.tiff",
+    "bytes": 2514,
+    "sha256": "eec226affc56c9e5cd0779064ab84592b2c86d943fc2eb6ca75e7ef9fb961c26",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t1-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t1-q90-s1.tiff",
+    "bytes": 714,
+    "sha256": "ff5f53dd3728cae6390a34b676e9467d4502e04122d51eeb40a635c953c20314",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t1-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t2-q31-s0.tiff",
+    "bytes": 1756,
+    "sha256": "d5bc6e734e4552a86c2d5b5064340a566fa036f698a1abcc490dc17b98e1adad",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t2-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t2-q31-s1.tiff",
+    "bytes": 896,
+    "sha256": "b568cf7facae34bd62cef384af80f787e149885d7b3257a3562363d021777d58",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t2-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t2-q90-s0.tiff",
+    "bytes": 2966,
+    "sha256": "662557d59d501adb5b94bb209d7a9aa4ca711a3ecc97050382b01d0dc3fc052c",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t2-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t2-q90-s1.tiff",
+    "bytes": 1050,
+    "sha256": "1ddcf77fe54bd9dfe501b08a144650f9a57855c673bd30c2e23e35ae7036fae5",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t2-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t3-q31-s0.tiff",
+    "bytes": 1480,
+    "sha256": "0e1d25d463be45edee14db4972d5b4cb54a640087b6d8f7e01f4483a1647326b",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t3-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t3-q31-s1.tiff",
+    "bytes": 896,
+    "sha256": "045cd01c5443710062d5a2c459d6e7064cf47cdc5ca4fd9816919912b8618f2f",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t3-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t3-q90-s0.tiff",
+    "bytes": 2690,
+    "sha256": "45c3250866ef81067e34dec36b0ada332c5b2fd84f35cdc2fc248e69d33cc8d1",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t3-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-strips-t3-q90-s1.tiff",
+    "bytes": 1050,
+    "sha256": "8c4bacf1c971a683cc0b77e21244147cc7139e4050c7cf8cd561b777350037a2",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-strips-t3-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t0-q31-s0.tiff",
+    "bytes": 3396,
+    "sha256": "d31ae7a68520e897582fc85c998af293a50e4845da5d6da4218019d5bbc889fb",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t0-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t0-q31-s1.tiff",
+    "bytes": 558,
+    "sha256": "dd9d6e83c6503df17035295a1aa74d06bb98242fcaf97b7384833e57d3de17bf",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t0-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t0-q90-s0.tiff",
+    "bytes": 4710,
+    "sha256": "153a9c8458047531e3c69e72094d2131441adda70bb5a98f2863ce0ffb55486a",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t0-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t0-q90-s1.tiff",
+    "bytes": 710,
+    "sha256": "2620b22cc07182f70f724c3285b662454812a13d6bc19b4f47ceab5031201dd8",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t0-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t1-q31-s0.tiff",
+    "bytes": 2308,
+    "sha256": "bfdd44f307b5175409fae4b53a04af9633f5ccb666e833babfff0ed98d1b14c9",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t1-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t1-q31-s1.tiff",
+    "bytes": 574,
+    "sha256": "b5f9c64694922da26516887f82a39817d9cb24801a5b0e2f66bedd8ef5d62e44",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t1-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t1-q90-s0.tiff",
+    "bytes": 3622,
+    "sha256": "1b73d78461f844c1b57b670f17d581658570209d180fde5d9eca69d941407383",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t1-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t1-q90-s1.tiff",
+    "bytes": 726,
+    "sha256": "200c6194bd79940bd73481c3f5f4da4a32a1fe2b2e2e596f8e0d3484b3a0c70e",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t1-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t2-q31-s0.tiff",
+    "bytes": 2938,
+    "sha256": "84892963fb96a3c591493534b002974ddc24334c189324f414fbd548dc708e57",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t2-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t2-q31-s1.tiff",
+    "bytes": 908,
+    "sha256": "0b71e65dae591a0657bff5424cb294474b7f3b5072083314c5c3798e946ffae3",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t2-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t2-q90-s0.tiff",
+    "bytes": 4350,
+    "sha256": "042ce19375d43e03755e4c5904459ee752d68be62acaf2665ea6ab5d0c86abde",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t2-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t2-q90-s1.tiff",
+    "bytes": 1062,
+    "sha256": "21eecabbd833e2ed03ae68c6d788aca3995f0eb693749f941ad4e798e49b6531",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t2-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t3-q31-s0.tiff",
+    "bytes": 1834,
+    "sha256": "011bf8f3cb355a5d17abd90620942271f5ba238c445f73031ee3d1d3ac4f9d5d",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t3-q31-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t3-q31-s1.tiff",
+    "bytes": 908,
+    "sha256": "7d10290ad3a077b34dfda6cce9629c8ba6bd627ffd030904a2e8ae3b8bd32665",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t3-q31-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t3-q90-s0.tiff",
+    "bytes": 3246,
+    "sha256": "32c495a0627c0ca834625a0a4c01a238c0eefb8c317bbd0bd8f00e2bcf119c27",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t3-q90-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "jpeg-6-l-tiles-t3-q90-s1.tiff",
+    "bytes": 1062,
+    "sha256": "3cea8c8c57ff1f7b40446080abb487a61fd06ee50c0054b967a54347a0f8c2df",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "unsupported reference color",
+    "native_error": "ERROR: jpeg-6-l-tiles-t3-q90-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: The encoder or decoder for Tiff does not support the color type `Unknown(24)`"
+  },
+  {
+    "name": "pillow-CMYK-p0-sampling-0.tiff",
+    "bytes": 4809,
+    "sha256": "d4784e6df3c57b5ca6b4342b6d8bfcf8a5df0c440f201f3affac92f429b9272c",
+    "hash": "84ec945e9fd32323",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "8877e1690e8224531bfdaa8ca93205306b61703aaf2a2711fab9f413762e29c3"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "pillow-CMYK-p1-sampling-0.tiff",
+    "bytes": 5065,
+    "sha256": "38844db40d5c7c5de28addad04e749e1317ee9419fd52bd6836e41448ca6845f",
+    "hash": "84ec945e9fd32323",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "8877e1690e8224531bfdaa8ca93205306b61703aaf2a2711fab9f413762e29c3"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "pillow-L-p0-sampling-0.tiff",
+    "bytes": 1559,
+    "sha256": "f8248602770eb7d78fc585340585321a3a769c1dbdb1188ae1f27ad6d51952a0",
+    "hash": "e4f69a4c8fb92216",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "db5403ff326d10de4d444950110627e261d8f4a0a21e63d72f358e37a9f14652"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "pillow-L-p1-sampling-0.tiff",
+    "bytes": 1478,
+    "sha256": "bac7550c5c401ffdbea3825bf3bd62e92c8f57602bed693b659c87a9f0d55f59",
+    "hash": "e4f69a4c8fb92216",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "db5403ff326d10de4d444950110627e261d8f4a0a21e63d72f358e37a9f14652"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "pillow-RGB-p0-sampling-0.tiff",
+    "bytes": 3181,
+    "sha256": "a13caa84022357e991065d4e3e4a3bd5c8c0d54ecc3bda9318c2d77c1bf4ccfc",
+    "hash": "e46d566b4d6d0a19",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1064e38e2035335963bd5bcf15b3484e03bc4ad5f961b2035f82a0bb9f62a9e0"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "pillow-RGB-p0-sampling-1.tiff",
+    "bytes": 2403,
+    "sha256": "ac4952a27bddd350b690d6de6191cd75885b5e61e391f442be6d5e4f6558d7e1",
+    "hash": "e46d56696d4d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "4c266e92264c76a6fcedfd31c7c00ff635f825f8e953d299040a2dfa8fb37130"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "pillow-RGB-p0-sampling-2.tiff",
+    "bytes": 1989,
+    "sha256": "8e39fc1d41eb58af423d0aeb20a0c46f04171ea03a58000e5f5a2f0a0a44da05",
+    "hash": "e46d556a4d4d0b59",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ae335f9002b30cbd8a1f998f88817cf6364a319a165199e8b688631d7ec9374b"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "pillow-RGB-p1-sampling-0.tiff",
+    "bytes": 2939,
+    "sha256": "7c52e349438b30b7891bf62836e3bd23e528df59857ef98b5ef642ac230e8194",
+    "hash": "e46d566b4d6d0a19",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1064e38e2035335963bd5bcf15b3484e03bc4ad5f961b2035f82a0bb9f62a9e0"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "pillow-RGB-p1-sampling-1.tiff",
+    "bytes": 2249,
+    "sha256": "fc38d71816fb26fd18e4b125163b97eeb5d976e7ecdd11bb2d20052674437d1f",
+    "hash": "e46d56696d4d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "4c266e92264c76a6fcedfd31c7c00ff635f825f8e953d299040a2dfa8fb37130"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "pillow-RGB-p1-sampling-2.tiff",
+    "bytes": 1875,
+    "sha256": "0072b4d8e13668d44f8c2692b11d8234f9459ea68cf3a94090fcc935da799566",
+    "hash": "e46d556a4d4d0b59",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ae335f9002b30cbd8a1f998f88817cf6364a319a165199e8b688631d7ec9374b"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "planar.tiff",
+    "bytes": 1223,
+    "sha256": "f7bba96e0e24ea4e35407958e5dbf80534c415eb3ebe7b95a4dabf75bcb730bc",
+    "hash": null,
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": "ERROR: planar.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: inconsistent sizes encountered"
+  },
+  {
+    "name": "predictor-1.tiff",
+    "bytes": 1235,
+    "sha256": "0626a7376227eeb6467acb6dba3486febb32f48f25bd8bd5a7d5bebcdada5c04",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "predictor-2.tiff",
+    "bytes": 1235,
+    "sha256": "c62691b19a60a4fb94eb7e9db5e0e0fc9f5d1d9355d15aa1d05071dc2a56597b",
+    "hash": "b0e85b839fd2518d",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "8217c65de68e97a2219256a1e019cebcd5b9231cb8e1677e0d985b918ae3f8c3"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "predictor-3.tiff",
+    "bytes": 1235,
+    "sha256": "da1efa1b195d828a7b97a11b9ef1c78897f471872035f33d2969900f89a57777",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "nonfloating byte-plane predictor",
+    "native_error": "ERROR: predictor-3.tiff: Failed to calculate image fuzzy hash: Failed to load image: The decoder for Tiff does not support the format features floating point predictor for RGB(8) is unsupported"
+  },
+  {
+    "name": "reinterpret-16-p1.tiff",
+    "bytes": 1241,
+    "sha256": "b24243c29600198ed66f9d22653c4f550494017bdb19604febaac467d2f2f916",
+    "hash": "b0b1f32e9f09151b",
+    "width": 8,
+    "height": 16,
+    "rgb": {
+      "bytes": 384,
+      "sha256": "1be883f4d4a9cef8c86178d3a1ef379d07476bcf0fff59cdc0970ed19a97cf5f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "reinterpret-16-p2.tiff",
+    "bytes": 1241,
+    "sha256": "efb2c310ed54589e5cee475705e56089d05be29c24eb05d40032978469613e47",
+    "hash": "93f0f8b6f7065830",
+    "width": 8,
+    "height": 16,
+    "rgb": {
+      "bytes": 384,
+      "sha256": "cbbaaa49b6aa7e933a118ecb680451a8ab3f3700d9825bd92cf2bc61e01dc226"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "reinterpret-32-p1.tiff",
+    "bytes": 1259,
+    "sha256": "4c7eddc1eca67e3fe6b355caae020a55addace602ebb9c508ad4d7d29c722473",
+    "hash": "ce4e0ee6e5640eb1",
+    "width": 4,
+    "height": 16,
+    "rgb": {
+      "bytes": 192,
+      "sha256": "17b94735400d9e7f8dd6f47fe1473d12635bac89f1ad1d89b738d0b50c0568fd"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "reinterpret-32-p2.tiff",
+    "bytes": 1259,
+    "sha256": "a006ebdb7dfc21f73fa8fbd031698a031b13beef365e589bef2a0897ab955275",
+    "hash": "bb645864f4f08cd9",
+    "width": 4,
+    "height": 16,
+    "rgb": {
+      "bytes": 192,
+      "sha256": "61b78e91224cda5c8b5198636944f345b2bceabfe8b3c5e873bcb2f0e344b94b"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "reinterpret-32-p3.tiff",
+    "bytes": 1259,
+    "sha256": "6dd35b6e6c44b72d4a807b260e947352c2135d5b0f278f71d58867d3c4053f8b",
+    "hash": "dace8c3a0ca471db",
+    "width": 4,
+    "height": 16,
+    "rgb": {
+      "bytes": 192,
+      "sha256": "a54a8295316d56eb92fa87b0ac6dce0a90b47fc5e160d2b229ab91275bb05d91"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x1-p0-r0-s0.tiff",
+    "bytes": 2057,
+    "sha256": "f8653efe6d1bc57274a15e335b3012ae6715ac99079d9f6b8701d5f925706d9b",
+    "hash": "e46f476a6c590b19",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70b648c019bccb178d1baaee5a163b9f3b56a115daf93904f59561b82aa95b3f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x1-p0-r0-s1.tiff",
+    "bytes": 1400,
+    "sha256": "1db8ff02dcddef422ee67822ef5b56db9f34d7c58c9113a19773222140c3f874",
+    "hash": "ed474f5953134b03",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "103e2261cf3f926c418e0e4cf8be1391b8d7f037c89d743160163a677c0fba42"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x1-p0-r2-s0.tiff",
+    "bytes": 2074,
+    "sha256": "fb9bdb495471733636776413b7b955c49f6220b2651f58f77c0b71880a1d65b1",
+    "hash": "e46f476a6c590b19",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70b648c019bccb178d1baaee5a163b9f3b56a115daf93904f59561b82aa95b3f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x1-p0-r2-s1.tiff",
+    "bytes": 1409,
+    "sha256": "dfc4956d7cf22532a55fa154a143a72bc0ff3a16b0e34e9dadb3d8a737b9cf39",
+    "hash": "ed474f5953134b03",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "103e2261cf3f926c418e0e4cf8be1391b8d7f037c89d743160163a677c0fba42"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x1-p1-r0-s0.tiff",
+    "bytes": 1949,
+    "sha256": "be0e30f723faf40616116d46039cc4245ea1edbf6a5ce180ed78ca7c498575ba",
+    "hash": "e46f476a6c590b19",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "70b648c019bccb178d1baaee5a163b9f3b56a115daf93904f59561b82aa95b3f"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x1-p1-r0-s1.tiff",
+    "bytes": 1317,
+    "sha256": "7c96a7f88428c73280ce40bb51326c82a28868b2df4c26cb37357356ccda6194",
+    "hash": "ed474f5953134b03",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "103e2261cf3f926c418e0e4cf8be1391b8d7f037c89d743160163a677c0fba42"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x1-p1-r2-s0.tiff",
+    "bytes": 2171,
+    "sha256": "47ab829dfb9af92b206f4ae85a8c8d7bbb92d17a672a15bd358969332e048399",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg\n",
+    "native_error": "ERROR: sampling-4x1-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "sampling-4x1-p1-r2-s1.tiff",
+    "bytes": 1405,
+    "sha256": "195609ecd5c8f544171b7d0e023120ffa889efcb78c805e48154f2866d7d1d29",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg\n",
+    "native_error": "ERROR: sampling-4x1-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "sampling-4x2-p0-r0-s0.tiff",
+    "bytes": 1858,
+    "sha256": "aa6bbfe651714a8adba1558ef0bc108b9ea60d0501d0f5d11423cd4b64f193d1",
+    "hash": "f06938cf71788b0b",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bc48cca824a01a9ec4da2d698670b916882db164eda66c7762ba932d6d6d84f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x2-p0-r0-s1.tiff",
+    "bytes": 1320,
+    "sha256": "1b6ae8679d46163fbcdef966aa0326bf894826412e84c22335bea8d610f01d4f",
+    "hash": "f1700f705253b34f",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "c54cd1a4104b06615ceaa4b16c607a50ea130fcbf8c940d64c324580bb7b5d11"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x2-p0-r2-s0.tiff",
+    "bytes": 1864,
+    "sha256": "a80be6d0cda02eee11d67db2f1988dc0f3752e5b5933385eaae93423b57de477",
+    "hash": "f06938cf71788b0b",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bc48cca824a01a9ec4da2d698670b916882db164eda66c7762ba932d6d6d84f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x2-p0-r2-s1.tiff",
+    "bytes": 1326,
+    "sha256": "c85621f26dcb14c621baf2f067d6d069b9bc860a4bb2b1621819822d2b12b080",
+    "hash": "f1700f705253b34f",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "c54cd1a4104b06615ceaa4b16c607a50ea130fcbf8c940d64c324580bb7b5d11"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x2-p1-r0-s0.tiff",
+    "bytes": 1758,
+    "sha256": "d324a00e50b9b6cd20b1cefb65d5de35d646e20746f108f55a6fca835adc59e9",
+    "hash": "f06938cf71788b0b",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "bc48cca824a01a9ec4da2d698670b916882db164eda66c7762ba932d6d6d84f7"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x2-p1-r0-s1.tiff",
+    "bytes": 1236,
+    "sha256": "8ea84f1e33d168dcec099a317817bb1bd1ba0301f4a3c99084f2706d5bb0e1d7",
+    "hash": "f1700f705253b34f",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "c54cd1a4104b06615ceaa4b16c607a50ea130fcbf8c940d64c324580bb7b5d11"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "sampling-4x2-p1-r2-s0.tiff",
+    "bytes": 1933,
+    "sha256": "5f7058bef12dea455a1eea85d093b73d5a55950f83810ffef93dcfe52f0ead50",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg\n",
+    "native_error": "ERROR: sampling-4x2-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "sampling-4x2-p1-r2-s1.tiff",
+    "bytes": 1310,
+    "sha256": "ccfc6858b881c44d51a88528e16d7423ad4472def77ef1c5076826cffec40c16",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg\n",
+    "native_error": "ERROR: sampling-4x2-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "single-depth.tiff",
+    "bytes": 1223,
+    "sha256": "2cbe275ccd9b7b50a5a275958d8d5d8e7674a8d8123223469541fc9711d39b0b",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "table-byte-type.tiff",
+    "bytes": 1512,
+    "sha256": "a76e28a253aab1ebb3511402b22aa2abb10ebe87fd6c52c0f262e95456ceea83",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "table-head-bad.tiff",
+    "bytes": 1512,
+    "sha256": "4141d5abaf4c8ed13111af4814e621a4e23ad4a9b2e2681ec4e4e42665f07d1d",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error parsing image. Illegal start bytes:5858\n",
+    "native_error": "ERROR: table-head-bad.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error parsing image. Illegal start bytes:5858"
+  },
+  {
+    "name": "table-mode-1-removed.tiff",
+    "bytes": 997,
+    "sha256": "4a060b3a5f245534f9ed09ad1cab8f324ece549afaf7722b31c452c72a50fdbf",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error parsing DQT segment. Reason:No quantization table for component Y\n",
+    "native_error": "ERROR: table-mode-1-removed.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error parsing DQT segment. Reason:No quantization table for component Y"
+  },
+  {
+    "name": "table-mode-2-removed.tiff",
+    "bytes": 1212,
+    "sha256": "c96eee6b3d084d64d3a23fb8308d9923c8650bf35527f61efbefbfa83b163635",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error decoding huffman values: No DC table for component Y\n",
+    "native_error": "ERROR: table-mode-2-removed.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error decoding huffman values: No DC table for component Y"
+  },
+  {
+    "name": "table-removed.tiff",
+    "bytes": 1211,
+    "sha256": "bc00e43eb5f23ea0f0215cebaa0c4879629e2138567d035a224ba8f87ecf357d",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error parsing DQT segment. Reason:No quantization table for component Y\n",
+    "native_error": "ERROR: table-removed.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error parsing DQT segment. Reason:No quantization table for component Y"
+  },
+  {
+    "name": "table-short-0.tiff",
+    "bytes": 1223,
+    "sha256": "faff2ae53785e46de532cc30d952f282c9ef0a9400e2b05e22b9f35ceb57d7a4",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error parsing image. Illegal start bytes:FFC0\n",
+    "native_error": "ERROR: table-short-0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: tag `JPEGTables` did not have the expected value type"
+  },
+  {
+    "name": "table-short-1.tiff",
+    "bytes": 1223,
+    "sha256": "a58fade95e40cd4c1ffcfb8b6c64bb37455fad014cd7b2464c1870cd7ca625ee",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error parsing image. Illegal start bytes:FFC0\n",
+    "native_error": "ERROR: table-short-1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: tag `JPEGTables` did not have the expected value type"
+  },
+  {
+    "name": "table-short-2.tiff",
+    "bytes": 1223,
+    "sha256": "8b8f0dff3ffcc7fcf8fd4234d04d0a8ef3275676b058aed2ff464863d12e7676",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error parsing image. Illegal start bytes:FFC0\n",
+    "native_error": "ERROR: table-short-2.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error parsing image. Illegal start bytes:FFC0"
+  },
+  {
+    "name": "table-short-3.tiff",
+    "bytes": 1223,
+    "sha256": "13cd99fae71c2f52463445a52a7eeec5e631282e32e39287cc857a4733002bc7",
+    "hash": null,
+    "width": 0,
+    "height": 0,
+    "rgb": null,
+    "oracle_error": "Error parsing image. Illegal start bytes:FFFF\n",
+    "native_error": "ERROR: table-short-3.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error parsing image. Illegal start bytes:FFFF"
+  },
+  {
+    "name": "table-tail-ignored.tiff",
+    "bytes": 1512,
+    "sha256": "cddb81d1217426991386de95e1bd1bbbf3a71c0b7288a4e0c763364e5673da75",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "uint-format.tiff",
+    "bytes": 1241,
+    "sha256": "3e33a7b31c9555e7801fcf9bfa7441aedefe9807cf688f05811a52bd7c7d821e",
+    "hash": "b839e3629e2bd813",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "94c26ae5865a5db178713090db801584fb6524cab4981e86100a6f98479a788a"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "ycbcr-as-rgb-strips-s0.tiff",
+    "bytes": 2840,
+    "sha256": "c180fb7891650f8217269a78d044966dcf9251600b20f3159a9571b6db19e57b",
+    "hash": "831f532f9d259887",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "96d5203c8aa81f0545ba31dea1b0d99f278c176389ff85976d238e00b3aef746"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "ycbcr-as-rgb-strips-s1.tiff",
+    "bytes": 1200,
+    "sha256": "f8cb31d51db14d752f1d9fdf025f0839a680569d56a371c50e3f2f08fd8fc8d8",
+    "hash": "b87162f49299f833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1a46257db6e52738ccea3517201b213f064ce4a7e13d60d3a096dfb2a0663f5c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "ycbcr-as-rgb-tiles-s0.tiff",
+    "bytes": 3408,
+    "sha256": "81e23c117ab01794263780b32ef6aaa4e68cc130d2bd610453cec3e9803885cc",
+    "hash": "87162f2fad25ac83",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "2a16c48968bd93d9ec9705135b68b9bb85465ee68bceec3b5affc35dab750c94"
+    },
+    "oracle_error": null,
+    "native_error": null
+  },
+  {
+    "name": "ycbcr-as-rgb-tiles-s1.tiff",
+    "bytes": 1224,
+    "sha256": "52316ae121c0cd0521246d306d4f44df6bf1e7f16a7af19cc2dacada013c77c3",
+    "hash": "b87162f49299f833",
+    "width": 16,
+    "height": 16,
+    "rgb": {
+      "bytes": 768,
+      "sha256": "1a46257db6e52738ccea3517201b213f064ce4a7e13d60d3a096dfb2a0663f5c"
+    },
+    "oracle_error": null,
+    "native_error": null
+  }
+]

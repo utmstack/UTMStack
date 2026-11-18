@@ -1,0 +1,762 @@
+[
+  {
+    "name": "basic-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "basic-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "basic-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0(\"1\");',2,2,'alert|hi'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "fallback-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('0(\"q\");',2,2,'alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"q\");))</script>"
+  },
+  {
+    "name": "fallback-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0(\"q\");',2,2,'alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"q\");))</script>"
+  },
+  {
+    "name": "fallback-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0(\"q\");',2,2,'alert|hi'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"q\");)</script>"
+  },
+  {
+    "name": "empty-entry-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('0(\"1\");',2,2,'alert|'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"1\");))</script>"
+  },
+  {
+    "name": "empty-entry-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0(\"1\");',2,2,'alert|'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"1\");))</script>"
+  },
+  {
+    "name": "empty-entry-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0(\"1\");',2,2,'alert|'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"1\");)</script>"
+  },
+  {
+    "name": "trailing-name-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('0',2,2,'alert'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}())</script>"
+  },
+  {
+    "name": "trailing-name-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0',2,2,'alert'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}())</script>"
+  },
+  {
+    "name": "trailing-name-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0',2,2,'alert'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack()</script>"
+  },
+  {
+    "name": "punctuation-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('0;1+0',2,2,'alpha|beta'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alpha;beta+))</script>"
+  },
+  {
+    "name": "punctuation-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0;1+0',2,2,'alpha|beta'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alpha;beta+))</script>"
+  },
+  {
+    "name": "punctuation-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0;1+0',2,2,'alpha|beta'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alpha;beta+)</script>"
+  },
+  {
+    "name": "base-ten-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('9(\"8\");',10,2,'||||||||hi|alert'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "base-ten-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('9(\"8\");',10,2,'||||||||hi|alert'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "base-ten-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('9(\"8\");',10,2,'||||||||hi|alert'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "base-sixteen-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('a(\"b\");',16,2,'||||||||||alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "base-sixteen-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('a(\"b\");',16,2,'||||||||||alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "base-sixteen-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('a(\"b\");',16,2,'||||||||||alert|hi'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "base-thirty-six-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('z(\"y\");',36,2,'||||||||||||||||||||||||||||||||||hi|alert'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "base-thirty-six-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('z(\"y\");',36,2,'||||||||||||||||||||||||||||||||||hi|alert'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "base-thirty-six-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('z(\"y\");',36,2,'||||||||||||||||||||||||||||||||||hi|alert'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "base-sixty-two-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('A(\"B\");',62,2,'||||||||||||||||||||||||||||||||||||alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "base-sixty-two-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('A(\"B\");',62,2,'||||||||||||||||||||||||||||||||||||alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "base-sixty-two-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('A(\"B\");',62,2,'||||||||||||||||||||||||||||||||||||alert|hi'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "multi-digit-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('10(\"11\");',16,2,'||||||||||||||||alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "multi-digit-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('10(\"11\");',16,2,'||||||||||||||||alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "multi-digit-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('10(\"11\");',16,2,'||||||||||||||||alert|hi'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "underscore-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('0_1',2,2,'alpha|beta'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}())</script>"
+  },
+  {
+    "name": "underscore-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0_1',2,2,'alpha|beta'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}())</script>"
+  },
+  {
+    "name": "underscore-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0_1',2,2,'alpha|beta'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack()</script>"
+  },
+  {
+    "name": "backslash-quote-anonymous-d",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('0(\\\\\"1\\\\\");',2,2,'alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "backslash-quote-anonymous-r",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0(\\\\\"1\\\\\");',2,2,'alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "backslash-quote-named-r",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0(\\\\\"1\\\\\");',2,2,'alert|hi'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "nested-body-anonymous",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){if(c){var x=1;}return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){if(n002){var n006=1;}return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "nested-body-named",
+    "source": "<html><script>function pack(p,a,c,k,e,r){if(c){var x=1;}return p} pack('0(\"1\");',2,2,'alert|hi'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){if(n003){var n007=1;}return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "nested-function-anonymous",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){e=function(x){return x};return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){n004=function(n006){return n006};return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "nested-function-named",
+    "source": "<html><script>function pack(p,a,c,k,e,r){e=function(x){return x};return p} pack('0(\"1\");',2,2,'alert|hi'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){n005=function(n007){return n007};return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "extra-statement-anonymous",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){var x=1; x++; return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){var n006=1;n006++;return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "extra-statement-named",
+    "source": "<html><script>function pack(p,a,c,k,e,r){var x=1; x++; return p} pack('0(\"1\");',2,2,'alert|hi'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){var n007=1;n007++;return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "surrounding-code",
+    "source": "<html><script>var q=1;eval(function(p,a,c,k,e,r){return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,{}));var t=2;</script></html>",
+    "output": "<script>var n000=1;eval(function(n001,n002,n003,n004,n005,n006){return n001}(alert(\"hi\");));var n007=2;</script>"
+  },
+  {
+    "name": "two-anonymous",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,{}));eval(function(p,a,c,k,e,r){return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");));eval(function(n006,n007,n008,n009,n010,n011){return n006}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "last-0-anonymous",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "last-0-named",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0(\"1\");',2,2,'alert|hi'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");</script>"
+  },
+  {
+    "name": "last-[]-anonymous",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");))</script>"
+  },
+  {
+    "name": "last-[]-named",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0(\"1\");',2,2,'alert|hi'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "last-null-anonymous",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,null))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "last-null-named",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0(\"1\");',2,2,'alert|hi'.split('|'),0,null)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");</script>"
+  },
+  {
+    "name": "last-x-anonymous",
+    "source": "<html><script>eval(function(p,a,c,k,e,r){return p}('0(\"1\");',2,2,'alert|hi'.split('|'),0,x))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(alert(\"hi\");)</script>"
+  },
+  {
+    "name": "last-x-named",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('0(\"1\");',2,2,'alert|hi'.split('|'),0,x)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(\"hi\");</script>"
+  },
+  {
+    "name": "random-000",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('M(qU;0VxOS6V-7NQV',2,2,'ok||bar|bar|foo||bar|safe|safe|bar||safe|ok|alert|foo'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(m(qu;0 vxos6v-7)</script>"
+  },
+  {
+    "name": "random-001",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('sl7FcOVdpP;C12Luic(P_',36,2,'foo|safe|bar|foo||foo|safe|ok'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(sl7fcovdpp;c12luic()</script>"
+  },
+  {
+    "name": "random-002",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('9s9XydctCqIwtk=_fug2wE-',2,2,'alert|foo|||foo|alert|foo|bar|bar|safe||bar|alert'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(9 s9xydctcqiwtk=_fug2we-))</script>"
+  },
+  {
+    "name": "random-003",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('SN+iG6qfoXobejb9tMmA9g1u;W8BBB;ekW=wdfZtT3OOQ',10,2,'ok|foo|foo|bar|bar|alert|bar|alert||safe|bar|foo|ok'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(sn+ig6qfoxobejb9tmma9g1u;w8bbb;ekw=</script>"
+  },
+  {
+    "name": "random-004",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('gzNtC;sa1c4CStl2cFo=v+f_s',36,2,'|safe|||bar|bar||ok|ok|foo||ok|safe|bar|bar|foo|ok'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(gzntc;sa1c4cstl2cfo=v+)</script>"
+  },
+  {
+    "name": "random-005",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('8gpImFVs3rc1z+78pybMuDkSJ2g6)RiOh6aTfhQ-BJ42tE',16,2,'ok|alert||safe|foo||foo|ok|ok|'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(8 gpimfvs3rc1z+78 pybmudksj2g6)rioh6atfhq-)</script>"
+  },
+  {
+    "name": "random-006",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('mVGFJZbP8seUcZ)=vY(wN6eWeW8gn-c;I_-vE6wO)',16,2,'safe|foo|alert|safe|||alert|bar|'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(mvgfjzbp8seucz)=vy(wn6ewew8gn-c;i_-ve6wo)))</script>"
+  },
+  {
+    "name": "random-007",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('KhzNnwMi5iHUxuVlnBfJ=1VUMI;HL1IUnnsk;GjfnMO',2,2,'ok'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(khznnwmi5ihuxuvlnbfj=1 vumi;hl1iunnsk;)</script>"
+  },
+  {
+    "name": "random-008",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('NbF+TYdO)k31Yq0j1P1dUf6gxF',10,2,'foo|alert|alert|||bar|alert|ok||alert|bar'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(nbf+tydo))</script>"
+  },
+  {
+    "name": "random-009",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('kDfxrbmZiSguQE4fOuqzL2i=H)u5cSZ_k4dmfI-hjMK',62,2,'|safe|safe'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(kdfxrbmzisguqe4fouqzl2i=h)u5csz_k4dmfi-)</script>"
+  },
+  {
+    "name": "random-010",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('6nM7XkR0tC8KdrqbJ2Uot)CN2V;rbNW',62,2,'safe|ok|safe'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(6 nm7xkr0tc8kdrqbj2uot)cn2v;))</script>"
+  },
+  {
+    "name": "random-011",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('Lw36jpY+;F',62,2,'|safe||ok|foo|bar|bar|ok|bar|alert|bar|foo|bar|||alert|ok'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(lw36jpy+;</script>"
+  },
+  {
+    "name": "random-012",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('pPy_fVy7=1a6OUyIkQcy7lsGsp)TZvu_oQ',36,2,'alert|ok|bar|foo|foo||foo'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(ppy_fvy7=1 a6ouyikqcy7lsgsp)))</script>"
+  },
+  {
+    "name": "random-013",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('oIvQ76=;Y-3ET4sPstGH6FB3Hmgbrbyb',2,2,'safe|bar|bar|||safe|foo|alert|safe|safe'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(oivq76=;y-3)</script>"
+  },
+  {
+    "name": "random-014",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}(';8NbL)rV)OzcF',16,2,'bar|bar|safe|safe|alert'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(;8 nbl)rv)))</script>"
+  },
+  {
+    "name": "random-015",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('xXt0)XnF;jWWnrsUxSA9B8ad4Z9zBtLDFw-PfXOy',62,2,'ok|bar|foo|foo|bar|bar|safe|alert||bar||ok|safe|'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(xxt0)xnf;jwwnrsuxsa9b8ad4z9zbtldfw-)</script>"
+  },
+  {
+    "name": "random-016",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('3GOx)WB00;2FGoRg7wqpXJN1t_AIke',62,2,'bar||foo|ok|alert|alert|ok||safe|ok|bar|alert'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(3 gox)wb00;2))</script>"
+  },
+  {
+    "name": "random-017",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('jX_AOUCGM_QF3',2,2,'bar|alert|bar|ok|safe|safe|safe|foo|bar|safe|ok|safe|bar|safe|ok'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack()</script>"
+  },
+  {
+    "name": "random-018",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('f)3nL4IjvSQsi',36,2,'ok|foo|ok'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(f)3))</script>"
+  },
+  {
+    "name": "random-019",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('UQxD5;MY_DkG8j22dwwIeHJLCr3)TIBH3l',36,2,'bar|foo'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(uqxd5;my_dkg8j22dwwiehjlcr3)</script>"
+  },
+  {
+    "name": "random-020",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('+A1tNNdGvTL',62,2,'ok|foo'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(+)</script>"
+  },
+  {
+    "name": "random-021",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('4HArqdFuK-6=7A0U5-dGfOmbx8Q6n-nRS6;+5r5',62,2,'safe'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(4 harqdfuk-6=7 a0u5-dgfombx8q6n-nrs6;+5)</script>"
+  },
+  {
+    "name": "random-022",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('U3F3o(6-cdWLufqI3A;wne',16,2,'|bar|foo||ok|bar|ok'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(u3f3o(ok-cdwlufqi3a;)</script>"
+  },
+  {
+    "name": "random-023",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('uaVjr2O2KvBw1HtD+4PP',10,2,'safe|ok|ok'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(uavjr2o2kvbw1htd+4</script>"
+  },
+  {
+    "name": "random-024",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('+T09IudO;nox2jOc;iHfdRn6am2IQ(=ougPKsy;',16,2,'alert||bar|bar|ok|safe|safe|alert|foo'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(+t09iudo;nox2joc;ihfdrn6am2iq(=ougpksy;)</script>"
+  },
+  {
+    "name": "random-025",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('pO3tT(bZaOM6Kq',16,2,'safe|ok|foo|safe|ok|alert||bar|ok|||alert'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(po3tt()</script>"
+  },
+  {
+    "name": "random-026",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('P07BqSJUQfOBFevJmB9vVWNE6egeHESAArpROVaYv=kQwH',2,2,'bar|bar||foo|bar|ok||bar'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(p07bqsjuqfobfevjmb9vvwne6egehesaarprovayv=))</script>"
+  },
+  {
+    "name": "random-027",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('914)FbEDZplwloEip2HXaCdTFR',36,2,'alert|foo|ok||safe|ok|bar|safe|bar|bar|foo|bar|alert|foo||ok|ok'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(914))</script>"
+  },
+  {
+    "name": "random-028",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('4DZy=HLffIzmC)wskwh',2,2,'ok'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(4 dzy=hlffizmc)))</script>"
+  },
+  {
+    "name": "random-029",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('c0ea))E09LOMyFsDJ92HJC',10,2,'safe||foo|ok|bar|bar|'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(c0ea)))</script>"
+  },
+  {
+    "name": "random-030",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('f1IoCOGB6',36,2,'|foo|alert|foo'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}())</script>"
+  },
+  {
+    "name": "random-031",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('MqDq0N=P',36,2,'safe|'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(mqdq0n=)</script>"
+  },
+  {
+    "name": "random-032",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}(')euQZ=vNRH',10,2,'foo|bar|bar|alert|foo'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}()euqz=)</script>"
+  },
+  {
+    "name": "random-033",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('Qep38qEjqo+lb5hpVX4eh(l3-BM-Of+yNy+B8GUD)',36,2,'ok|safe|ok'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(qep38qejqo+lb5hpvx4eh(l3-bm-of+yny+b8gud)</script>"
+  },
+  {
+    "name": "random-034",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('EXQ3CR5AedeMYha',62,2,'foo|alert|alert|foo|alert|safe|safe|ok|||safe|safe||safe'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}())</script>"
+  },
+  {
+    "name": "random-035",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('9M0gL0EPsIQHsyDxSbwWnb(BIatN)aR',2,2,'alert|alert|bar|ok|safe|bar|ok||ok|foo|ok|'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(9 m0gl0epsiqhsydxsbwwnb(biatn))</script>"
+  },
+  {
+    "name": "random-036",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}(')0YTZGDepG_2SGfuU0m',10,2,'|bar|ok|bar'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}()0))</script>"
+  },
+  {
+    "name": "random-037",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('QhaDQwoRzqDm=zhvM5ECJE_2K9hIW_6EfKw',16,2,'foo|ok|ok|bar|safe|bar|foo|ok||alert'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(qhadqworzqdm=</script>"
+  },
+  {
+    "name": "random-038",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}(';NjC1spkm0jE()TN(k)TSfmOEu_zo8iGCgUQ4TwEBN5',10,2,'ok|safe|ok|ok|alert|foo|safe'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(;njc1spkm0je()tn(k)))</script>"
+  },
+  {
+    "name": "random-039",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('h5J3MG10R',16,2,'safe|foo|safe|ok|safe|safe|safe|safe|foo|foo|ok|ok||ok|safe'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack()</script>"
+  },
+  {
+    "name": "random-040",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('YP-GoF9FjLr4;I)-',10,2,'safe|bar|safe||safe|safe'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(yp-gof9fjlr4;i)-))</script>"
+  },
+  {
+    "name": "random-041",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('_XTFhk(hMGUy1o+P)+um',16,2,''.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(_xtfhk(hmguy1o+p)+</script>"
+  },
+  {
+    "name": "random-042",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('MIpGOCytncXJ6HAuzYeqxnV36c',10,2,'foo|bar|ok|bar|alert|foo|bar'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}()</script>"
+  },
+  {
+    "name": "random-043",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('MM9QpMqiakTQ8-ipq;jgz_;j+0UV_bOHJQEUzz6uQD=',2,2,'bar|foo||bar|ok|alert|alert||ok'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(mm9qpmqiaktq8-ipq;jgz_;j+0 uv_bohjqeuzz6uqd=</script>"
+  },
+  {
+    "name": "random-044",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('wUEJEE-USaY6Q-(geoce-TiqGwDJ',16,2,'|ok|ok|foo|alert|alert|ok||foo'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(wuejee-usay6q-(geoce-))</script>"
+  },
+  {
+    "name": "random-045",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('sq-cs',10,2,'bar||ok|safe|alert|bar|ok|alert|bar|bar|safe|ok|safe|bar|alert|bar|ok'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(sq-)</script>"
+  },
+  {
+    "name": "random-046",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('_mvGRochUOqs8kcUAcdskFvhsEF=7xntiEa6uRKYIdR9S',62,2,'|foo|safe'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(_mvgrochuoqs8kcuacdskfvhsef=7))</script>"
+  },
+  {
+    "name": "random-047",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('aHSexwIvE2dJTfZlohYCvywL+4Rh=_z;o0zcpw',16,2,'foo|||ok||ok|alert|foo|safe||bar|foo'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(ahsexwive2djtfzlohycvywl+4 rh=_z;)</script>"
+  },
+  {
+    "name": "random-048",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('RRbdCuFe635nuuCf6IMkoNqi2TP2GO4DDpBV4yPHdRuLQ',16,2,'bar|bar|alert|safe|safe|alert'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}())</script>"
+  },
+  {
+    "name": "random-049",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('pydQN=5KQAXb(VvD(tR7p+dw4n35IzP18T6akA1pV9R4WwY',2,2,'alert|ok||alert|'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(pydqn=5 kqaxb(vvd(tr7p+)</script>"
+  },
+  {
+    "name": "random-050",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('8jS5D-YsMUOA3;4L;8hMtc-',16,2,'safe||safe|foo|bar||ok|safe|ok|ok|bar|alert|bar|safe|foo||safe'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(8 js5d-ysmuoa3;4 l;8 hmtc-))</script>"
+  },
+  {
+    "name": "random-051",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('zy3b)(_4J+wc2h3Egp;w0z-hF8GX6Cv6+kpY5sb_5tNS',62,2,'bar|safe|ok|ok|alert|safe|bar|foo|foo|alert|safe|bar|safe|alert'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(zy3b)(_4j+wc2h3egp;w0z-hf8gx6cv6+)</script>"
+  },
+  {
+    "name": "random-052",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('tS=0t',2,2,'|ok||alert'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(ts=0)</script>"
+  },
+  {
+    "name": "random-053",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('kO7maG3RA481XqCPh-h40fZqVz1Ik7Ps4VPKr+kcjFgT6JR',16,2,'|ok||bar|ok|foo|alert|safe'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(ko7mag3ra481xqcph-h40fzqvz1ik7ps4vpkr+</script>"
+  },
+  {
+    "name": "random-054",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('OFg5=)AVIF+fYiNfo-V3(8H',2,2,'alert|bar|safe|bar|safe||safe|alert|alert'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(ofg5=)avif+fyinfo-v3(8))</script>"
+  },
+  {
+    "name": "random-055",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('=kHbdIX;6cjaUpOBlCrq2W1-sexmT(NLI)Lws-+7-r)G',10,2,'|alert|safe||foo|alert|alert|ok||bar'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(=khbdix;6 cjaupoblcrq2w1-sexmt(nli)lws-+ok-r)</script>"
+  },
+  {
+    "name": "random-056",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('eJHS81f9u-9XI=CxJLr=+z;2W91jN',62,2,'safe|foo|safe|safe|bar|alert|safe|safe|bar|foo'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(ejhs81f9u-9 xi=cxjlr=+z;2)</script>"
+  },
+  {
+    "name": "random-057",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('WFQRWeP',62,2,'|safe|safe|alert|bar||foo||alert|foo|ok|foo|safe|bar|ok|alert|foo'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack()</script>"
+  },
+  {
+    "name": "random-058",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('YXoM',2,2,'bar|'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}())</script>"
+  },
+  {
+    "name": "random-059",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack(';O9GZFI6dwix9=nkMDe=Hgml14Pru-0W5OF=44Aaoo',62,2,'foo||foo|bar|foo|'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(;o9gzfi6dwix9=nkmde=hgml14pru-0 w5of=44)</script>"
+  },
+  {
+    "name": "random-060",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('bgNVWjMsSPBRYBVJ9;7W27ZNU7e=R',16,2,'alert|bar|bar|alert'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(bgnvwjmsspbrybvj9;7 w27znu7e=)</script>"
+  },
+  {
+    "name": "random-061",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('hIsyzRfy00EHD',16,2,'foo|ok|safe|bar|bar|safe|bar|alert|foo'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack()</script>"
+  },
+  {
+    "name": "random-062",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('HbApSaA6V(nWov1DDyh',10,2,'|safe|alert|foo|ok||bar|foo||alert|safe|foo|ok|foo'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(hbapsaa6v())</script>"
+  },
+  {
+    "name": "random-063",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('GdvOyWJaP(66oTrQuoqSK;TKTG07xlME004oMB',10,2,'foo|safe|bar|bar|bar'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(gdvoywjap(66 otrquoqsk;)</script>"
+  },
+  {
+    "name": "random-064",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('Si52dP7SMmR_g8aHIlrXCRCs1x4B4f16j=N06-dw1mo',10,2,'alert||foo|foo|safe|alert||foo|safe|||bar|safe'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(si52dp7smmr_g8ahilrxcrcs1x4b4f16j=n06-))</script>"
+  },
+  {
+    "name": "random-065",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('ytq2X4YG',10,2,'|safe||safe|bar|safe'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack()</script>"
+  },
+  {
+    "name": "random-066",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('g_JHFClsUFZ0c;-L)INIEr3LZblfA(z7=FxHwXN1',62,2,'safe|ok|safe|ok|ok|alert|foo||ok|safe|ok||bar|foo|'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(g_jhfclsufz0c;-l)inier3lzblfa(z7=))</script>"
+  },
+  {
+    "name": "random-067",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('=JJqUuCeeyfGR9um;he9S)NR)D_Q(p;O1wVA2JE',2,2,'|safe|ok|alert|safe||ok||bar|foo|foo|foo|'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(=jjquuceeyfgr9um;he9s)nr)d_q(p;</script>"
+  },
+  {
+    "name": "random-068",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('V8s-NcY=k1kjw(76n044j;0NTuYt5vuUPpg',36,2,'safe||safe|||alert|alert'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(v8s-ncy=k1kjw(76 n044j;0))</script>"
+  },
+  {
+    "name": "random-069",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('cl(6A)XNjuHzusmt(CL',16,2,'foo|foo|alert|ok|foo|ok|alert||safe|foo|alert|alert||foo||alert'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(cl(6 a)xnjuhzusmt()</script>"
+  },
+  {
+    "name": "random-070",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('uQtTBwjsnsSkgMGu1aT6lFPsAoJNHc+Si',16,2,'bar|foo|bar|foo|foo||bar|safe|foo|bar||safe'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(uqttbwjsnsskgmgu1at6lfpsaojnhc+))</script>"
+  },
+  {
+    "name": "random-071",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('5zMAVjsbl74J0Jy2jW)pxjhSddN9Isbjmn',36,2,'|foo|alert|ok|safe|ok||ok|safe|foo|alert|ok|safe'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(5 zmavjsbl74j0jy2jw))</script>"
+  },
+  {
+    "name": "random-072",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('oT9JfiRv7(NNdNS+Z8Z07uxCSc8jjG141vFC',36,2,''.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(ot9jfirv7(nndns+)</script>"
+  },
+  {
+    "name": "random-073",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('TlL6Ed',16,2,'bar|foo|alert|foo|ok|safe|ok|bar||safe|safe||bar'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack()</script>"
+  },
+  {
+    "name": "random-074",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('73hpzgN4dBRs9;=A3kMD5_MXkBEbNuJHl=MFCm',2,2,'bar|ok'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(73 hpzgn4dbrs9;=a3kmd5_mxkbebnujhl=))</script>"
+  },
+  {
+    "name": "random-075",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('L4jbQrS5kODMyhFn-dpDIVA',36,2,'safe|ok|alert|alert|ok|foo|ok|foo|safe|safe||safe'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(l4jbqrs5kodmyhfn-)</script>"
+  },
+  {
+    "name": "random-076",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('Nm5MBE',10,2,'bar|ok'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}()</script>"
+  },
+  {
+    "name": "random-077",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('aLsNA6IyHdZ+w6;mqql6',16,2,'ok'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alsna6iyhdz+w6;</script>"
+  },
+  {
+    "name": "random-078",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('90-aZ0eue',62,2,'bar||safe|'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(90-))</script>"
+  },
+  {
+    "name": "random-079",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('w6C(0)l9zTZ9w14Pv5XllFw67txTQH6',16,2,'foo||ok'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(w6c(foo)</script>"
+  },
+  {
+    "name": "random-080",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('G=mfO1',10,2,'foo|bar|ok|alert|foo||safe|ok|safe|alert|foo|ok|safe'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(g=))</script>"
+  },
+  {
+    "name": "random-081",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('JZrxfHk(+1P',10,2,'foo|safe|safe|foo|safe|ok|ok|safe|bar||bar|foo|foo|ok||safe|alert'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(jzrxfhk(+1)</script>"
+  },
+  {
+    "name": "random-082",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('js7H53-dufiL31_4zE;DxqFDe1_Ju31Zqh',62,2,'foo||||foo|safe|bar|foo|alert|safe||'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(js7h53-dufil31_4ze;))</script>"
+  },
+  {
+    "name": "random-083",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('_snEt_2dLFmJT(a=A9UWJ',10,2,'alert|ok|foo'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(_snet_2dlfmjt(a=</script>"
+  },
+  {
+    "name": "random-084",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('CWMQPRnTQ2k2HRuux_iVjGA_(n25dXnoFcaXT2',36,2,'safe|foo|foo|||alert|alert|alert|ok|foo|bar||ok|bar||bar'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(cwmqprntq2k2hruux_ivjga_())</script>"
+  },
+  {
+    "name": "random-085",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('1(mbn82UL0xG8c0Erh6JDNGuPgiDn(9',16,2,'safe|alert|ok|ok|foo||alert|ok'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(alert(mbn82ul0xg8c0erh6jdngupgidn()</script>"
+  },
+  {
+    "name": "random-086",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('gt;LgEDn6aPVQykWaSY9-3CvlmWLVuyuscfswIYPBV',2,2,'bar||foo'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(gt;lgedn6apvqykwasy9-3))</script>"
+  },
+  {
+    "name": "random-087",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('5IvnWdI0LYM6B',2,2,'alert|bar'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(5)</script>"
+  },
+  {
+    "name": "random-088",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('1R+iB0m4qJ)a8qO29H4rItIUZ==uEdW0VaW=oURe',16,2,'alert|safe||foo|ok|ok|alert||foo'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(1 r+ib0m4qj)a8qo29h4ritiuz==uedw0vaw=))</script>"
+  },
+  {
+    "name": "random-089",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('YUBdDS1EpMjlFu-YdD5r',36,2,'bar|bar||foo|alert|ok|ok|ok|foo'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(yubdds1epmjlfu-)</script>"
+  },
+  {
+    "name": "random-090",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('cIHy12z10AuhMSnF5R;a1qzU0OMIw)KsaHL9MfbYF',10,2,'|ok|safe|bar|bar|ok|bar|safe|safe|bar|foo|safe|foo|foo|safe|ok|alert'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(cihy12z10auhmsnf5r;a1qzu0omiw))</script>"
+  },
+  {
+    "name": "random-091",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('n9U3O5XRgT=meUVw',62,2,'foo|bar|foo|safe||safe|||foo|ok|alert|bar'.split('|'),0,{})</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(n9u3o5xrgt=)</script>"
+  },
+  {
+    "name": "random-092",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('ouy2fALYaPHj_a+_v1CCv;tz7demFC',16,2,'alert|safe|foo|bar|bar||safe|safe|bar|alert|safe|bar||ok|foo'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(ouy2falyaphj_safe+_v1ccv;))</script>"
+  },
+  {
+    "name": "random-093",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('6OHGWvQH3',10,2,'foo|foo||foo|safe|foo|bar|alert||alert|bar|bar|foo|foo'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(6</script>"
+  },
+  {
+    "name": "random-094",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('H5s8jk+Z(16)t=nCJB=-J7',2,2,'bar|bar|alert|foo|ok|foo||alert|ok'.split('|'),0,0))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(h5s8jk+z(ok)t=ncjb=-)</script>"
+  },
+  {
+    "name": "random-095",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('Wo_o-B',36,2,'ok|ok|foo|alert|bar|ok|ok|foo|safe|safe'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(wo_o-</script>"
+  },
+  {
+    "name": "random-096",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('zM(r7YSBjuRz5Mt8ma8N_IK;MLXMeeUay8HDnwN7(',10,2,'ok||alert|foo|ok||ok|foo||ok|alert|ok|bar|alert|alert'.split('|'),0,[]))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(zm(r7ysbjurz5mt8ma8n_ik;mlxmeeuay8hdnwn7())</script>"
+  },
+  {
+    "name": "random-097",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('UmtPhxg+YDgSlfsLZeLUs4h1C7bvGaOF5okNhIyQTwA',16,2,'bar|foo|foo|||alert|foo|foo||bar||safe|foo'.split('|'),0,[])</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(umtphxg+)</script>"
+  },
+  {
+    "name": "random-098",
+    "source": "<html><script>eval(function(p,a,c,k,e,d){return p}('T;eBfeCNAKk+-Rf7fn;2GIZqTc7rklE9dTzIAXbvqiJ3t',16,2,'foo|ok|alert|safe|foo|ok|bar|alert||safe|alert|foo|bar|bar|safe'.split('|'),0,{}))</script></html>",
+    "output": "<script>eval(function(n000,n001,n002,n003,n004,n005){return n000}(t;ebfecnakk+-rf7fn;2))</script>"
+  },
+  {
+    "name": "random-099",
+    "source": "<html><script>function pack(p,a,c,k,e,r){return p} pack('XgXx3CaDa9_r(oQXW)gkKimWvBMcbQ',10,2,'alert|alert|alert||ok||foo||safe|bar|bar|foo|alert'.split('|'),0,0)</script></html>",
+    "output": "<script>function n000(n001,n002,n003,n004,n005,n006){return n001}pack(xgxx3cada9_r(oqxw)</script>"
+  }
+]

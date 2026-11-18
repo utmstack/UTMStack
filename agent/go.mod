@@ -3,19 +3,29 @@ module github.com/utmstack/UTMStack/agent
 go 1.26.0
 
 require (
+	github.com/0xrawsec/golang-etw v1.6.2
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/elastic/go-libaudit/v2 v2.6.2
 	github.com/elastic/go-sysinfo v1.15.5
 	github.com/glebarez/sqlite v1.11.0
+	github.com/go-ole/go-ole v1.3.0
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.3.0
+	github.com/klauspost/compress v1.20.0
+	github.com/nwaples/rardecode/v2 v2.4.1
+	github.com/smallstep/pkcs7 v0.2.3
 	github.com/spf13/cobra v1.10.2
 	github.com/threatwinds/go-sdk v1.1.28
 	github.com/threatwinds/logger v1.2.3
 	github.com/tidwall/gjson v1.20.0
 	github.com/tidwall/sjson v1.2.5
+	github.com/ulikunitz/xz v0.5.17
 	github.com/utmstack/UTMStack/shared v0.0.0
+	golang.org/x/crypto v0.55.0
+	golang.org/x/image v0.44.0
+	golang.org/x/net v0.58.0
 	golang.org/x/sys v0.49.0
+	golang.org/x/text v0.41.0
 	google.golang.org/grpc v1.84.0
 	google.golang.org/protobuf v1.36.12
 	gorm.io/gorm v1.31.2
@@ -25,6 +35,7 @@ replace github.com/utmstack/UTMStack/shared => ../shared
 
 require (
 	cel.dev/expr v0.25.2 // indirect
+	github.com/0xrawsec/golang-utils v1.3.1 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.1 // indirect
 	github.com/bytedance/gopkg v0.1.4 // indirect
 	github.com/bytedance/sonic v1.15.2 // indirect
@@ -69,10 +80,7 @@ require (
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.27.0 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
 	golang.org/x/exp v0.0.0-20260603202125-055de637280b // indirect
-	golang.org/x/net v0.58.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260706201446-f0a921348800 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260706201446-f0a921348800 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect

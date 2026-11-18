@@ -1,0 +1,518 @@
+[
+  {
+    "name": "png-rgba-adam7-0.ico",
+    "bytes": 4218,
+    "sha256": "804ebb58aa6dc9b401937781606a3ed3d318eb35644706c0f463942737c692ce",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "png-rgba-adam7-1.ico",
+    "bytes": 4246,
+    "sha256": "fb8d19f8fd5546f6ff19994bf55a007c90ccb870fb12c75bf6aa67e9658aa179",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "png-rgb-adam7-0.ico",
+    "bytes": 3194,
+    "sha256": "982be29eaf93ebefb3d6b877457610149f93aa63a27b2dc78fabbd969ceca582",
+    "hash": null
+  },
+  {
+    "name": "png-rgb-adam7-1.ico",
+    "bytes": 3222,
+    "sha256": "826f3bd17d119706280ccdbb7c880ac93b3cabfb37eef15a00182765e31aac45",
+    "hash": null
+  },
+  {
+    "name": "png-rgb-trns-adam7-0.ico",
+    "bytes": 3212,
+    "sha256": "e32daf7ced7df8f46f32d4ab1af3a4144ae8e53ace90fd8136b567a9ebf7d88e",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "png-rgb-trns-adam7-1.ico",
+    "bytes": 3240,
+    "sha256": "781d9137612f1ca63cc5b4be49a0049f4feec37cfe685d038e0f7df241fa9fdf",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "png-palette-adam7-0.ico",
+    "bytes": 1291,
+    "sha256": "63e494b91e4d05fa0a26528d3beb43dfea7c82c92d2a79287b0fa69d23502ca4",
+    "hash": null
+  },
+  {
+    "name": "png-palette-adam7-1.ico",
+    "bytes": 1658,
+    "sha256": "594e14464bc4d9c9f113ceacf0c519edb467356962889551f9ba6118db533a83",
+    "hash": null
+  },
+  {
+    "name": "png-palette-trns-adam7-0.ico",
+    "bytes": 1559,
+    "sha256": "a620e21ea2c201bb12f16fdc706c510c4bcdc38fef724500abbab68cc90157b0",
+    "hash": "f8f36974ae8c540c"
+  },
+  {
+    "name": "png-palette-trns-adam7-1.ico",
+    "bytes": 1926,
+    "sha256": "4e67bbcf9cf6caf5c8e746a256c40e3c10d732ec459d709f92a53c014698c2e3",
+    "hash": "f8f36974ae8c540c"
+  },
+  {
+    "name": "png-gray-alpha-adam7-0.ico",
+    "bytes": 2170,
+    "sha256": "dc04f4e06f9459b8189e480a948c87281323b36e6c3538e30a96bf1a9db0fcd9",
+    "hash": null
+  },
+  {
+    "name": "png-gray-alpha-adam7-1.ico",
+    "bytes": 2198,
+    "sha256": "19327e09a3a97d10066749d21fa86afaf259de4b0ccd59618644791050e941a0",
+    "hash": null
+  },
+  {
+    "name": "png-rgba16-adam7-0.ico",
+    "bytes": 8190,
+    "sha256": "0a8d9f16b1d95ec320de961634121cd332479fd45640fc6508945f232ba9bfd8",
+    "hash": null
+  },
+  {
+    "name": "png-rgba16-adam7-1.ico",
+    "bytes": 8151,
+    "sha256": "565030cfe1679e48a0e8cb8059ea3af39430313c6c2549032021273cc466c61a",
+    "hash": null
+  },
+  {
+    "name": "length-png-0.ico",
+    "bytes": 4218,
+    "sha256": "71bbb59de3faed989b60e5f96f81f8496dd39d1816ada1d8350ab8cfde664826",
+    "hash": null
+  },
+  {
+    "name": "length-png-7.ico",
+    "bytes": 4218,
+    "sha256": "b11dc736d6706d5db4692d6dbdd660c9d2e9dd5e6fcbefd18f27f1cf14549696",
+    "hash": null
+  },
+  {
+    "name": "length-png-8.ico",
+    "bytes": 4218,
+    "sha256": "efa59bbe67db296026a7b1255810d1f663241e095a22afd843855514a1d86e82",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "length-png-33.ico",
+    "bytes": 4218,
+    "sha256": "57affa1e4d03bb9723f7594ad00e7e3a95a33b8e3b0355d0e7c1245a181a5b99",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "length-png-4195.ico",
+    "bytes": 4218,
+    "sha256": "6272863d2dedbc07f85b64db2f9fa732aaad34dd20377e449ead7f0c3f3b137e",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "length-png-4196.ico",
+    "bytes": 4218,
+    "sha256": "804ebb58aa6dc9b401937781606a3ed3d318eb35644706c0f463942737c692ce",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "length-png-4296.ico",
+    "bytes": 4218,
+    "sha256": "acb9aaa5d41724b6fec0752ba5e59452f51033b5e194dc5443e273ec8d1f136f",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "length-png-4294967295.ico",
+    "bytes": 4218,
+    "sha256": "7935f0beff7fddcd9c84b25b13ca1a5f3dc38292fe3787d3929b4f8de91288a0",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "length-dib-0.ico",
+    "bytes": 4286,
+    "sha256": "a643dd1c0d0cca2b3b02e206437ba824fc14aa84594edd6e7965bbc9b731c807",
+    "hash": null
+  },
+  {
+    "name": "length-dib-7.ico",
+    "bytes": 4286,
+    "sha256": "5f8d441070cc4a41c45c7fd185fec5d78271b4805f57044d98d7eb9963604932",
+    "hash": null
+  },
+  {
+    "name": "length-dib-8.ico",
+    "bytes": 4286,
+    "sha256": "de164327734cb2fb89e2bd0b0d75b01b7d4452a4dccdb73216a9f41d0da40701",
+    "hash": null
+  },
+  {
+    "name": "length-dib-33.ico",
+    "bytes": 4286,
+    "sha256": "2aff3490da8cdaf4cb9bbd02bf070f60f379cc1528173786741b583c8f79b7ad",
+    "hash": null
+  },
+  {
+    "name": "length-dib-4263.ico",
+    "bytes": 4286,
+    "sha256": "535f8e18a0f5ba8a48b4c5498b364f52f4198b80ba38e77b8e29745a5edd9c77",
+    "hash": null
+  },
+  {
+    "name": "length-dib-4264.ico",
+    "bytes": 4286,
+    "sha256": "76ad8c210e24b5c2c9e5a83e127f3598fd6bc595437ab4f6d5ba622d8bd4e856",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "length-dib-4364.ico",
+    "bytes": 4286,
+    "sha256": "578b7b5b23585b72e073afb760cad4b578787d4aeb98087b8cbb6818e495afd8",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "length-dib-4294967295.ico",
+    "bytes": 4286,
+    "sha256": "15a80867d0f001f2425db2b3a4a63bc680bc157085f96cc9ab1f8c7debe7e57a",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "header-12-depth-1.ico",
+    "bytes": 296,
+    "sha256": "dab8daf03a520d66427964ace6241f872901392cca44b42b32a66581d11a63cf",
+    "hash": "8000000000000000"
+  },
+  {
+    "name": "header-12-depth-4.ico",
+    "bytes": 722,
+    "sha256": "0bb9c298fdf72c679791dfd51d7a2902eaebbfa5bbfe9685af000844657bd520",
+    "hash": "8004008400840004"
+  },
+  {
+    "name": "header-12-depth-8.ico",
+    "bytes": 1954,
+    "sha256": "f5a6fa27aabf160b82e82e3c78a790ab3de38199fbaf0a7b6d21facf05678847",
+    "hash": "f8f257411775c131"
+  },
+  {
+    "name": "header-12-depth-24.ico",
+    "bytes": 3234,
+    "sha256": "c216d8ff71f5033e8f80cc92a3178367c11d10e4ba2d84c56d485fce0d355ce9",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "header-40-depth-1.ico",
+    "bytes": 326,
+    "sha256": "5b3c53d838a444f0fd57404c7e4d8297f13e02bb084403afc90a3d6b225b5795",
+    "hash": "8000000000000000"
+  },
+  {
+    "name": "header-40-depth-2.ico",
+    "bytes": 462,
+    "sha256": "2e9c56e3351f355d2ecd08831753c58fc44de21a92d660565f853fc510634c87",
+    "hash": "8080000000000000"
+  },
+  {
+    "name": "header-40-depth-4.ico",
+    "bytes": 766,
+    "sha256": "54be793baff71eb4fedcf8e154df07503204124047b0fed8fd2aeeea5d2e728b",
+    "hash": "8004008400840004"
+  },
+  {
+    "name": "header-40-depth-8.ico",
+    "bytes": 2238,
+    "sha256": "4664ec1f6d521aa589d86e024eb01b52ef409bb3ee03a87c7107438447cfd9b5",
+    "hash": "f8f257411775c131"
+  },
+  {
+    "name": "header-40-depth-16.ico",
+    "bytes": 2238,
+    "sha256": "8cb0e17f72bdd891890832f0a06c2e8b493498464cd77e66dacd6bee28301457",
+    "hash": "87852e6dc01fb5a5"
+  },
+  {
+    "name": "header-40-depth-24.ico",
+    "bytes": 3262,
+    "sha256": "566cb03db8bbafae9e2a2f28ca28b802c17a7465f0b3d528ce3035a1434d8d77",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "header-40-depth-32.ico",
+    "bytes": 4286,
+    "sha256": "76ad8c210e24b5c2c9e5a83e127f3598fd6bc595437ab4f6d5ba622d8bd4e856",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "palette-1-count-1.ico",
+    "bytes": 322,
+    "sha256": "06d68b16409f0cb1abda97cc2894c8e5136eef9753d70ceaf1fbb9b07472867b",
+    "hash": "8055005500550055"
+  },
+  {
+    "name": "palette-1-count-2.ico",
+    "bytes": 326,
+    "sha256": "5b3c53d838a444f0fd57404c7e4d8297f13e02bb084403afc90a3d6b225b5795",
+    "hash": "8000000000000000"
+  },
+  {
+    "name": "palette-2-count-1.ico",
+    "bytes": 450,
+    "sha256": "be44f7ffd666d6c02b54b91926428773c07c4cd0dd7f23bb17077777beb206e2",
+    "hash": "8055005500550055"
+  },
+  {
+    "name": "palette-2-count-2.ico",
+    "bytes": 454,
+    "sha256": "3336e6772c19d7694f7963ebfc3adc6662b238d867203aa15e1f236d16063baa",
+    "hash": "80d5005500550055"
+  },
+  {
+    "name": "palette-2-count-3.ico",
+    "bytes": 458,
+    "sha256": "854a52ebc6ae99263c033fed0fef4017d671a17f85ecbe95d186b3b3c5887d17",
+    "hash": "80d50055005500d5"
+  },
+  {
+    "name": "palette-4-count-1.ico",
+    "bytes": 706,
+    "sha256": "f8e8199440ffb8fb33bbb3bd8590235c4ae632af93ee34b9ec955bbada207b54",
+    "hash": "80cd004d558d000d"
+  },
+  {
+    "name": "palette-4-count-2.ico",
+    "bytes": 710,
+    "sha256": "48f3e7583150c4be05ed641316ff071100685aeed8167ec34184b1a2601052af",
+    "hash": "800d008d55cd004d"
+  },
+  {
+    "name": "palette-4-count-15.ico",
+    "bytes": 762,
+    "sha256": "b724a8effae3337afe64f66ac5d944479e4b3ac80065f08345df9bf60abf52bc",
+    "hash": "d5d100d055d500d5"
+  },
+  {
+    "name": "palette-8-count-1.ico",
+    "bytes": 1218,
+    "sha256": "b0f378871c8866153fd20ea82b1ce1004a03c051013c518ee13f5ce16f73d298",
+    "hash": "8d58d44a31a3b779"
+  },
+  {
+    "name": "palette-8-count-2.ico",
+    "bytes": 1222,
+    "sha256": "fce40659b4beb5b616dbb3efdfdf46ecd25cdf4f132324162e8d75f1a424563a",
+    "hash": "8d28e23bb1aaaf31"
+  },
+  {
+    "name": "palette-8-count-255.ico",
+    "bytes": 2234,
+    "sha256": "41fadf9a7c1d6aff4cb809eafae18c989b0c4275d75011a87644894670ccb057",
+    "hash": "f8f2575317718131"
+  },
+  {
+    "name": "orientation-8-top-1-odd-0.ico",
+    "bytes": 2238,
+    "sha256": "1c38b15f9993f71a10b2c30c4fa836411e1681e2fa7eac50697a44155e436d22",
+    "hash": "f8f257411775c131"
+  },
+  {
+    "name": "orientation-8-top-0-odd-1.ico",
+    "bytes": 2238,
+    "sha256": "025893bb06726fa00346892b5bcb94018885133b2362b5c7b46d2652a7d09243",
+    "hash": "f8f257411775c131"
+  },
+  {
+    "name": "orientation-8-top-1-odd-1.ico",
+    "bytes": 2238,
+    "sha256": "bfadb142da1c249a4089a7fd58f8ad1372d7d5cf279f416ce1068edfb81d8c95",
+    "hash": "f8f257411775c131"
+  },
+  {
+    "name": "orientation-16-top-1-odd-0.ico",
+    "bytes": 2238,
+    "sha256": "4ded860c542a4896bfbcaca8e3a4b15a491dd11c791cde26169281aa666f913f",
+    "hash": "87852e6dc01fb5a5"
+  },
+  {
+    "name": "orientation-16-top-0-odd-1.ico",
+    "bytes": 2238,
+    "sha256": "22da79aeea390078b669ae479d23a7e80224e2c8ccd2afa4402c310449b2da87",
+    "hash": "87852e6dc01fb5a5"
+  },
+  {
+    "name": "orientation-16-top-1-odd-1.ico",
+    "bytes": 2238,
+    "sha256": "dd8e1cfd50758a1c056f79269185de52f34a6fd8a9e31268aebe541c484333d9",
+    "hash": "87852e6dc01fb5a5"
+  },
+  {
+    "name": "orientation-24-top-1-odd-0.ico",
+    "bytes": 3262,
+    "sha256": "865c6d6e30426c59a9f67f29f69c0338a55c0a63e158ff3217669e71a9afce6d",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "orientation-24-top-0-odd-1.ico",
+    "bytes": 3262,
+    "sha256": "f68590d619ea871cc694e7acf97f84f906af5c331dccbe6fce5644bd39171a01",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "orientation-24-top-1-odd-1.ico",
+    "bytes": 3262,
+    "sha256": "81c04841118dd77a2433bc003f8946a6b028df1998fdb88f99a686def91e5032",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "orientation-32-top-1-odd-0.ico",
+    "bytes": 4286,
+    "sha256": "63040b9e31e85d03eff3e45efffd560f2c37266b054fdc4a64f3554be0abe01e",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "orientation-32-top-0-odd-1.ico",
+    "bytes": 4286,
+    "sha256": "f9b555d0fef7da85e2ea667beedb6e8aa02ae8492aecdf7134c602134280b9d9",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "orientation-32-top-1-odd-1.ico",
+    "bytes": 4286,
+    "sha256": "292e53722bd4383ca501f190451bacd3b6cc45de5276d0b1bcd341435803d2b6",
+    "hash": "87852e6dc81eb5a5"
+  },
+  {
+    "name": "rle-4-encoded.ico",
+    "bytes": 384,
+    "sha256": "114bf9c931bd57774cbb8e07c693d88d2eb974027bbf1a66a5f010d738baadfa",
+    "hash": "8080008000800080"
+  },
+  {
+    "name": "rle-4-absolute.ico",
+    "bytes": 896,
+    "sha256": "2c0eaad5fd730e48ab3ca08df60bfef8f2403e36fbaa2d7a332359df430f4956",
+    "hash": "80d90059005900d9"
+  },
+  {
+    "name": "rle-4-delta.ico",
+    "bytes": 512,
+    "sha256": "27dab7222fc246c0123cf265aa6eb412ff1c478b0c6054541a8359fa050741bc",
+    "hash": "807f007f7f800080"
+  },
+  {
+    "name": "rle-4-early-eob.ico",
+    "bytes": 288,
+    "sha256": "abded906fd294872a4602203b4d917422e746e84e7bcce34d9db8d38feaa394c",
+    "hash": "8000800000800080"
+  },
+  {
+    "name": "rle-4-overrun.ico",
+    "bytes": 384,
+    "sha256": "265fd15df44fde43d9dcde0596eeb47b8219cdf2e996a95e96977f4dbabc82c0",
+    "hash": null
+  },
+  {
+    "name": "rle-4-overrun-noop.ico",
+    "bytes": 512,
+    "sha256": "cbdde54f94b9eeb97a2ca17e6d661b4861bb6275e8d9f9eee93c0330f216a2dc",
+    "hash": null
+  },
+  {
+    "name": "rle-4-short-palette.ico",
+    "bytes": 840,
+    "sha256": "4c7b5d677eb06e98c9e1cca6ff57330ea9c89486e6f59531e3fdd3891f76ec17",
+    "hash": "8050005055100010"
+  },
+  {
+    "name": "rle-4-no-eob.ico",
+    "bytes": 382,
+    "sha256": "d24e12cbec63235b57df3b85fb3b043490a448b718f68fb3b9535a1580d209f2",
+    "hash": "8080008000800080"
+  },
+  {
+    "name": "rle-4-no-mask.ico",
+    "bytes": 254,
+    "sha256": "ad89a6906953cebb5347505c5f44464fae84c5d49aac41d9f2e328d464b0cef6",
+    "hash": "8080008000800080"
+  },
+  {
+    "name": "rle-4-partial-mask-eob.ico",
+    "bytes": 256,
+    "sha256": "e5e78bea864501590c72c888340fab1ecd27c73680d419058549dff7c67fbd76",
+    "hash": null
+  },
+  {
+    "name": "rle-8-encoded.ico",
+    "bytes": 1344,
+    "sha256": "1646d0f7b3b51aee688fcff591d32d4ae10fe0382fa22812ffe6a3608cbeb053",
+    "hash": "8000008000800080"
+  },
+  {
+    "name": "rle-8-absolute.ico",
+    "bytes": 2368,
+    "sha256": "2f91c3d802559d86028493b441c1c68e48f9c79b4b3b56457bc0efe9b2e616c9",
+    "hash": "f80d57ae178a81ce"
+  },
+  {
+    "name": "rle-8-delta.ico",
+    "bytes": 1472,
+    "sha256": "573571524b8824bdc933f77254e852bd1e7538a724f9645633125c3069cb5d94",
+    "hash": "807f807f80407f7f"
+  },
+  {
+    "name": "rle-8-early-eob.ico",
+    "bytes": 1248,
+    "sha256": "480c63b3752806764b68239a1187c13d36df2d58ab21704ed2504f8c78d2b20e",
+    "hash": "8000800000800080"
+  },
+  {
+    "name": "rle-8-overrun.ico",
+    "bytes": 1344,
+    "sha256": "a1aa8a90dc68951f90237fc300a4314e5eb5375a933e25fca309649232faa86b",
+    "hash": "8000008000800080"
+  },
+  {
+    "name": "rle-8-overrun-noop.ico",
+    "bytes": 1472,
+    "sha256": "51fbbe663ede2791fd6d2f179840fb0433d62eaa5f56c32acc1f839b3272cc80",
+    "hash": "8000008000800080"
+  },
+  {
+    "name": "rle-8-short-palette.ico",
+    "bytes": 1352,
+    "sha256": "fbaeef9410f6145e5ac2e9bbc3b02abf106f29b88a4dbf76eccc0f96256bafe5",
+    "hash": "af05fb04bf10af44"
+  },
+  {
+    "name": "rle-8-no-eob.ico",
+    "bytes": 1342,
+    "sha256": "968c89bfee2b22e06c572cfe3dfab3f3ce3a17616de9ab826a293ba12f1fccd0",
+    "hash": "8000008000800080"
+  },
+  {
+    "name": "rle-8-no-mask.ico",
+    "bytes": 1214,
+    "sha256": "26c1fedd8038bdab5869390bfad43419087204fbfcb92cce5498b9a7b4631ef9",
+    "hash": "8000008000800080"
+  },
+  {
+    "name": "rle-8-partial-mask-eob.ico",
+    "bytes": 1216,
+    "sha256": "9a8370e1b227029d95334a8ea904f7be709ced0942315c23c7e506ed11cfd89c",
+    "hash": null
+  },
+  {
+    "name": "larger-than-directory-png.ico",
+    "bytes": 33305,
+    "sha256": "f5dd3c44f024663864067a8121808a5821f3f103dff866c68e50d6beca942a78",
+    "hash": "aaffaa0077aa05d4"
+  },
+  {
+    "name": "larger-than-directory-dib.ico",
+    "bytes": 67646,
+    "sha256": "c095e502c146ac6019e65e212ce3a5e48958807c74ac43eefcacb2ec3b4da60f",
+    "hash": "aaffaa0077aa05d4"
+  }
+]

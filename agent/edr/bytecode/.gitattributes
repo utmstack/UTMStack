@@ -1,0 +1,2 @@
+# Preserve the upstream license verbatim, including its original spacing.
+BZIP2-LICENSE.txt -whitespace

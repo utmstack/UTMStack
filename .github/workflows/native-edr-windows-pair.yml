@@ -1,0 +1,78 @@
+name: Native EDR Windows pair (acceptance artifacts only)
+
+# Deliberately separate from the deployment workflow: no releases, registry
+# pushes, signing secrets, provider registration or production installation.
+on:
+  workflow_dispatch:
+    inputs:
+      architecture:
+        description: Windows artifact architecture (ARM64 runtime remains separate)
+        type: choice
+        options: [amd64, arm64]
+        default: amd64
+
+permissions:
+  contents: read
+
+jobs:
+  build-pair:
+    runs-on: windows-2022
+    timeout-minutes: 35
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: agent/go.mod
+          cache-dependency-path: agent/go.sum
+      - name: Ensure target MSVC tools
+        env:
+          TARGET_ARCH: ${{ inputs.architecture }}
+        run: |
+          if ($env:TARGET_ARCH -eq 'arm64') {
+            $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+            $installation = & $vswhere -latest -products '*' -property installationPath
+            if ($LASTEXITCODE -ne 0 -or -not $installation) { throw 'Visual Studio was not found.' }
+            $installer = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\setup.exe"
+            $process = Start-Process $installer -ArgumentList @('modify', '--installPath', "`"$installation`"", '--add', 'Microsoft.VisualStudio.Component.VC.Tools.ARM64', '--quiet', '--norestart', '--nocache') -Wait -PassThru
+            if ($process.ExitCode -notin @(0,3010)) { throw "ARM64 tools installation failed: $($process.ExitCode)" }
+          }
+      - name: Build service and native provider together
+        env:
+          CGO_ENABLED: '0'
+          GOOS: windows
+          GOARCH: ${{ inputs.architecture }}
+        run: |
+          New-Item -ItemType Directory -Force '..\pair-input' | Out-Null
+          go build -trimpath -o '..\pair-input\utmstack_edr.exe' ./edr
+          if ($LASTEXITCODE -ne 0) { throw 'Native Go EDR build failed.' }
+          & .\edr\amsi\native\build.ps1 -Arch $env:GOARCH -BuildAcceptanceProbe
+          Copy-Item .\edr\amsi\native\utmstack_amsi.dll '..\pair-input\utmstack_amsi.dll'
+      - name: Run safe native and protocol tests on x64
+        if: inputs.architecture == 'amd64'
+        env:
+          CGO_ENABLED: '0'
+        run: |
+          & .\edr\amsi\native\bounded_stream_test.exe
+          if ($LASTEXITCODE -ne 0) { throw 'Native bounded stream tests failed.' }
+          go test ./edr/amsi ./edr/responder ./edr/quarantine ./edr/ransomware
+          if ($LASTEXITCODE -ne 0) { throw 'Safe Windows package tests failed.' }
+      - name: Record hash-pinned lab-only pair
+        env:
+          TARGET_ARCH: ${{ inputs.architecture }}
+        run: |
+          # Read source constants for cross-architecture artifacts; do not run
+          # an ARM64 executable on this x64 runner or claim ARM64 acceptance.
+          $version = [regex]::Match((Get-Content -Raw .\edr\buildinfo\version.go), 'const Version = "([^"]+)"').Groups[1].Value
+          $implementation = [regex]::Match((Get-Content -Raw .\edr\buildinfo\version.go), 'ImplementationVersion\s*=\s*"([^"]+)"').Groups[1].Value
+          if (-not $version -or -not $implementation) { throw 'Build identity constants were not found.' }
+          & .\edr\amsi\native\package.ps1 -ServiceBinary '..\pair-input\utmstack_edr.exe' -ProviderDll '..\pair-input\utmstack_amsi.dll' -Arch $env:TARGET_ARCH -PackageVersion $version -Implementation $implementation -OutputDirectory '..\pair' -Scope LabOnly
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-edr-windows-${{ inputs.architecture }}-lab-only
+          path: pair/
+          retention-days: 7
+          if-no-files-found: error

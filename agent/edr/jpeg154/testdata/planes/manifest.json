@@ -1,0 +1,2408 @@
+[
+  {
+    "name": "planes-0-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2059,
+      "sha256": "257d8eaffd2ab3db768c3fa14b885dea5f6b8712231a87f5bce7727c5dce54e5"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "05ad919fa45f3d3958a4123ed3bbb7002005f762d775d31baca1f8304d68bc2e"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-0-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1371,
+      "sha256": "de3e36b8b1d098df775c69b75690adba0e68924ef70bd2d5f5337d3ae1ae5014"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "581066b71091b4375d6a4d0499c51cb433e6a2f03940fd2d871e0600ee8f299c"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-0-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2070,
+      "sha256": "555831e13647f4905b806f548672ee352ad0a28107bd96a3cbada1cbae71b7a1"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "05ad919fa45f3d3958a4123ed3bbb7002005f762d775d31baca1f8304d68bc2e"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-0-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1379,
+      "sha256": "01b5ec53f481d3637848c3a456a83350a1b8c978fe8830457fd97cdfe60b2904"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "581066b71091b4375d6a4d0499c51cb433e6a2f03940fd2d871e0600ee8f299c"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-0-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1924,
+      "sha256": "a41d9c8ced54c10e61b7f3e232381b0bd5e3f99fc229141e81826270481b2568"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "7f5380454e2a67211377848e1df2cac6694a9229e154ee0fb03e22bf69e54c08"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-0-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1270,
+      "sha256": "a0e1626512ec57bd224afea06489a0be056cc6560394e9568be294ba87a479b4"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "c67cc3acb80ef1292867b9cbdf45472bca36b3f69f212efff7a7c0b182664159"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-0-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2149,
+      "sha256": "39f304b62111612811a619689386bad115d297ea6161169eb4b1c16c917eed7e"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-0-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1371,
+      "sha256": "399a5383eda2ee1160e0a195ca58c94c86eb00457dc0d99f21b2f6d8204726d4"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-1-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2060,
+      "sha256": "f28826ad8a3749b197d8f41fff2e415ba4830e161cff90a5f78da0fe841ae9e3"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "5530ed830ab4379860bcccd4c9b5fa67cd2d314f8d44b83beb799bec6c0875ea"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-1-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1365,
+      "sha256": "6415b5f848eda5638f93cbcb8fa55413c11857a26e59e8b27d0127fcbd0e0fb8"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "d50feac8d670ddcf99b1f4ac438d2af74e70e00f17dff3af9814d88c1df1401c"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-1-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2072,
+      "sha256": "0392c498478b7942f7ef61ae43419af245f0ff92a9607b0b0c6db5773b4dab5f"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "5530ed830ab4379860bcccd4c9b5fa67cd2d314f8d44b83beb799bec6c0875ea"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-1-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1372,
+      "sha256": "b08d94683ff20cb985c28b9922a61124c396e23dd8f6765f9609f273169dd3d1"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "d50feac8d670ddcf99b1f4ac438d2af74e70e00f17dff3af9814d88c1df1401c"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-1-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1922,
+      "sha256": "3bc554c70e3adcf00e406160818c169e09c1ef03a830008b8aebccb574dd2c4a"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "4b6bb56ef00de19a3c1939d3aa670397c592cbab61d02636dbb6eb2efb867e9d"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-1-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1263,
+      "sha256": "2e4da738bc48a416f315a7b74b8f888d514927e3048cba42859af647d04f2737"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "3936c923239a1230669791b737b43efff68583d37798533ac1700d2fa2b8b46c"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-1-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2148,
+      "sha256": "21507cf71f2a5330c8b3c417f542e6f162c3550101054ec752bc9181b5904214"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-1-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1363,
+      "sha256": "0bc2b8c857124b8a57d6bab1faa0b6e3b20d11e2a613e0bc2c564419e5df3236"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-2-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2660,
+      "sha256": "1b3baf8f59106822467f069606953f5c32a94c56e6cb5e5713999c3c3acb898f"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "03f2af6ff7449659e52271cf7080d520d78810ffaa05e64350b191bd3c1cfb72"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-2-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1714,
+      "sha256": "fa0433b757992a2d39b95af4d56ec0843c6ad18382c64aec7ac2fdcad73dd59f"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "54f226981d7d1aaa95e340dbca5674d4f19b89cba4dde5a347374b47181460bb"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-2-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2685,
+      "sha256": "ba49fd53ded9b8f4ff7ae7844852ac2ef5e15e697f7ba1e7de7f76edc97e66fa"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "03f2af6ff7449659e52271cf7080d520d78810ffaa05e64350b191bd3c1cfb72"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-2-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1728,
+      "sha256": "889ad40b16b3635291ed94e1546a24cb3f222f06c900fffa34b73a9cba5b0049"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "54f226981d7d1aaa95e340dbca5674d4f19b89cba4dde5a347374b47181460bb"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-2-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2462,
+      "sha256": "55cfc3b312b546bdea24ce8545e86b3f1e238d6da985d27aa2a9c99c1469eec6"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "996d48ae74985dc226bfcf2c27d27b8293e58a33c95de11010ab29f35a822339"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-2-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1578,
+      "sha256": "fa5609857ebe4821b57ee4427e43a39ed4eaaa45aa5fbc680ec0be0c16bd69d6"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "d8d7c735f1e229aa8541453625a821cdc51cd979a2f4954da17c29cf3784b0f3"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-2-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2759,
+      "sha256": "efb3169437a226dab98bdec78ad5365c392d307cdeb1ae6ced5714eccd17e7b3"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-2-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1719,
+      "sha256": "f27eeea4aa39f9a15ad88c4f31090db3b28aa0b2af12923c0220819ed5fe2cdc"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-3-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2619,
+      "sha256": "b01d575cafb46f9afc629da10e06ca614c69c793aaa840c0bcd9b801122e2b5f"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "ee579ed8a82b2697fa88f817b34fa416453c4a5f0bed4138246fcc5567b6ad9c"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-3-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1710,
+      "sha256": "44f96ed7cce00eb545f79b18d60ef2b27ed7c739169106914a9cc4197bcfef0b"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "f6765ae875da2a92abd922915c34580ff329cbbe9ced185487053d0ad086ca97"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-3-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2636,
+      "sha256": "dc73f54117c03da6cac9d9cb5fdc4847e4917a190cb9fa0bcc727cb65b1d5651"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "ee579ed8a82b2697fa88f817b34fa416453c4a5f0bed4138246fcc5567b6ad9c"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-3-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1724,
+      "sha256": "a881e5ae6108c47d9b81cfb9b1faacb31358b9f038f71b74323a4a17adabefda"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "f6765ae875da2a92abd922915c34580ff329cbbe9ced185487053d0ad086ca97"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-3-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2422,
+      "sha256": "bf66c07559fce8114fedbc3ab1585e77e06ff00534d9105818e7fcf792cd6474"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "0777e4cb84a9aec3d42154ba22690ea614e628d5e2f53cde4066bf6bd471a7c8"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-3-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1586,
+      "sha256": "38496f8b9a6a9b4772333a4278dd12c6e171743cd36c6b96fd43bdc42c255ce1"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "dade9ad8021cc6736a25f0e651bafb50020b6beaa9a295fa47a0496be921376b"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-3-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2715,
+      "sha256": "5e02b5316efd7ef39cd3e13b879b9b6ddcf34754bb76db943054db64dc43cd98"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-3-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1722,
+      "sha256": "1f98037fe189a9c8eec76cf95fe371f2bd455ac31ef25b4ee28f2a3a2c78bd24"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-4-p0-r0-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1728,
+      "sha256": "3ef976bfb0aafc0ceb38247a391447a284c9234d198849e2c4056ccfb4035758"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-4-p0-r0-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1191,
+      "sha256": "f7ab9c525e250a3017131a5fb44d2f9f7349e4744c36b74aa625fc8ec84d5fef"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-4-p0-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1745,
+      "sha256": "7090f7d2b86bc8364a4a41ceda4c49ad5f07bd4bee965b446acbce55c9acd574"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-4-p0-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1199,
+      "sha256": "f92aae42f38dd9fb8802742b062170eb18aaf53052464a635859afc4efb768c1"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-4-p1-r0-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1583,
+      "sha256": "d5b5c18134ebd5e2c2a925ff827efc7632f9b7a1fc08c923ff40e982ca9d46a5"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-4-p1-r0-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1075,
+      "sha256": "39d6bcbc53a00444d8a9bfd5b0ada572194645084eeab684d77c1961c00e695a"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-4-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1739,
+      "sha256": "ea0ee4596e7ef7c9c3076a22e47feefd55cde3af682d465feabb1b63c1bf016b"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-4-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1132,
+      "sha256": "b36cb6083389fdfc55e3a7ca3307ff81e83612dc8f9c06ce082e7ce1525909d3"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-5-p0-r0-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1739,
+      "sha256": "d65743eb1834b2d9d2eb65fab6fa39dede0884d176ebc6940a45437e806b10b6"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-5-p0-r0-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1203,
+      "sha256": "8e5869cf846f18c2d78777c8c07fee627a94fea49372681035e323143d2c6709"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-5-p0-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1753,
+      "sha256": "b31011d2e31fcd0800877e7b5969cc16ffbefa127c7167a52bc9f93fd9f3525e"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-5-p0-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1211,
+      "sha256": "d33d8b07fbf26ab9e8340ae5870e0859f0ab0cca1f6b858d7e0701e47a9e0ed1"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-5-p1-r0-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1591,
+      "sha256": "9123873593d31f04c18136d2b2727a768498efc963ff957a2b4ebfbc64ea3f8b"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-5-p1-r0-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1080,
+      "sha256": "59641487bdaec3830f2cef29138fe26ba6f9f9a11f5b9ff33deee973f4a72105"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-5-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1741,
+      "sha256": "a8dc32550d1f6e1278f9a5278b09b246f119d9340a53b32e97b1e30ade32afae"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-5-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1142,
+      "sha256": "b19386501aee66836a726b3cd253fbaee688be2a3e7eb9bffd764033f71d935b"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-6-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1535,
+      "sha256": "da872bb7e5c72e084d3fbb4ae02276e716e4a6abbf3152199c549ecd5a1b3516"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "25de6db0a932f442d2faf2ee82e01092c7200b0459ef85aa28335fcb343b6417"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-6-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1075,
+      "sha256": "18ae059f1b62698510b8545e0d38d32d2ef1ac69ed75aa255daeec02be7c6e89"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "e4f3571271f4ef6215baf9f078c96f3c569df57fd892d0f44b67705ee59902c1"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-6-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1551,
+      "sha256": "35bd28e4ecc2ce862082025ed4d303a67c4144e76f8f44bd96704658de74be4c"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "25de6db0a932f442d2faf2ee82e01092c7200b0459ef85aa28335fcb343b6417"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-6-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1081,
+      "sha256": "1389259eeba2759c19e88898966d981c7de634cb3b31b0716efc710751107ded"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "e4f3571271f4ef6215baf9f078c96f3c569df57fd892d0f44b67705ee59902c1"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-6-p1-r0-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1425,
+      "sha256": "8d48940c665a5027bf7dd7348676306cf6f384f84b1577c357d04cdeeaa7d7be"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-6-p1-r0-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 977,
+      "sha256": "3e95bda65a9e25084e0c2080815f125db8d33181aca1691c29089476614e8d4e"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-6-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1581,
+      "sha256": "0266ae1c26b15f6449f61aadaebe5c882b1644aedcfee97caf15f37b448b8329"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-6-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1040,
+      "sha256": "f4dd9c7e963955b51df150916f575366388a13abf8b9b3bd4af166d98ea2d363"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-7-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1833,
+      "sha256": "15f19f1c7286172b8ffa5acaaccb840f4573e398ad0523ecaa9dfaa25f543c55"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "a12cde1715c57655678821f9bb5e046f3fad3363b1c7330c54315f0b66143a56"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-7-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1258,
+      "sha256": "4900006af38919501c6977f655e5af8956039c08035c5898e4f9436ce20b346a"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "b1af903c1d9da0f0cfaa56b99a66d988ec5d4b403ed14f2562c6f51df54107da"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-7-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1850,
+      "sha256": "d6976ecd7623c61d2d87d5df9bd635c5a71f64a8217838d96e0b796c0dd840f1"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "a12cde1715c57655678821f9bb5e046f3fad3363b1c7330c54315f0b66143a56"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-7-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1267,
+      "sha256": "c118e14d7b633c223e545b1eb9b19f48eef66d51e160d157e00fc8956da09485"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "b1af903c1d9da0f0cfaa56b99a66d988ec5d4b403ed14f2562c6f51df54107da"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-7-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1726,
+      "sha256": "77abcf67525e58533836fedf51580540b6f57eba9b8c3562c6cbecc5d2dd1829"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "a12cde1715c57655678821f9bb5e046f3fad3363b1c7330c54315f0b66143a56"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-7-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1177,
+      "sha256": "d5455fa883445d9604ea52acdda046fee1f758c5b2dac33a0273a880298ae29d"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "b1af903c1d9da0f0cfaa56b99a66d988ec5d4b403ed14f2562c6f51df54107da"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-7-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1933,
+      "sha256": "7b8add75545d91d2bc7cebe72ca2640453495b5ee8b282d8befdfc22c31ead3b"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-7-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1267,
+      "sha256": "c57d1d0c168344e59304e2259efd72646022f7e51717a45b15553cdc05c5e3f5"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-8-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2103,
+      "sha256": "3b3756516aac5db878f9386abb25c238c13634201e1420bd6e2fd2d1a6be5b95"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "5b9ba02501732362baf139b32b56983a5a6e2ed366583fe94a3456d7ff44d2a8"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-8-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1370,
+      "sha256": "1d5ba947c51fc00a6092822b9140569a2c9648769bf0c7363dac0e77486dff62"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "3117241345e279006eace25d9637d60ebad0b300c23d123bfb499829364b80e7"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-8-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2119,
+      "sha256": "55fb06ca42be5f5580100bdea7e47920ebe32cc44e4a359b2531c1d5e0fae3b0"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "5b9ba02501732362baf139b32b56983a5a6e2ed366583fe94a3456d7ff44d2a8"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-8-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1377,
+      "sha256": "2f23e1c25ad6e38aa73214c146f7b01d0322acbfa6dc45c86c7750764d938114"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "3117241345e279006eace25d9637d60ebad0b300c23d123bfb499829364b80e7"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-8-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1973,
+      "sha256": "5386c9716b542d61c0c91595005dfd3d26187c2ca9623b74752800e0a6287f89"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "6cf18d4f87f88b51991f9f6f26935676072f064ce57277b391757b4c44740e1e"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-8-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1277,
+      "sha256": "981aaf4ce3bce757b2ab6906eeb73f6ecc8af7d4f649430d376c766c6bcf38de"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "6b2948462d4991c5e9a5c184d3af4960a2a67575e08c9c20640875eaea366a1a"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-8-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2207,
+      "sha256": "ec4db46a6699d412cbe4ce51f70b4f40ff7933a4edaa31014531f8224c05938a"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-8-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1375,
+      "sha256": "730440ad13adbcfab13b8874372879d52b49202fe4f5323bc644e84279c99a9c"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-9-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1819,
+      "sha256": "da92d5ada6becaba9cb0f2a606019fecb4cf0a1abb47410ab7b0169b1f8a6463"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "cda729a2840cd96e3785add8c68fd43577ec2a3432d11ef29b87fdf0238a1d17"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-9-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1191,
+      "sha256": "19322c3ee1caa76e1008b769f4207dc1b55e452899819f6086b466df7e1d76e0"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "b0be14f60efccab04a18bf54b9ea58326c1a57c40240ac89c6d38a7221a78502"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-9-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1836,
+      "sha256": "598498222449a6257f2ac19d88320f1e5302580d6131bac326eddd5631251664"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "cda729a2840cd96e3785add8c68fd43577ec2a3432d11ef29b87fdf0238a1d17"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-9-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1199,
+      "sha256": "c6224e0d6b9a21b1f2ea4ce002f2f07ce5ad8e960837a00b73f945d1a4d2be31"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "b0be14f60efccab04a18bf54b9ea58326c1a57c40240ac89c6d38a7221a78502"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-9-p1-r0-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1686,
+      "sha256": "a8491f6e949ecb09a62d112ea1a0e323f9839ec28dc4137e2024eb19e72c5670"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-9-p1-r0-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1081,
+      "sha256": "25697d9f42dfe52a39488f2d801b54fb6e29428850ef31136a30c5945fc3f4fe"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-9-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1859,
+      "sha256": "65c79f085a6d48997246ceb09fb85548e74a8597826549d684000598bb6c2671"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-9-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1136,
+      "sha256": "454cd36073cbff65bce4a031a1ff2ca085deff8041ed9abf118e0184cffb395e"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-10-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2651,
+      "sha256": "229c1919751d72f38c91e06319f4820d783cc1b40e00c1ce2e8bb159cb855313"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "3eb663ed937b083b7e496196bcb15fa4a8bea6cb2f09364dd77785b476f9182a"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-10-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1707,
+      "sha256": "582fdb403f30a67f6a71e905ef121037c7958ae50bf776f75ed0beab9d8d91db"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "bdb797b7a66b36cb22ea1fe66988ff7153de201e56119d7e6d284da186065322"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-10-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2674,
+      "sha256": "a504cd1aa72f7bac2f991c19b36702f57aec99dc4cfa340998ab77e6ff481a2c"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "3eb663ed937b083b7e496196bcb15fa4a8bea6cb2f09364dd77785b476f9182a"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-10-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1721,
+      "sha256": "6218de0c328a65bbc8d4b2a8bb94361d72a0d9019c04e37eae0a9ce7f3ab2d09"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "bdb797b7a66b36cb22ea1fe66988ff7153de201e56119d7e6d284da186065322"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-10-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 2458,
+      "sha256": "c26d45573f7d690349f225ed2d69ace606ac9113baa88b4a38b61735383ee258"
+    },
+    "raw": {
+      "bytes": 4773,
+      "sha256": "153002762f31909fc197079e8ec18c42c46b89248973ec80a3f566ce9329d180"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-10-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": "YCbCr",
+    "jpeg": {
+      "bytes": 1582,
+      "sha256": "08cd4f875ee75ad04a32fff1e578cf97da44c7eab0b52dc71fedb28627e31e56"
+    },
+    "raw": {
+      "bytes": 3072,
+      "sha256": "8c3145bc59c788253a997af93ac91c3a532e412b10f49fec3aca8aaba3706cd3"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-10-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2759,
+      "sha256": "e6ca5f4f54f15d1b7ad45ded24b92e472a9744850df956b270d2dd539827b788"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-10-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 3,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1720,
+      "sha256": "2f942bcc4309f9980bbc0034fce25fb1ee80d18e80bd2a16f0366589490b869e"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-11-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 3114,
+      "sha256": "3a00d215208a0d3e299e546425e0beeae086f4da2fc1f25e0c6398d668e5ca1f"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "da5204c12e591c48607e08cd4ea257888ec4fdd79e9beee3acbb0d4edcb6f470"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-11-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1694,
+      "sha256": "96ee2c06af1851bed83cf3402ba4ce7f55fb3793a498065e4f8f33e383d40723"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "2e1861534462d2b6e36a6bac21497f8d5f6ff1c3c434e8e819928c4aecbd05b3"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-11-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 3132,
+      "sha256": "f439c27f7dbf1d490c471d6970adbf32c915983a9202e5f9a7374a88e32aef19"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "da5204c12e591c48607e08cd4ea257888ec4fdd79e9beee3acbb0d4edcb6f470"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-11-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1705,
+      "sha256": "e877a7a6eaa3840aac88fc10132e7a0895e418fa5cc99a30f8827d3a5f60e08e"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "2e1861534462d2b6e36a6bac21497f8d5f6ff1c3c434e8e819928c4aecbd05b3"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-11-p1-r0-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 3449,
+      "sha256": "cd8ef576c22a3cdbdb13a347ae1573c09a1ed21177dde1cf738f91bdb55ea731"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-11-p1-r0-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2096,
+      "sha256": "d7712ceff6b412d3753c9991033cadab929299c3d5de86804608a16ca3084022"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-11-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 3870,
+      "sha256": "1676e7139a1cc59d57e7c9ed803f61eb1c6b0f2e64918ed27bae9b23abc2f9ae"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-11-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2275,
+      "sha256": "7617d4b8085f94a3eaf104f9ad3363a33aa194b24ab11317fd0091062f75c89b"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-12-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2759,
+      "sha256": "1e1ee9c377cd33916991149e819de369c86055c9a5cecd91bd04b1de8a295f07"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "f43ff6fcc3082571c07aba48b125c05cf8782018b74a1f5563123c713ab58122"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-12-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1571,
+      "sha256": "8f4a4ed6a2fb6e8298cf0e4481df34911670cc1bb7e7e865f0e924c4dcaff1b9"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "f6c4625a7b93a8815912e2ebeb6cae0a7b5390ed227ff7035fcad81cd00b0fce"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-12-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2771,
+      "sha256": "e8fc495487fee170df46837a459e03688361c084997fe53d43eead495611e71a"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "f43ff6fcc3082571c07aba48b125c05cf8782018b74a1f5563123c713ab58122"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-12-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1579,
+      "sha256": "fb5e0b75323f65e71252e230155bde5bc01642adccdaa776768e05790614bbb9"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "f6c4625a7b93a8815912e2ebeb6cae0a7b5390ed227ff7035fcad81cd00b0fce"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-12-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 3092,
+      "sha256": "e39a9f7e1adab940beea2fb60dfa61e63f109d0881bb9463f1c99adbecdef729"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "cd8fffc12a7610546bc274c67a4c51498a87358797f990627ed770091bd20b01"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-12-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1964,
+      "sha256": "b6627ff8d1a6e5240691ae5ea363fee983d86c34935af12e2280ac6b989040de"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "08557b6e3631fbf9156b653fe6a35d3912953addc79985b19d50ae1d5c51221a"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-12-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 3445,
+      "sha256": "78fd39b167e4fdcf78ff8e377cd0c1852b0d0e367813fe4e9b3651a70d2bc28b"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-12-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2117,
+      "sha256": "27403fea64e744e6cbf0265c95dd50f05d698154498bee1870fcecad02d2b054"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-13-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 3488,
+      "sha256": "b10efabf7f464a4a88f23e2cfe8a8bd7733457f80c277904dcb0c7b0c15d0aa4"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "c8d0df59660ef136a64ddac662df48e74cefb3d99b60cb43c7122a0f240163f5"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-13-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2037,
+      "sha256": "531f6bf734221a8de46aa400cdf5e79c3d2c2a598d380fce86f2b49bdb6ec187"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "fe8b846126b6b0371fcc9d4f8fb37068162c6bae361a873e60736a61142c6f71"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-13-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 3511,
+      "sha256": "b4f703628ba0602a0189b2a2a3e77135f4684ea4d847e14c37a9e365b5a55bc5"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "c8d0df59660ef136a64ddac662df48e74cefb3d99b60cb43c7122a0f240163f5"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-13-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2049,
+      "sha256": "dbdc561d0fbed9f0490c3c80c2a95954eb7654b675f5c4b7ce6cd5daf1c73fa0"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "fe8b846126b6b0371fcc9d4f8fb37068162c6bae361a873e60736a61142c6f71"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-13-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 3814,
+      "sha256": "43e92e3fc3ce913f36796bdc4a6375a0653793275373e5327bb50869b4d877e3"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "61708d1cbed1b8c9e8333df27098f8cbcc001653ed97885ff85fcbad6c3b0246"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-13-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2446,
+      "sha256": "74ef40fe08430732fd65c5b1a8cd4bed2a4512e041d25dab358669995ab8e3b0"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "1251681d909a778418c092117be23da2feaa9744377b577fc3a6f4d74f2c6071"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-13-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 4263,
+      "sha256": "09d2fb684ea42dbef26a1df4e636cbafa611677bb42101f4d39d3aacb79d275c"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-13-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2666,
+      "sha256": "4d32e33efcda3c00e14788f8adcf7965227446bfdfaa70103bfe0ebcf7b82d4b"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-14-p0-r0-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2187,
+      "sha256": "635104b269a5bf55572c5987573c143a236e06e9cda3462b68652745e84a9b13"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-14-p0-r0-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1266,
+      "sha256": "60fe2b88ed470cf91e82a43bd62a6e4a4bbc61b5ab6fef563a55c5f199ec5cec"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-14-p0-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2203,
+      "sha256": "ba3a3d7eba99e2f9c0044b3aacb540a4029150dcc1ba12b99df3e21311b6a145"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-14-p0-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1273,
+      "sha256": "15948abfd5f70edd8a8f99b04f224854517159d1a4d86b9032a9e11c35ab3ee2"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-14-p1-r0-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2587,
+      "sha256": "ebe91b3f3f265456fdc201b0539cb7d55dec3be4e0d74feae8c2a230e2b1882b"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-14-p1-r0-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1690,
+      "sha256": "36744389df8929497344c6f9f65c33027fa97c6978b50067a89d1e1f0551ac98"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-14-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2869,
+      "sha256": "b9c84b077b4443ef00d72ddb5cf950953b1e9c4b60039db66c39451451f1c4a6"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-14-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1796,
+      "sha256": "26f1066758f9054b27223cd0c07a362f4ca6181314de716ba7d693dce422bc92"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "\"Invalid image\""
+  },
+  {
+    "name": "planes-15-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2409,
+      "sha256": "ac1b493031d665a6aa887d19a49d6b1bca924fa2b4a58b0efbd542160527dbe8"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "21f0bd61396359966d8c173e947d4838a0301e8010c68ffc82851798e37b0b94"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-15-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1270,
+      "sha256": "13cebe89195160361598fc1595e6108c26df14828336e1fb6513d2a04e92aff0"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "0038df7d4ea4192515051389bbf37f3940e97f62eabbe59ca89de9cd07b73103"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-15-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2419,
+      "sha256": "85e1e6fdf4f4fdbcac06d47bde438d7ada6a33f94a8cfa36d1c82721bdc8fe42"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "21f0bd61396359966d8c173e947d4838a0301e8010c68ffc82851798e37b0b94"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-15-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1278,
+      "sha256": "0febbe8777692713d433742e0d5ae045ea1ef29318d22bac92d4c998d5a928af"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "0038df7d4ea4192515051389bbf37f3940e97f62eabbe59ca89de9cd07b73103"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-15-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2801,
+      "sha256": "d6e5010cc86fcde38e80252236f3c0944a95e15efb5d2fd5fe5df6652c88bae8"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "21f0bd61396359966d8c173e947d4838a0301e8010c68ffc82851798e37b0b94"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-15-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1673,
+      "sha256": "604621cbeac24a7b647840b7acd71c9383d69dd853dfc4189b80b158ba04389f"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "0038df7d4ea4192515051389bbf37f3940e97f62eabbe59ca89de9cd07b73103"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-15-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 3111,
+      "sha256": "2311a9b85c417d9dceb369baac57273330faf546e03870b21abee8bfd7de5693"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-15-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1780,
+      "sha256": "b2f4862d3aa31caa2d5bba79bd9dd8e9ada2a7633aff340696bc85aee117167d"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-16-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2224,
+      "sha256": "1f3326929b3596a7453d795ba25f23bf5929a2f70a5195df68927678df1a7e3f"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "86e39f867fee2571071a12f8dc558ff6345afc3c34b3d36676d8eaa636af7aa8"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-16-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1277,
+      "sha256": "ec158dcc8f6cdda4beb4c067fffab47bf1a4d57cba4313f46d5155ec87ce2e7a"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "fd9fa8d4f10a42b6636fd22d79ec1ab71f2d266cf0979a7e8616c71a6ab271b0"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-16-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2237,
+      "sha256": "59ef3c0b23f03751149d127d364effbef4c12c83d8c258b3525b0551cdbf9c85"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "86e39f867fee2571071a12f8dc558ff6345afc3c34b3d36676d8eaa636af7aa8"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-16-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1285,
+      "sha256": "ecb717553100c0d062848de971563cd1ecfe2b0fbcac5fdd87ef54e414f6e50c"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "fd9fa8d4f10a42b6636fd22d79ec1ab71f2d266cf0979a7e8616c71a6ab271b0"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-16-p1-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 2611,
+      "sha256": "6a250b0f73eb3950b8f4795d122a8b1b513bab99b1656b6e7f7ad44eba29b2ee"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "86e39f867fee2571071a12f8dc558ff6345afc3c34b3d36676d8eaa636af7aa8"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-16-p1-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1681,
+      "sha256": "d449a43d5da6d07b92925a8f975654f5442680c6e288425b027dd48834d46758"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "fd9fa8d4f10a42b6636fd22d79ec1ab71f2d266cf0979a7e8616c71a6ab271b0"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-16-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2890,
+      "sha256": "c0a9fe66eda70a37d8c5766ec633eb48b1920f841730ed39b98edb5c8dc357f7"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-16-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1792,
+      "sha256": "e924a1d3053ab0a242bb553c4c7ba831ddb880a757a20f48aa9b3dac4098b1f1"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-17-p0-r0-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1899,
+      "sha256": "4f3b539ffdfbfe30ce8b2b8081f3409c0952c85f394369f53cf09927507f861a"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "8f1a502faa6aaaf1bd63cc4b3bfed2a8e08a8ebc112d0f2900835e06f6fee457"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-17-p0-r0-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1080,
+      "sha256": "6c27fdbf5385248653c98c96a25dd755a7c4667ca57e2185b8a1d19e8b7fbdee"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "2d402a00f0bb26e2bc3a9aa64b435c4718d409dbd8b3585ee4ad3f82146ef658"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-17-p0-r2-s0.jpg",
+    "accepted": true,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1916,
+      "sha256": "da461d074e4f5ba30c9da14e8898c51c2bb81a3aef17937271528e90cb23990e"
+    },
+    "raw": {
+      "bytes": 6364,
+      "sha256": "8f1a502faa6aaaf1bd63cc4b3bfed2a8e08a8ebc112d0f2900835e06f6fee457"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-17-p0-r2-s1.jpg",
+    "accepted": true,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": "CMYK",
+    "jpeg": {
+      "bytes": 1088,
+      "sha256": "0d8a02b350fde7c0490cd0982eb7dbfbb9039365a5982b307bab53eee2a08ef4"
+    },
+    "raw": {
+      "bytes": 4096,
+      "sha256": "2d402a00f0bb26e2bc3a9aa64b435c4718d409dbd8b3585ee4ad3f82146ef658"
+    },
+    "oracle_exit": 0,
+    "error": null
+  },
+  {
+    "name": "planes-17-p1-r0-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2303,
+      "sha256": "ffa952b2bf16f5d6d1fe192800cb50a2a19e2e73cce168781b6e17e80d90c45b"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-17-p1-r0-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1503,
+      "sha256": "162e577949a9a92c43849814a892c4ed25701805ef74a6af3e0da6b0ebd52464"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-17-p1-r2-s0.jpg",
+    "accepted": false,
+    "width": 37,
+    "height": 43,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 2550,
+      "sha256": "2d4fc6e8c39cee1a61e651d0d3658e81053f22658134e509029cfaf6aea111c3"
+    },
+    "raw": null,
+    "oracle_exit": 101,
+    "error": "thread 'main' panicked at /private/tmp/openedr-v253-reference/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace"
+  },
+  {
+    "name": "planes-17-p1-r2-s1.jpg",
+    "accepted": false,
+    "width": 32,
+    "height": 32,
+    "channels": 4,
+    "colorspace": null,
+    "jpeg": {
+      "bytes": 1590,
+      "sha256": "14c68188be42bb7b6ea4435f8b717a459a5d0725ef29764713728c15d739cbcc"
+    },
+    "raw": null,
+    "oracle_exit": 1,
+    "error": "Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  }
+]

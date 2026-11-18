@@ -1,0 +1,230 @@
+{
+  "reference": "Native ClamAV1.5.4 Darwin/ARM64 HDB scan, default mode",
+  "cases": [
+    {
+      "count": 1,
+      "weak_at": 0,
+      "winner": 0
+    },
+    {
+      "count": 2,
+      "weak_at": 0,
+      "winner": 1
+    },
+    {
+      "count": 2,
+      "weak_at": 1,
+      "winner": 1
+    },
+    {
+      "count": 3,
+      "weak_at": 0,
+      "winner": 2
+    },
+    {
+      "count": 3,
+      "weak_at": 1,
+      "winner": 2
+    },
+    {
+      "count": 3,
+      "weak_at": 2,
+      "winner": 2
+    },
+    {
+      "count": 4,
+      "weak_at": 0,
+      "winner": 2
+    },
+    {
+      "count": 4,
+      "weak_at": 1,
+      "winner": 2
+    },
+    {
+      "count": 4,
+      "weak_at": 2,
+      "winner": 2
+    },
+    {
+      "count": 4,
+      "weak_at": 3,
+      "winner": 2
+    },
+    {
+      "count": 5,
+      "weak_at": 0,
+      "winner": 3
+    },
+    {
+      "count": 5,
+      "weak_at": 1,
+      "winner": 3
+    },
+    {
+      "count": 5,
+      "weak_at": 2,
+      "winner": 3
+    },
+    {
+      "count": 5,
+      "weak_at": 3,
+      "winner": 3
+    },
+    {
+      "count": 5,
+      "weak_at": 4,
+      "winner": 3
+    },
+    {
+      "count": 6,
+      "weak_at": 0,
+      "winner": 3
+    },
+    {
+      "count": 6,
+      "weak_at": 1,
+      "winner": 3
+    },
+    {
+      "count": 6,
+      "weak_at": 2,
+      "winner": 3
+    },
+    {
+      "count": 6,
+      "weak_at": 3,
+      "winner": 3
+    },
+    {
+      "count": 6,
+      "weak_at": 4,
+      "winner": 3
+    },
+    {
+      "count": 6,
+      "weak_at": 5,
+      "winner": 3
+    },
+    {
+      "count": 7,
+      "weak_at": 0,
+      "winner": 4
+    },
+    {
+      "count": 7,
+      "weak_at": 1,
+      "winner": 4
+    },
+    {
+      "count": 7,
+      "weak_at": 2,
+      "winner": 4
+    },
+    {
+      "count": 7,
+      "weak_at": 3,
+      "winner": 4
+    },
+    {
+      "count": 7,
+      "weak_at": 4,
+      "winner": 4
+    },
+    {
+      "count": 7,
+      "weak_at": 5,
+      "winner": 4
+    },
+    {
+      "count": 7,
+      "weak_at": 6,
+      "winner": 4
+    },
+    {
+      "count": 8,
+      "weak_at": 0,
+      "winner": 4
+    },
+    {
+      "count": 8,
+      "weak_at": 1,
+      "winner": 4
+    },
+    {
+      "count": 8,
+      "weak_at": 2,
+      "winner": 4
+    },
+    {
+      "count": 8,
+      "weak_at": 3,
+      "winner": 4
+    },
+    {
+      "count": 8,
+      "weak_at": 4,
+      "winner": 4
+    },
+    {
+      "count": 8,
+      "weak_at": 5,
+      "winner": 4
+    },
+    {
+      "count": 8,
+      "weak_at": 6,
+      "winner": 4
+    },
+    {
+      "count": 8,
+      "weak_at": 7,
+      "winner": 4
+    },
+    {
+      "count": 9,
+      "weak_at": 0,
+      "winner": 5
+    },
+    {
+      "count": 9,
+      "weak_at": 1,
+      "winner": 5
+    },
+    {
+      "count": 9,
+      "weak_at": 2,
+      "winner": 5
+    },
+    {
+      "count": 9,
+      "weak_at": 3,
+      "winner": 5
+    },
+    {
+      "count": 9,
+      "weak_at": 4,
+      "winner": 5
+    },
+    {
+      "count": 9,
+      "weak_at": 5,
+      "winner": 5
+    },
+    {
+      "count": 9,
+      "weak_at": 6,
+      "winner": 5
+    },
+    {
+      "count": 9,
+      "weak_at": 7,
+      "winner": 5
+    },
+    {
+      "count": 9,
+      "weak_at": 8,
+      "winner": 5
+    }
+  ]
+}

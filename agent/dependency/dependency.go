@@ -60,22 +60,31 @@ func UpdaterFile(suffix string) string {
 
 // Dependency represents a dependency that the agent needs.
 type Dependency struct {
-	Name         string                             // Unique identifier
-	Version      string                             // Current version in this agent build
-	BinaryPath   string                             // Path to check if already exists
-	DownloadURL  func(server string) string         // URL template to download from
-	DownloadName string                             // Filename to save as (if different from BinaryPath basename)
-	Critical     bool                               // If true, failure blocks agent startup
-	PreDownload  func() (cleanup func(), err error) // Called before download, returns cleanup for rollback
-	PostDownload func() error                       // Run after download (e.g., unzip). Can be nil.
-	Configure    func() error                       // Run on first install (can be nil)
-	Update       func() error                       // Run on version change (can be nil, uses Configure)
-	Uninstall    func() error                       // Run when dependency is removed (can be nil)
+	Name          string                                             // Unique identifier
+	Version       string                                             // Current version in this agent build
+	BinaryPath    string                                             // Path to check if already exists
+	DownloadURL   func(server string) string                         // URL template to download from
+	Download      func(server string, skipCertValidation bool) error // Optional bounded/custom transfer
+	DownloadName  string                                             // Filename to save as (if different from BinaryPath basename)
+	Critical      bool                                               // If true, failure blocks agent startup
+	PreDownload   func() (cleanup func(), err error)                 // Called before download, returns cleanup for rollback
+	PostDownload  func() error                                       // Run after download (e.g., unzip). Can be nil.
+	Configure     func() error                                       // Run on first install (can be nil)
+	Update        func() error                                       // Run on version change (can be nil, uses Configure)
+	Uninstall     func() error                                       // Run when dependency is removed (can be nil)
+	CheckExisting func() bool                                        // Optional validation before adopting an untracked binary
+	Recover       func() error                                       // Repair a prior interrupted transaction before checking or downloading
 }
 
 // Exists checks if the dependency binary exists on disk.
 func (d *Dependency) Exists() bool {
-	return fs.Exists(d.BinaryPath)
+	return fs.Exists(d.BinaryPath) && (d.CheckExisting == nil || d.CheckExisting())
+}
+
+// A tracked EDR must still match the agent's current scanner build. A
+// version-only record can outlive a repaired, downgraded or missing binary.
+func (d *Dependency) needsUpdate(inst *InstalledDep) bool {
+	return inst.Version != d.Version || d.CheckExisting != nil && !d.Exists()
 }
 
 // InstalledDep represents a dependency that has been installed and tracked.
@@ -154,16 +163,35 @@ func Reconcile(server string, skipCertValidation bool) error {
 
 	utils.Logger.Info("Starting dependency reconciliation...")
 
+	desired := GetDependencies()
+	var criticalErrors []error
+	recoveryFailed := make(map[string]bool)
+	// Restore interrupted file/service transactions even when the dependency
+	// tracker is damaged and cannot be read for normal reconciliation.
+	for _, dep := range desired {
+		if dep.Recover == nil {
+			continue
+		}
+		if err := dep.Recover(); err != nil {
+			errMsg := fmt.Errorf("failed to recover dependency %s: %w", dep.Name, err)
+			utils.Logger.ErrorF("%v", errMsg)
+			recoveryFailed[dep.Name] = true
+			if dep.Critical {
+				criticalErrors = append(criticalErrors, errMsg)
+			}
+		}
+	}
+
 	installed, err := readInstalledDeps()
 	if err != nil {
 		return fmt.Errorf("failed to read installed dependencies: %v", err)
 	}
 
-	desired := GetDependencies()
-	var criticalErrors []error
-
 	// Process each desired dependency
 	for _, dep := range desired {
+		if recoveryFailed[dep.Name] {
+			continue
+		}
 		inst := installed.Get(dep.Name)
 
 		if inst == nil {
@@ -185,7 +213,7 @@ func Reconcile(server string, skipCertValidation bool) error {
 			} else {
 				// FRESH INSTALL: Download (if needed) and configure
 				utils.Logger.Info("Installing new dependency: %s (version %s)", dep.Name, dep.Version)
-				if dep.DownloadURL != nil {
+				if dep.DownloadURL != nil || dep.Download != nil {
 					if err := downloadDependency(dep, server, skipCertValidation); err != nil {
 						errMsg := fmt.Errorf("failed to download dependency %s: %v", dep.Name, err)
 						utils.Logger.ErrorF("%v", errMsg)
@@ -209,7 +237,7 @@ func Reconcile(server string, skipCertValidation bool) error {
 				installed.Add(dep.Name, dep.Version)
 				utils.Logger.Info("Dependency %s installed successfully", dep.Name)
 			}
-		} else if inst.Version != dep.Version {
+		} else if dep.needsUpdate(inst) {
 			// VERSION CHANGED: Download (if needed) and update
 			utils.Logger.Info("Updating dependency: %s (%s -> %s)", dep.Name, inst.Version, dep.Version)
 
@@ -228,7 +256,7 @@ func Reconcile(server string, skipCertValidation bool) error {
 				}
 			}
 
-			if dep.DownloadURL != nil {
+			if dep.DownloadURL != nil || dep.Download != nil {
 				if err := downloadDependency(dep, server, skipCertValidation); err != nil {
 					errMsg := fmt.Errorf("failed to download dependency update %s: %v", dep.Name, err)
 					utils.Logger.ErrorF("%v", errMsg)
@@ -322,6 +350,15 @@ func UninstallAll() error {
 
 // downloadDependency downloads the dependency binary.
 func downloadDependency(dep Dependency, server string, skipCertValidation bool) error {
+	if dep.Download != nil {
+		if err := dep.Download(server, skipCertValidation); err != nil {
+			return err
+		}
+		if dep.PostDownload != nil {
+			return dep.PostDownload()
+		}
+		return nil
+	}
 	if dep.DownloadURL == nil {
 		return fmt.Errorf("dependency %s has no download URL", dep.Name)
 	}
@@ -341,17 +378,8 @@ func downloadDependency(dep Dependency, server string, skipCertValidation bool) 
 		return fmt.Errorf("failed to create directory %s: %v", destDir, err)
 	}
 
-	verified, err := http.DownloadFileAndVerify(url, map[string]string{}, filename, destDir, skipCertValidation)
-	if err != nil {
+	if err := http.DownloadFile(url, map[string]string{}, filename, destDir, skipCertValidation); err != nil {
 		return err
-	}
-	if verified {
-		utils.Logger.Info("checksum verified for dependency %s", dep.Name)
-	} else {
-		// No checksum published for this dependency yet — install
-		// unverified rather than block it until the server side catches
-		// up (see C1 in GAPS_AND_IMPROVEMENTS.md).
-		utils.Logger.Info("no checksum published for dependency %s, installing unverified", dep.Name)
 	}
 
 	// Run post-download hook if defined (e.g., unzip)

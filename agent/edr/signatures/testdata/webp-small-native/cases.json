@@ -1,0 +1,1538 @@
+[
+  {
+    "file": "simple-lossy-0001x0001-s00.webp",
+    "bytes": 44,
+    "sha256": "2612791e2165f31c2adf3eb01e63dba2c0b06a5bb4929c6932ab1c530da8c92c",
+    "native_hash": "0000000000000000",
+    "primary_hash": "0000000000000000",
+    "native_source": "R6/webp/lossy-0001x0001-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0001x0001-s00.webp",
+    "bytes": 62,
+    "sha256": "af647818c72557fa3768bceac07e1aa68a9c36074a46511e065085e5a3cc1c2d",
+    "native_hash": "0000000000000000",
+    "primary_hash": "0000000000000000",
+    "native_source": "R11/vp8x-opaque/lossy-0001x0001-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0001x0001-s00.webp",
+    "bytes": 72,
+    "sha256": "bc822f20d9f942a5d9161799f8db6a723b297fca87b56acb77740eb37d8683c8",
+    "native_hash": "0000000000000000",
+    "primary_hash": "0000000000000000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0001x0001-s00"
+  },
+  {
+    "file": "simple-lossy-0001x0001-s07.webp",
+    "bytes": 62,
+    "sha256": "577e410408b10a16b02d8ff0d60f49fcc22495e16a0c49c9248f6b77a3fb6b7e",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R6/webp/lossy-0001x0001-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0001x0001-s07.webp",
+    "bytes": 80,
+    "sha256": "3495d2df8d51d879c20d89c666a3f5babd838b76ec75d1088a7c94704924ee85",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R11/vp8x-opaque/lossy-0001x0001-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0001x0001-s07.webp",
+    "bytes": 90,
+    "sha256": "426ace65ba1c62be933637b3e51478185b635912d926dd27f325a8ccf238bdec",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0001x0001-s07"
+  },
+  {
+    "file": "simple-lossy-0001x0001-s08.webp",
+    "bytes": 52,
+    "sha256": "e9ab1f975e37cccf72f9fb39db7e1cee7990ff3caed33134e24868b2fdaeda5d",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R6/webp/lossy-0001x0001-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0001x0001-s08.webp",
+    "bytes": 70,
+    "sha256": "eabbd56f72a0c6068cd6bd42389f48a029c6916343f9ba84d6b21cd1c26c441a",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R11/vp8x-opaque/lossy-0001x0001-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0001x0001-s08.webp",
+    "bytes": 80,
+    "sha256": "8ec12df4dbede8881e361a3462bde056e381234bfa188f8c7266abf66cfff2b7",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0001x0001-s08"
+  },
+  {
+    "file": "simple-lossy-0001x0001-s16.webp",
+    "bytes": 52,
+    "sha256": "8c35cfc5304958402db99a1702cafc9020b95156b0f322ef33546d569813cc2b",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R6/webp/lossy-0001x0001-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0001x0001-s16.webp",
+    "bytes": 70,
+    "sha256": "498e652703ffb5ecc576dc538c2a2880fd709aefd6c313b5984414536a1a5af0",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R11/vp8x-opaque/lossy-0001x0001-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0001x0001-s16.webp",
+    "bytes": 80,
+    "sha256": "ba3e3101f8e59f0c160ff8d10bdc4aebca034133d5d68fc14bc481b1354b1351",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0001x0001-s16"
+  },
+  {
+    "file": "simple-lossy-0001x0032-s00.webp",
+    "bytes": 114,
+    "sha256": "d2bf3f8fe2fccd4c944baa0b318538564959638ac8842c6451f042889d254cde",
+    "native_hash": "8000000000808000",
+    "primary_hash": "8000000000808000",
+    "native_source": "R6/webp/lossy-0001x0032-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0001x0032-s00.webp",
+    "bytes": 132,
+    "sha256": "f380cf25f4d6e0b5321a7ab2ed1fd645dda6a20a9b530ec686127acf27a33c10",
+    "native_hash": "8000000000808000",
+    "primary_hash": "8000000000808000",
+    "native_source": "R11/vp8x-opaque/lossy-0001x0032-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0001x0032-s00.webp",
+    "bytes": 174,
+    "sha256": "1504d54cf612e21f0393a572aacea638061fbadf13384ad1819cc925fa3df585",
+    "native_hash": "8000000000808000",
+    "primary_hash": "8000000000808000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0001x0032-s00"
+  },
+  {
+    "file": "simple-lossy-0001x0032-s07.webp",
+    "bytes": 196,
+    "sha256": "75dc9aa1556a2925fe81c7b9817718b20b9b42b803415f681f6c80157aa9cb74",
+    "native_hash": "8080000080000000",
+    "primary_hash": "8080000080000000",
+    "native_source": "R6/webp/lossy-0001x0032-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0001x0032-s07.webp",
+    "bytes": 214,
+    "sha256": "23b75b48d2edd4722be7c5583c91b90480932d8eecbcbb755d4446f619de6fa2",
+    "native_hash": "8080000080000000",
+    "primary_hash": "8080000080000000",
+    "native_source": "R11/vp8x-opaque/lossy-0001x0032-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0001x0032-s07.webp",
+    "bytes": 256,
+    "sha256": "a876a416a54028e0a2edc3a98972beb4bb3b39a023eb7882cc10e79a93bcaa2a",
+    "native_hash": "8080000080000000",
+    "primary_hash": "8080000080000000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0001x0032-s07"
+  },
+  {
+    "file": "simple-lossy-0001x0032-s08.webp",
+    "bytes": 138,
+    "sha256": "c2ace7c914f983442e97aeec44dfe90162c2088953ad7b17422f86a8da667f48",
+    "native_hash": "8080008000800080",
+    "primary_hash": "8080008000800080",
+    "native_source": "R6/webp/lossy-0001x0032-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0001x0032-s08.webp",
+    "bytes": 156,
+    "sha256": "9130518f171cc0bfe318a87f1881ffbf877f24c98c9ee6f9f342ee44d20bdf73",
+    "native_hash": "8080008000800080",
+    "primary_hash": "8080008000800080",
+    "native_source": "R11/vp8x-opaque/lossy-0001x0032-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0001x0032-s08.webp",
+    "bytes": 198,
+    "sha256": "fa140d9f01cde16c942be54cf9bf169480ab44e06a4669f9e948163ddf82e257",
+    "native_hash": "8080008000800080",
+    "primary_hash": "8080008000800080",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0001x0032-s08"
+  },
+  {
+    "file": "simple-lossy-0001x0032-s16.webp",
+    "bytes": 124,
+    "sha256": "75af159e6d51157988be425397641ba484e91a19de2ffc55b64c48e8147306e7",
+    "native_hash": "8080808080808080",
+    "primary_hash": "8080808080808080",
+    "native_source": "R6/webp/lossy-0001x0032-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0001x0032-s16.webp",
+    "bytes": 142,
+    "sha256": "eb45762c6dad85c336a609dc4afc4c188520034fa6c7ffdae7d90e8788d68735",
+    "native_hash": "8080808080808080",
+    "primary_hash": "8080808080808080",
+    "native_source": "R11/vp8x-opaque/lossy-0001x0032-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0001x0032-s16.webp",
+    "bytes": 184,
+    "sha256": "304fd70d58eeea1763616a6acd01868964bf8b7cdd2a19b295e6db7e9e265f1e",
+    "native_hash": "8080808080808080",
+    "primary_hash": "8080808080808080",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0001x0032-s16"
+  },
+  {
+    "file": "simple-lossy-0004x0006-s05.webp",
+    "bytes": 64,
+    "sha256": "b61fd630ee3d8dd7f22e6e2510bae0b7d91e98c792aeae125be291e9595a7099",
+    "native_hash": "9c738c156588bf63",
+    "primary_hash": "9c738c146588bf73",
+    "native_source": "R6/webp/lossy-0004x0006-s05"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0004x0006-s05.webp",
+    "bytes": 82,
+    "sha256": "995c8f5f5078c09919b285c49df5e14c542c9818ceb83aa47af58f77a944d8ad",
+    "native_hash": "9c738c156588bf63",
+    "primary_hash": "9c738c146588bf73",
+    "native_source": "R11/vp8x-opaque/lossy-0004x0006-s05"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0004x0006-s05.webp",
+    "bytes": 116,
+    "sha256": "296c4390394c74e719f89a5401f367ff5a2bcf209fe5099666c940ceb202a3b5",
+    "native_hash": "9c738c156588bf63",
+    "primary_hash": "9c738c146588bf73",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0004x0006-s05"
+  },
+  {
+    "file": "simple-lossy-0004x0016-s00.webp",
+    "bytes": 70,
+    "sha256": "e60d4adc1a5ec6b6b86e1e36b186fbc98e34092d446537a7c9c4431d320440fe",
+    "native_hash": "9c3649b727d92649",
+    "primary_hash": "9c3649b727d92649",
+    "native_source": "R6/webp/lossy-0004x0016-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0004x0016-s00.webp",
+    "bytes": 88,
+    "sha256": "8fdbf71385a9a2c79d22ab90bf16e27972d8189404335a7d8cba16e281680e03",
+    "native_hash": "9c3649b727d92649",
+    "primary_hash": "9c3649b727d92649",
+    "native_source": "R11/vp8x-opaque/lossy-0004x0016-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0004x0016-s00.webp",
+    "bytes": 162,
+    "sha256": "b859d53c65c39775ba6eee272f07e74a80ddf06fe98a6006a2b94148763c867c",
+    "native_hash": "9c3649b727d92649",
+    "primary_hash": "9c3649b727d92649",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0004x0016-s00"
+  },
+  {
+    "file": "simple-lossy-0004x0016-s07.webp",
+    "bytes": 244,
+    "sha256": "d7b90fea89d2fd5c260049283103324c056b0fed00fd12607ff961f5a49dfb78",
+    "native_hash": "ccb2671966d9a619",
+    "primary_hash": "ccb2671966d9a619",
+    "native_source": "R6/webp/lossy-0004x0016-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0004x0016-s07.webp",
+    "bytes": 262,
+    "sha256": "5726ba1e1d4422c3ffe6c2c3d28f06b9678874947023f18c42e730bf91805906",
+    "native_hash": "ccb2671966d9a619",
+    "primary_hash": "ccb2671966d9a619",
+    "native_source": "R11/vp8x-opaque/lossy-0004x0016-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0004x0016-s07.webp",
+    "bytes": 336,
+    "sha256": "16e47b3dbe47b31b78931ea989e0acf2c454d79f955daf71648d48f4684e5faf",
+    "native_hash": "ccb2671966d9a619",
+    "primary_hash": "ccb2671966d9a619",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0004x0016-s07"
+  },
+  {
+    "file": "simple-lossy-0004x0016-s08.webp",
+    "bytes": 98,
+    "sha256": "604d5bff1f888edcb427c4d71305f0713a468d5a7e302c314e6180312214ca05",
+    "native_hash": "cccc064e4eb3a673",
+    "primary_hash": "cccc064e4eb3a673",
+    "native_source": "R6/webp/lossy-0004x0016-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0004x0016-s08.webp",
+    "bytes": 116,
+    "sha256": "7103969f95aad1a41cbc79dca8042e6bd62c854359663e835739478616098498",
+    "native_hash": "cccc064e4eb3a673",
+    "primary_hash": "cccc064e4eb3a673",
+    "native_source": "R11/vp8x-opaque/lossy-0004x0016-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0004x0016-s08.webp",
+    "bytes": 190,
+    "sha256": "4e8aba742b76052c7430e09bc3754ef55c9a4752ef8a8ea038dd44e60c5d6dd7",
+    "native_hash": "cccc064e4eb3a673",
+    "primary_hash": "cccc064e4eb3a673",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0004x0016-s08"
+  },
+  {
+    "file": "simple-lossy-0004x0016-s16.webp",
+    "bytes": 94,
+    "sha256": "25ab9fad8ceb79dd681733ce1119686fabfc2424d64ad4a8ffdd4eef8c857c1d",
+    "native_hash": "f349c2e12ce3c0f3",
+    "primary_hash": "f349c2e12ce3c0f3",
+    "native_source": "R6/webp/lossy-0004x0016-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0004x0016-s16.webp",
+    "bytes": 112,
+    "sha256": "162b7e967e9603c6774e48475fab93c3a6b743de6eb27311f3f073a9fbcefa23",
+    "native_hash": "f349c2e12ce3c0f3",
+    "primary_hash": "f349c2e12ce3c0f3",
+    "native_source": "R11/vp8x-opaque/lossy-0004x0016-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0004x0016-s16.webp",
+    "bytes": 186,
+    "sha256": "749a39216a67587732e2d3cea2efe7da8230124bb8e05fd17e6c760a5fc95639",
+    "native_hash": "f349c2e12ce3c0f3",
+    "primary_hash": "f349c2e12ce3c0f3",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0004x0016-s16"
+  },
+  {
+    "file": "simple-lossy-0005x0017-s00.webp",
+    "bytes": 96,
+    "sha256": "53cf3a6d344ee5f572ed2ef1a9d159b1220204f3a5b665334337b50ebd1e2ff6",
+    "native_hash": "bc2d52d22d52ad72",
+    "primary_hash": "bc2d52d22d52ad72",
+    "native_source": "R6/webp/lossy-0005x0017-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0005x0017-s00.webp",
+    "bytes": 114,
+    "sha256": "53728c0d2a221d4618fef14981c6e1f31da055934fecb0735cab6ba240354331",
+    "native_hash": "bc2d52d22d52ad72",
+    "primary_hash": "bc2d52d22d52ad72",
+    "native_source": "R11/vp8x-opaque/lossy-0005x0017-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0005x0017-s00.webp",
+    "bytes": 208,
+    "sha256": "30865f0ed9dd19b669499c1fe8b28a733c02d7bc072b7e7b73ad7b8796b802c7",
+    "native_hash": "bc2d52d22d52ad72",
+    "primary_hash": "bc2d52d22d52ad72",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0005x0017-s00"
+  },
+  {
+    "file": "simple-lossy-0005x0017-s07.webp",
+    "bytes": 314,
+    "sha256": "0a27e1afbee6e1576e75071f107d5271c8c42487287998d658be9de2681166f3",
+    "native_hash": "e396b80f30c798a7",
+    "primary_hash": "e396b80f30c798a7",
+    "native_source": "R6/webp/lossy-0005x0017-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0005x0017-s07.webp",
+    "bytes": 332,
+    "sha256": "691a26e34e530ec64d31bb0da9ada12bcf65b40e9e668879b3aa4189f3292891",
+    "native_hash": "e396b80f30c798a7",
+    "primary_hash": "e396b80f30c798a7",
+    "native_source": "R11/vp8x-opaque/lossy-0005x0017-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0005x0017-s07.webp",
+    "bytes": 426,
+    "sha256": "b320711392a24699df91f31adc171cb72a47fdb83b810004843dc9b6d7469d8d",
+    "native_hash": "e396b80f30c798a7",
+    "primary_hash": "e396b80f30c798a7",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0005x0017-s07"
+  },
+  {
+    "file": "simple-lossy-0005x0017-s08.webp",
+    "bytes": 144,
+    "sha256": "dcbc140d4782dea39ed30ed432efaeb372f263c8497957b7b0298a9598f3294e",
+    "native_hash": "e892622d6758e727",
+    "primary_hash": "e892622d6758e727",
+    "native_source": "R6/webp/lossy-0005x0017-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0005x0017-s08.webp",
+    "bytes": 162,
+    "sha256": "b1695b6084ddcec33b027ac62b5a7250ad25962e8b7431906e3ee65398190dd9",
+    "native_hash": "e892622d6758e727",
+    "primary_hash": "e892622d6758e727",
+    "native_source": "R11/vp8x-opaque/lossy-0005x0017-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0005x0017-s08.webp",
+    "bytes": 256,
+    "sha256": "075e10205736c6a820ae3be87080b3da1bd241c5dcd83de1197b630a8ec4566f",
+    "native_hash": "e892622d6758e727",
+    "primary_hash": "e892622d6758e727",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0005x0017-s08"
+  },
+  {
+    "file": "simple-lossy-0005x0017-s16.webp",
+    "bytes": 132,
+    "sha256": "7eb3a7ca6914ead1c42eaa26c4e01e876b1564c7eac4be100a5a9b83bf1e8733",
+    "native_hash": "e6ece0e8e0e8e4e8",
+    "primary_hash": "e6ece0e8e0e8e4e8",
+    "native_source": "R6/webp/lossy-0005x0017-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0005x0017-s16.webp",
+    "bytes": 150,
+    "sha256": "eb0bd6e7f0eb3fe15b7eebf617e79a7e77817fdbba74a9d7888fe5624e01de00",
+    "native_hash": "e6ece0e8e0e8e4e8",
+    "primary_hash": "e6ece0e8e0e8e4e8",
+    "native_source": "R11/vp8x-opaque/lossy-0005x0017-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0005x0017-s16.webp",
+    "bytes": 244,
+    "sha256": "b78eb4196b0200ca2ae62c84a562fcf9b1c66406ad0a2a2c7a5924d5089bc408",
+    "native_hash": "e6ece0e8e0e8e4e8",
+    "primary_hash": "e6ece0e8e0e8e4e8",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0005x0017-s16"
+  },
+  {
+    "file": "simple-lossy-0010x0011-s19.webp",
+    "bytes": 212,
+    "sha256": "341d2bd65f9f4a2ee941bb60ac19ddc3187703d21262e39e62979a19221bff9a",
+    "native_hash": "875717565342f8a9",
+    "primary_hash": "875717525346f8a9",
+    "native_source": "R6/webp/lossy-0010x0011-s19"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0010x0011-s19.webp",
+    "bytes": 230,
+    "sha256": "66fc7631dcd5bb90526de311b05d2a4df2f4b150a82a5013ed80ee453a5dffb8",
+    "native_hash": "875717565342f8a9",
+    "primary_hash": "875717525346f8a9",
+    "native_source": "R11/vp8x-opaque/lossy-0010x0011-s19"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0010x0011-s19.webp",
+    "bytes": 350,
+    "sha256": "a607e6e4df06d4dcd8efdb1d6b3fe0f2b1a5a83e59c48d89128dc5098a99751c",
+    "native_hash": "875717565342f8a9",
+    "primary_hash": "875717525346f8a9",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0010x0011-s19"
+  },
+  {
+    "file": "simple-lossy-0016x0004-s00.webp",
+    "bytes": 64,
+    "sha256": "0c7093a34efdb70c29233811fe4d4ee176cf135ab2fe6a1c03657deb7017f370",
+    "native_hash": "886cba6c5e91507f",
+    "primary_hash": "886cba6c5e91507f",
+    "native_source": "R6/webp/lossy-0016x0004-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0016x0004-s00.webp",
+    "bytes": 82,
+    "sha256": "f7eda03da818e1487a695972933cb948ebc06ef9926a0a9de10ae00f522dfb56",
+    "native_hash": "886cba6c5e91507f",
+    "primary_hash": "886cba6c5e91507f",
+    "native_source": "R11/vp8x-opaque/lossy-0016x0004-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0016x0004-s00.webp",
+    "bytes": 156,
+    "sha256": "ac23bbb3e146c336db09e27ae794b2688704c61065e9557362d7c15f0fea593f",
+    "native_hash": "886cba6c5e91507f",
+    "primary_hash": "886cba6c5e91507f",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0016x0004-s00"
+  },
+  {
+    "file": "simple-lossy-0016x0004-s07.webp",
+    "bytes": 200,
+    "sha256": "32ff5a6bffbf4f88b96f06d030f3c97c2e2a32355f02702ea4b9905d7f663cec",
+    "native_hash": "cc1bf3d90ca68359",
+    "primary_hash": "cc1bf3d90ca68359",
+    "native_source": "R6/webp/lossy-0016x0004-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0016x0004-s07.webp",
+    "bytes": 218,
+    "sha256": "0eca28570e4254381e74101434e04e6aa03c966fee21e6254f92bccc7c7197e7",
+    "native_hash": "cc1bf3d90ca68359",
+    "primary_hash": "cc1bf3d90ca68359",
+    "native_source": "R11/vp8x-opaque/lossy-0016x0004-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0016x0004-s07.webp",
+    "bytes": 292,
+    "sha256": "63e779d20b7f3605314d4b49f26e836749dd98577819e8ec4ba5f3797c438876",
+    "native_hash": "cc1bf3d90ca68359",
+    "primary_hash": "cc1bf3d90ca68359",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0016x0004-s07"
+  },
+  {
+    "file": "simple-lossy-0016x0004-s08.webp",
+    "bytes": 92,
+    "sha256": "54ff6aa54f79098d2e32285c419867e37ab041a0956e8dd9cf0f018ea3f6cc40",
+    "native_hash": "b13f80007fdfc83c",
+    "primary_hash": "b13f80007fdfc83c",
+    "native_source": "R6/webp/lossy-0016x0004-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0016x0004-s08.webp",
+    "bytes": 110,
+    "sha256": "6a80c671b9c74287c7dd7298696bab915a299b54e8cd8966c6f4df275c1ac887",
+    "native_hash": "b13f80007fdfc83c",
+    "primary_hash": "b13f80007fdfc83c",
+    "native_source": "R11/vp8x-opaque/lossy-0016x0004-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0016x0004-s08.webp",
+    "bytes": 184,
+    "sha256": "a23ac7cd5bf3a1e54cbbb161ed20122b9af61bd4a65de5e571dc5d6f1f64061e",
+    "native_hash": "b13f80007fdfc83c",
+    "primary_hash": "b13f80007fdfc83c",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0016x0004-s08"
+  },
+  {
+    "file": "simple-lossy-0016x0004-s16.webp",
+    "bytes": 92,
+    "sha256": "f8bd7ca7540e2af55d17888f8b7dc07a98b74643238cce79c083257211ecb697",
+    "native_hash": "d5ffd5810028c4fd",
+    "primary_hash": "d5ffd5810028c4fd",
+    "native_source": "R6/webp/lossy-0016x0004-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0016x0004-s16.webp",
+    "bytes": 110,
+    "sha256": "0981e821e8d5c16243c325cafc9b8d3689109b1d65791245d26d1d04aa9469dd",
+    "native_hash": "d5ffd5810028c4fd",
+    "primary_hash": "d5ffd5810028c4fd",
+    "native_source": "R11/vp8x-opaque/lossy-0016x0004-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0016x0004-s16.webp",
+    "bytes": 184,
+    "sha256": "021c756c915140d4bbd2d8ddd295234d408a6344549a7b10f2b885318b1fe842",
+    "native_hash": "d5ffd5810028c4fd",
+    "primary_hash": "d5ffd5810028c4fd",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0016x0004-s16"
+  },
+  {
+    "file": "simple-lossy-0016x0032-s00.webp",
+    "bytes": 190,
+    "sha256": "a56244c981522deff84ca49831421498101ccb9c02e02feef563dc7e2d43d61d",
+    "native_hash": "8719334e1af79c23",
+    "primary_hash": "8719334e1af79c23",
+    "native_source": "R6/webp/lossy-0016x0032-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0016x0032-s00.webp",
+    "bytes": 208,
+    "sha256": "b138b830ef4be011f1947982fabe10afadb79d3a90ccbe7e0006afbb1bfffa90",
+    "native_hash": "8719334e1af79c23",
+    "primary_hash": "8719334e1af79c23",
+    "native_source": "R11/vp8x-opaque/lossy-0016x0032-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0016x0032-s00.webp",
+    "bytes": 730,
+    "sha256": "9de9a20d2964def518b924cd9dec29b0f836c736d8a1b442b6c87a88c895e1d4",
+    "native_hash": "8719334e1af79c23",
+    "primary_hash": "8719334e1af79c23",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0016x0032-s00"
+  },
+  {
+    "file": "simple-lossy-0016x0032-s07.webp",
+    "bytes": 636,
+    "sha256": "f8824189f66869bf450ff17717d6baf0496a2c1c7d9eb09c2f16fa861fff5522",
+    "native_hash": "bd64c48b9e39702b",
+    "primary_hash": "bd64c48b9e39702b",
+    "native_source": "R6/webp/lossy-0016x0032-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0016x0032-s07.webp",
+    "bytes": 654,
+    "sha256": "4c57d020a019c6d7bc58d17f470a90bdd6629158d90474ef9218bd6d5f956d1f",
+    "native_hash": "bd64c48b9e39702b",
+    "primary_hash": "bd64c48b9e39702b",
+    "native_source": "R11/vp8x-opaque/lossy-0016x0032-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0016x0032-s07.webp",
+    "bytes": 1176,
+    "sha256": "93a4fbfa1d92c7703c7fa5a46e4650ea7e7184e79e4e4c9055384cb0d0544294",
+    "native_hash": "bd64c48b9e39702b",
+    "primary_hash": "bd64c48b9e39702b",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0016x0032-s07"
+  },
+  {
+    "file": "simple-lossy-0016x0032-s08.webp",
+    "bytes": 260,
+    "sha256": "b46b3cd1f9402ac4a5f6cd259da300f0a236434eab18e7a719204af0a6b541d3",
+    "native_hash": "fd6181792a37103f",
+    "primary_hash": "fd6181792a37103f",
+    "native_source": "R6/webp/lossy-0016x0032-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0016x0032-s08.webp",
+    "bytes": 278,
+    "sha256": "7b1a1ea52eeef6037529fde7d22d687a82483170911502a9d846871c6059b084",
+    "native_hash": "fd6181792a37103f",
+    "primary_hash": "fd6181792a37103f",
+    "native_source": "R11/vp8x-opaque/lossy-0016x0032-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0016x0032-s08.webp",
+    "bytes": 800,
+    "sha256": "c3fca4f9c30e3be1a0f3c1fb858a50ae104f5cace825d76d554b2cfc924a5b9f",
+    "native_hash": "fd6181792a37103f",
+    "primary_hash": "fd6181792a37103f",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0016x0032-s08"
+  },
+  {
+    "file": "simple-lossy-0016x0032-s16.webp",
+    "bytes": 166,
+    "sha256": "0848b21025b2fbdf50e289b83016bd8ae47a14a58adef690f1d9c270d150a3f9",
+    "native_hash": "80d7d75501d55575",
+    "primary_hash": "80d7d75501d55575",
+    "native_source": "R6/webp/lossy-0016x0032-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0016x0032-s16.webp",
+    "bytes": 184,
+    "sha256": "13bb03985b78498b227c49a9f11130b94f614f4e9bb6481eb76acd0e4e1cb860",
+    "native_hash": "80d7d75501d55575",
+    "primary_hash": "80d7d75501d55575",
+    "native_source": "R11/vp8x-opaque/lossy-0016x0032-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0016x0032-s16.webp",
+    "bytes": 706,
+    "sha256": "9c680f12424825aee59351e86d3fb3f20863ff9c7a7c23489b24a996ce32c7ed",
+    "native_hash": "80d7d75501d55575",
+    "primary_hash": "80d7d75501d55575",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0016x0032-s16"
+  },
+  {
+    "file": "simple-lossy-0017x0005-s00.webp",
+    "bytes": 88,
+    "sha256": "0fb7d7145ad8741ec6f47671a608c5035420414bac12cf4b4f2094e61fef03c0",
+    "native_hash": "8a552ed1efa8d48c",
+    "primary_hash": "8a552ed1efa8d48c",
+    "native_source": "R6/webp/lossy-0017x0005-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0017x0005-s00.webp",
+    "bytes": 106,
+    "sha256": "279cc627f0a43879f5e2a3472ffb6274a8408d3bfbce1eade07f21f601767591",
+    "native_hash": "8a552ed1efa8d48c",
+    "primary_hash": "8a552ed1efa8d48c",
+    "native_source": "R11/vp8x-opaque/lossy-0017x0005-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0017x0005-s00.webp",
+    "bytes": 200,
+    "sha256": "5ce094565a7403731df16f06622f30c7cd0b802d21285899b88c9aab653f8c03",
+    "native_hash": "8a552ed1efa8d48c",
+    "primary_hash": "8a552ed1efa8d48c",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0017x0005-s00"
+  },
+  {
+    "file": "simple-lossy-0017x0005-s07.webp",
+    "bytes": 244,
+    "sha256": "fad25f737e7c2a022ccfb6409f03e0e56ca3996629908db1a815444b98d5ce36",
+    "native_hash": "e4099353d9a626ee",
+    "primary_hash": "e4099353d9a626ee",
+    "native_source": "R6/webp/lossy-0017x0005-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0017x0005-s07.webp",
+    "bytes": 262,
+    "sha256": "390ab1693cda42ef03037856e5b9165d86ffa528ab645f6a58058481010534df",
+    "native_hash": "e4099353d9a626ee",
+    "primary_hash": "e4099353d9a626ee",
+    "native_source": "R11/vp8x-opaque/lossy-0017x0005-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0017x0005-s07.webp",
+    "bytes": 356,
+    "sha256": "f403c64838abf830a2a65ad77e0255fb71234c9fab94fdd4e8cf71eac3ac1d93",
+    "native_hash": "e4099353d9a626ee",
+    "primary_hash": "e4099353d9a626ee",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0017x0005-s07"
+  },
+  {
+    "file": "simple-lossy-0017x0005-s08.webp",
+    "bytes": 130,
+    "sha256": "57d619cfb186028f9f9e6662fd7b3945a125a703f69e12e6a8b60a42a00d058e",
+    "native_hash": "b83fd6803f75c061",
+    "primary_hash": "b83fd6803f75c061",
+    "native_source": "R6/webp/lossy-0017x0005-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0017x0005-s08.webp",
+    "bytes": 148,
+    "sha256": "21bcf338528bab4424776828845f0399847d8ea0b001703e838e4edefac15da6",
+    "native_hash": "b83fd6803f75c061",
+    "primary_hash": "b83fd6803f75c061",
+    "native_source": "R11/vp8x-opaque/lossy-0017x0005-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0017x0005-s08.webp",
+    "bytes": 242,
+    "sha256": "7eeb33d50d421290f157cf1f7181cb05c706fdba083dfd7704e67694ab5d059e",
+    "native_hash": "b83fd6803f75c061",
+    "primary_hash": "b83fd6803f75c061",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0017x0005-s08"
+  },
+  {
+    "file": "simple-lossy-0017x0005-s16.webp",
+    "bytes": 136,
+    "sha256": "b95a1f619e1c3ec30c5066ce383ce912da00b36b2f240f577229f5c0e0306ca5",
+    "native_hash": "ffffff00554a8000",
+    "primary_hash": "ffffff00554a8000",
+    "native_source": "R6/webp/lossy-0017x0005-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0017x0005-s16.webp",
+    "bytes": 154,
+    "sha256": "4f75aa8bedb62bcc606a5cc86c72e78be21faa58114ba11f1bb743c031fa4256",
+    "native_hash": "ffffff00554a8000",
+    "primary_hash": "ffffff00554a8000",
+    "native_source": "R11/vp8x-opaque/lossy-0017x0005-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0017x0005-s16.webp",
+    "bytes": 248,
+    "sha256": "53ac361de143fa0b88e2332ff7dbf2f067def2800dab30b5330f4bf977703def",
+    "native_hash": "ffffff00554a8000",
+    "primary_hash": "ffffff00554a8000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0017x0005-s16"
+  },
+  {
+    "file": "simple-lossy-0017x0017-s00.webp",
+    "bytes": 154,
+    "sha256": "010df0d1817fd0a52fe8602aa846e2309e5f94152aff6af596b93070994ddf94",
+    "native_hash": "942b6ad52378c73a",
+    "primary_hash": "942b6ad52378c73a",
+    "native_source": "R6/webp/lossy-0017x0017-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0017x0017-s00.webp",
+    "bytes": 172,
+    "sha256": "76102e796483414eb1a5cffd932d529001fef9ab9ddb982e0f3149c8f508faa9",
+    "native_hash": "942b6ad52378c73a",
+    "primary_hash": "942b6ad52378c73a",
+    "native_source": "R11/vp8x-opaque/lossy-0017x0017-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0017x0017-s00.webp",
+    "bytes": 470,
+    "sha256": "373adfba7ed19f27b5916a043bc71f2c8aa262bb71972a0bd05a89e54af51152",
+    "native_hash": "942b6ad52378c73a",
+    "primary_hash": "942b6ad52378c73a",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0017x0017-s00"
+  },
+  {
+    "file": "simple-lossy-0017x0017-s07.webp",
+    "bytes": 516,
+    "sha256": "0264cfac021165c0c552b7af3ca1536b45e8a2bb000516408cca499b9ed80bb4",
+    "native_hash": "fec48d382b7ec091",
+    "primary_hash": "fec48d382b7ec091",
+    "native_source": "R6/webp/lossy-0017x0017-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0017x0017-s07.webp",
+    "bytes": 534,
+    "sha256": "69b2259091f1866008b4b9fa1a7c20e77b6ee6ee67d4e7a011e725952b1b0922",
+    "native_hash": "fec48d382b7ec091",
+    "primary_hash": "fec48d382b7ec091",
+    "native_source": "R11/vp8x-opaque/lossy-0017x0017-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0017x0017-s07.webp",
+    "bytes": 832,
+    "sha256": "027f4bf9f4cb4e8093286bad30275bc288023be56c1be813fdb5fe9e0e99e501",
+    "native_hash": "fec48d382b7ec091",
+    "primary_hash": "fec48d382b7ec091",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0017x0017-s07"
+  },
+  {
+    "file": "simple-lossy-0017x0017-s08.webp",
+    "bytes": 238,
+    "sha256": "f2b82762b4ce35689bf4733fc678f389808c1e770307a3d8a2d0593c7bb20cab",
+    "native_hash": "bbc03b383f46d702",
+    "primary_hash": "bbc03b383f46d702",
+    "native_source": "R6/webp/lossy-0017x0017-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0017x0017-s08.webp",
+    "bytes": 256,
+    "sha256": "21a3dfdf883af9a59dd360ffa4dc0f512edd6bed9df5146a0fed3f9732968308",
+    "native_hash": "bbc03b383f46d702",
+    "primary_hash": "bbc03b383f46d702",
+    "native_source": "R11/vp8x-opaque/lossy-0017x0017-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0017x0017-s08.webp",
+    "bytes": 554,
+    "sha256": "76234e9793588c69b2965adaa89d428b4a018b34c9b1cdbeff09dfc293e1ca66",
+    "native_hash": "bbc03b383f46d702",
+    "primary_hash": "bbc03b383f46d702",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0017x0017-s08"
+  },
+  {
+    "file": "simple-lossy-0017x0017-s16.webp",
+    "bytes": 182,
+    "sha256": "8c7b185c7830c9eccf9c807de12f20e8ff3004acefece2ea01cacfe6c05c5142",
+    "native_hash": "c19f00d501d747df",
+    "primary_hash": "c19f00d501d747df",
+    "native_source": "R6/webp/lossy-0017x0017-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0017x0017-s16.webp",
+    "bytes": 200,
+    "sha256": "e4fa134bbc9edbf3889dec9383c3b4bc487a0a2f2579596ca5423b3d09665abd",
+    "native_hash": "c19f00d501d747df",
+    "primary_hash": "c19f00d501d747df",
+    "native_source": "R11/vp8x-opaque/lossy-0017x0017-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0017x0017-s16.webp",
+    "bytes": 498,
+    "sha256": "7c5b38dcc5ae4ca63cc64a2a6c439dda265b457710f36e925399784d6a3ce0b1",
+    "native_hash": "c19f00d501d747df",
+    "primary_hash": "c19f00d501d747df",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0017x0017-s16"
+  },
+  {
+    "file": "simple-lossy-0018x0002-s02.webp",
+    "bytes": 138,
+    "sha256": "c66094b7a3e1bac0305a198fe1abd0f6f08ab0645c2afb1c9a0e8f4a9efba009",
+    "native_hash": "85590d59d27b9f09",
+    "primary_hash": "85590c59d27b9f49",
+    "native_source": "R6/webp/lossy-0018x0002-s02"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0018x0002-s02.webp",
+    "bytes": 156,
+    "sha256": "70e3d6d941e8d8e07fbcbfedbf3c66b88c7248020569156f3f6035fe99cefac1",
+    "native_hash": "85590d59d27b9f09",
+    "primary_hash": "85590c59d27b9f49",
+    "native_source": "R11/vp8x-opaque/lossy-0018x0002-s02"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0018x0002-s02.webp",
+    "bytes": 202,
+    "sha256": "2dbd958f22c5acb68db831ed58e76d108d03cfbd4537cfd2627dc200d5fe9d2b",
+    "native_hash": "85590d59d27b9f09",
+    "primary_hash": "85590c59d27b9f49",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0018x0002-s02"
+  },
+  {
+    "file": "simple-lossy-0022x0002-s14.webp",
+    "bytes": 210,
+    "sha256": "e0c68b2101180696e594572f018b275eca15d85dd5d0dec9bc71bc8dc300374a",
+    "native_hash": "f7851f8589857a85",
+    "primary_hash": "f7851f85c1857a85",
+    "native_source": "R6/webp/lossy-0022x0002-s14"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0022x0002-s14.webp",
+    "bytes": 228,
+    "sha256": "31d479076b69b29f554b88b12ba21d815ac11c767558303f277c0b9adccad95c",
+    "native_hash": "f7851f8589857a85",
+    "primary_hash": "f7851f85c1857a85",
+    "native_source": "R11/vp8x-opaque/lossy-0022x0002-s14"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0022x0002-s14.webp",
+    "bytes": 282,
+    "sha256": "cf1bb130a1ca291978f4694fe715e98669b7c792ebb6269679abe23cfca92b8b",
+    "native_hash": "f7851f8589857a85",
+    "primary_hash": "f7851f85c1857a85",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0022x0002-s14"
+  },
+  {
+    "file": "simple-lossy-0023x0004-s22.webp",
+    "bytes": 218,
+    "sha256": "464059e7cf633e8c2740c7e09a06afa0bbbc589c458a8a63e5a5fd344070139e",
+    "native_hash": "fc00c8ff9e0043ef",
+    "primary_hash": "fc00c8ff9e0023ef",
+    "native_source": "R6/webp/lossy-0023x0004-s22"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0023x0004-s22.webp",
+    "bytes": 236,
+    "sha256": "9e46793ad6352b26bacc147b419972bb6b4870a0121460c3e543260d6f271e59",
+    "native_hash": "fc00c8ff9e0043ef",
+    "primary_hash": "fc00c8ff9e0023ef",
+    "native_source": "R11/vp8x-opaque/lossy-0023x0004-s22"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0023x0004-s22.webp",
+    "bytes": 338,
+    "sha256": "34023b023d8f1f19931989644cc3079dae1ed152a7bc3537cdb38cc2c04de057",
+    "native_hash": "fc00c8ff9e0043ef",
+    "primary_hash": "fc00c8ff9e0023ef",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0023x0004-s22"
+  },
+  {
+    "file": "simple-lossy-0031x0032-s00.webp",
+    "bytes": 324,
+    "sha256": "5efb2b29cc3d637946128b4e9bacfe7286ee37e29606ad3b66c7519ddb71dd0c",
+    "native_hash": "a08b1e912b7ed536",
+    "primary_hash": "a08b1e912b7ed536",
+    "native_source": "R6/webp/lossy-0031x0032-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0031x0032-s00.webp",
+    "bytes": 342,
+    "sha256": "de197066f8afebab280514e3ae466c2ac44a5a92da20610abacc20992d5d4745",
+    "native_hash": "a08b1e912b7ed536",
+    "primary_hash": "a08b1e912b7ed536",
+    "native_source": "R11/vp8x-opaque/lossy-0031x0032-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0031x0032-s00.webp",
+    "bytes": 1344,
+    "sha256": "7590457daf8cd87ee7acb6172988eff3961a334079ef909653e4b2b364ea1ce3",
+    "native_hash": "a08b1e912b7ed536",
+    "primary_hash": "a08b1e912b7ed536",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0031x0032-s00"
+  },
+  {
+    "file": "simple-lossy-0031x0032-s07.webp",
+    "bytes": 1070,
+    "sha256": "733757d4c99e18e3e8c9bfb8f49272d7276e2b517d07e0185f244fb56a38f639",
+    "native_hash": "de74e461c38e292e",
+    "primary_hash": "de74e461c38e292e",
+    "native_source": "R6/webp/lossy-0031x0032-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0031x0032-s07.webp",
+    "bytes": 1088,
+    "sha256": "5c411eaee7c7bd25c9faa24ed9bc7fad53e0ccd20e63e4676f06d7aee6cfa0c4",
+    "native_hash": "de74e461c38e292e",
+    "primary_hash": "de74e461c38e292e",
+    "native_source": "R11/vp8x-opaque/lossy-0031x0032-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0031x0032-s07.webp",
+    "bytes": 2090,
+    "sha256": "4cd4d7e6d386024272d8f85b96f2b78211b271827a13dff7fe8bbfaffc0513ed",
+    "native_hash": "de74e461c38e292e",
+    "primary_hash": "de74e461c38e292e",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0031x0032-s07"
+  },
+  {
+    "file": "simple-lossy-0031x0032-s08.webp",
+    "bytes": 454,
+    "sha256": "135f1c01ffbf2d7827392c9d4521df447c1a7758b9f36b1109aa804fd0f7f255",
+    "native_hash": "9d69c07f1909855f",
+    "primary_hash": "9d69c07f1909855f",
+    "native_source": "R6/webp/lossy-0031x0032-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0031x0032-s08.webp",
+    "bytes": 472,
+    "sha256": "438b3a89c716a5b4b13f1e70ffb20377e2c67b85d5e2c40de03a6795002553a3",
+    "native_hash": "9d69c07f1909855f",
+    "primary_hash": "9d69c07f1909855f",
+    "native_source": "R11/vp8x-opaque/lossy-0031x0032-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0031x0032-s08.webp",
+    "bytes": 1474,
+    "sha256": "36d29c08aac6c3a738a32fc68cd282e6c9bd9770688f1c3b30e2610fa4eab719",
+    "native_hash": "9d69c07f1909855f",
+    "primary_hash": "9d69c07f1909855f",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0031x0032-s08"
+  },
+  {
+    "file": "simple-lossy-0031x0032-s16.webp",
+    "bytes": 174,
+    "sha256": "a1be653762a160c3158bd32a4079635e5dd66f76e974302c03df82e5a69c6398",
+    "native_hash": "80cd22df00ef32fe",
+    "primary_hash": "80cd22df00ef32fe",
+    "native_source": "R6/webp/lossy-0031x0032-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0031x0032-s16.webp",
+    "bytes": 192,
+    "sha256": "557f09e39602ac19db0ff865faf1b9ca07e68969e5acb43b2baea200608bfc34",
+    "native_hash": "80cd22df00ef32fe",
+    "primary_hash": "80cd22df00ef32fe",
+    "native_source": "R11/vp8x-opaque/lossy-0031x0032-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0031x0032-s16.webp",
+    "bytes": 1194,
+    "sha256": "945a73c9c246991ef9e65ecdc004eedc3487ef420e701986bdc6dd4c1e62f126",
+    "native_hash": "80cd22df00ef32fe",
+    "primary_hash": "80cd22df00ef32fe",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0031x0032-s16"
+  },
+  {
+    "file": "simple-lossy-0032x0001-s00.webp",
+    "bytes": 114,
+    "sha256": "22b07a5fbd4f807abd2a58fb5f185b374ec5c9e344f812d436482a06a57720ae",
+    "native_hash": "8900000000000000",
+    "primary_hash": "8900000000000000",
+    "native_source": "R6/webp/lossy-0032x0001-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0001-s00.webp",
+    "bytes": 132,
+    "sha256": "3620107bc87a166f2b9c3461ef4a2cb24125fa134ee72be0648840ab79350779",
+    "native_hash": "8900000000000000",
+    "primary_hash": "8900000000000000",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0001-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0001-s00.webp",
+    "bytes": 174,
+    "sha256": "2be197de242dcdb7c6681870b5461b02dcfb1bbabe884bcc9ebc1ed7ef8f778a",
+    "native_hash": "8900000000000000",
+    "primary_hash": "8900000000000000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0001-s00"
+  },
+  {
+    "file": "simple-lossy-0032x0001-s07.webp",
+    "bytes": 196,
+    "sha256": "781f64783ce02f2a749d8ec02750ae48f69f3037f3c85388d5d3bcace2995a38",
+    "native_hash": "b500000000000000",
+    "primary_hash": "b500000000000000",
+    "native_source": "R6/webp/lossy-0032x0001-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0001-s07.webp",
+    "bytes": 214,
+    "sha256": "e22cd920be7209bad207c0c99882a031dc2eb2f50567d4328d135de4d09b04a4",
+    "native_hash": "b500000000000000",
+    "primary_hash": "b500000000000000",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0001-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0001-s07.webp",
+    "bytes": 256,
+    "sha256": "2bd2bf0df2279ab6844496708a05bac47c533f044673f8e49aae6320091ecc79",
+    "native_hash": "b500000000000000",
+    "primary_hash": "b500000000000000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0001-s07"
+  },
+  {
+    "file": "simple-lossy-0032x0001-s08.webp",
+    "bytes": 144,
+    "sha256": "d5702f98bd1e040e14ca360195eb0ed039f7f17ba623a4fd2e2e89e80bc55fb7",
+    "native_hash": "9d00000000000000",
+    "primary_hash": "9d00000000000000",
+    "native_source": "R6/webp/lossy-0032x0001-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0001-s08.webp",
+    "bytes": 162,
+    "sha256": "229614d2f5254cf82616a21c7aaa54871d7c982e646a9d02c5cdbc4ac025ed44",
+    "native_hash": "9d00000000000000",
+    "primary_hash": "9d00000000000000",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0001-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0001-s08.webp",
+    "bytes": 204,
+    "sha256": "b82f2fd73398ccd43823277529f9d35620553e9c6fc9d95f9478d4907a99bfba",
+    "native_hash": "9d00000000000000",
+    "primary_hash": "9d00000000000000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0001-s08"
+  },
+  {
+    "file": "simple-lossy-0032x0001-s16.webp",
+    "bytes": 126,
+    "sha256": "4d0b639b340c2815955bf0dfdf669af98e4a99ab603d5680fbaa79db2c80df23",
+    "native_hash": "ff00000000000000",
+    "primary_hash": "ff00000000000000",
+    "native_source": "R6/webp/lossy-0032x0001-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0001-s16.webp",
+    "bytes": 144,
+    "sha256": "3d39453ef27620ebb1c25a55ce774496817163941ec7cfcbee7b9f9503aa7daa",
+    "native_hash": "ff00000000000000",
+    "primary_hash": "ff00000000000000",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0001-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0001-s16.webp",
+    "bytes": 186,
+    "sha256": "8295c2a45717724b3c2873facb23ccd5a7b6b34852efd6f3890dc6514531e54c",
+    "native_hash": "ff00000000000000",
+    "primary_hash": "ff00000000000000",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0001-s16"
+  },
+  {
+    "file": "simple-lossy-0032x0016-s00.webp",
+    "bytes": 188,
+    "sha256": "b1f0a438ac6a56c05ce12d2ed7777d8729bec9b3b068742e15e7401bba6f2c61",
+    "native_hash": "81093bd7916f483f",
+    "primary_hash": "81093bd7916f483f",
+    "native_source": "R6/webp/lossy-0032x0016-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0016-s00.webp",
+    "bytes": 206,
+    "sha256": "860e9e002a6670e47455aac80a52ba430d60b926132ad4379b48683f3fb66ad1",
+    "native_hash": "81093bd7916f483f",
+    "primary_hash": "81093bd7916f483f",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0016-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0016-s00.webp",
+    "bytes": 728,
+    "sha256": "38ba14b8bedae273bc4d431bfd157dbea859f8d11200fcc2446834f163e1ba21",
+    "native_hash": "81093bd7916f483f",
+    "primary_hash": "81093bd7916f483f",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0016-s00"
+  },
+  {
+    "file": "simple-lossy-0032x0016-s07.webp",
+    "bytes": 628,
+    "sha256": "e737c4f8e1bbcf21c32f1463b7f8a2e4469032cd3b083b3c9e16a272b11515a3",
+    "native_hash": "def4812f2d6a604b",
+    "primary_hash": "def4812f2d6a604b",
+    "native_source": "R6/webp/lossy-0032x0016-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0016-s07.webp",
+    "bytes": 646,
+    "sha256": "18d12c81bb3a65837a1e81efae0c9d509894760c9392d55f53087f17f6140d50",
+    "native_hash": "def4812f2d6a604b",
+    "primary_hash": "def4812f2d6a604b",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0016-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0016-s07.webp",
+    "bytes": 1168,
+    "sha256": "3e8559d1e05ac2a9aaff956313c58be7b02c79fcc65f8fb844603866278241fe",
+    "native_hash": "def4812f2d6a604b",
+    "primary_hash": "def4812f2d6a604b",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0016-s07"
+  },
+  {
+    "file": "simple-lossy-0032x0016-s08.webp",
+    "bytes": 258,
+    "sha256": "1380145edebb6e35ada67b36765b3d2a43d0f2a3907132c1ff9decf5ef4a44b2",
+    "native_hash": "8d7b8d0d1df2c285",
+    "primary_hash": "8d7b8d0d1df2c285",
+    "native_source": "R6/webp/lossy-0032x0016-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0016-s08.webp",
+    "bytes": 276,
+    "sha256": "0219ed95e5184a66aa84ee5e4f6288eafdaea3724df14d258904677e36b46284",
+    "native_hash": "8d7b8d0d1df2c285",
+    "primary_hash": "8d7b8d0d1df2c285",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0016-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0016-s08.webp",
+    "bytes": 798,
+    "sha256": "b625bbeffec2aa7b9e4f77c5b4c1cc7b22005a515ae90cbaa1fba060d084ff75",
+    "native_hash": "8d7b8d0d1df2c285",
+    "primary_hash": "8d7b8d0d1df2c285",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0016-s08"
+  },
+  {
+    "file": "simple-lossy-0032x0016-s16.webp",
+    "bytes": 166,
+    "sha256": "51a6619138f9985c4cb0cc35584913b7fd299ecf5018218893db45284cc2dba7",
+    "native_hash": "e4770077187720f7",
+    "primary_hash": "e4770077187720f7",
+    "native_source": "R6/webp/lossy-0032x0016-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0016-s16.webp",
+    "bytes": 184,
+    "sha256": "0c00d83dbbabd6f4c9ac9114f9dd7ea3b8ea777bc3fe112f0a9cc1a22d0f325b",
+    "native_hash": "e4770077187720f7",
+    "primary_hash": "e4770077187720f7",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0016-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0016-s16.webp",
+    "bytes": 706,
+    "sha256": "4693a64ceb99c06e6b314124af215dc05123e05e21aa98f4a86997b78651655d",
+    "native_hash": "e4770077187720f7",
+    "primary_hash": "e4770077187720f7",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0016-s16"
+  },
+  {
+    "file": "simple-lossy-0032x0031-s00.webp",
+    "bytes": 318,
+    "sha256": "3ee75b9ef094c906bd90c5d45bc6b05fb08c94ec5efdb994e135046234730d47",
+    "native_hash": "a00b1e913b7e9755",
+    "primary_hash": "a00b1e913b7e9755",
+    "native_source": "R6/webp/lossy-0032x0031-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0031-s00.webp",
+    "bytes": 336,
+    "sha256": "a10c58fc1213a2610c7762cf85c52e9466397c125da77dc574a46e839960be1c",
+    "native_hash": "a00b1e913b7e9755",
+    "primary_hash": "a00b1e913b7e9755",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0031-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0031-s00.webp",
+    "bytes": 1338,
+    "sha256": "2a20e216a8f632429dcf1fe1a05f5d396ceb0bc38cdae6c25cbcaf2bd60b0efc",
+    "native_hash": "a00b1e913b7e9755",
+    "primary_hash": "a00b1e913b7e9755",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0031-s00"
+  },
+  {
+    "file": "simple-lossy-0032x0031-s07.webp",
+    "bytes": 1074,
+    "sha256": "c6bc6b95833f043200f0e82b69884cb6f41adebe28a9ac0a668f42b4444ea534",
+    "native_hash": "9a76a441938f372e",
+    "primary_hash": "9a76a441938f372e",
+    "native_source": "R6/webp/lossy-0032x0031-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0031-s07.webp",
+    "bytes": 1092,
+    "sha256": "f73223ae1028876c243856fe51c101d5d6f085597c35e3dadcf8130f41a5ea8a",
+    "native_hash": "9a76a441938f372e",
+    "primary_hash": "9a76a441938f372e",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0031-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0031-s07.webp",
+    "bytes": 2094,
+    "sha256": "962ee60179085eccb18607dac6a59f746818d62fb9a2d98b019973d764be786e",
+    "native_hash": "9a76a441938f372e",
+    "primary_hash": "9a76a441938f372e",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0031-s07"
+  },
+  {
+    "file": "simple-lossy-0032x0031-s08.webp",
+    "bytes": 456,
+    "sha256": "3247e5476f208d013f19820bfdfb1d5bb7c86a1e6d91764eea3aa4a2a72564d3",
+    "native_hash": "bd7dc03f810d845d",
+    "primary_hash": "bd7dc03f810d845d",
+    "native_source": "R6/webp/lossy-0032x0031-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0031-s08.webp",
+    "bytes": 474,
+    "sha256": "e7000ea21164efdcd412653f061e9d6dc168ba0e9d41c5d7c5b95fb3fbfdd934",
+    "native_hash": "bd7dc03f810d845d",
+    "primary_hash": "bd7dc03f810d845d",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0031-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0031-s08.webp",
+    "bytes": 1476,
+    "sha256": "f82e91d781e6e7f95539c14189e0d2e84d157e117f7e34f35d874ba3ff2626d3",
+    "native_hash": "bd7dc03f810d845d",
+    "primary_hash": "bd7dc03f810d845d",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0031-s08"
+  },
+  {
+    "file": "simple-lossy-0032x0031-s16.webp",
+    "bytes": 174,
+    "sha256": "a143e6a664b8fe9595418212a4b74031dc3aa967a8124a70f64cf385ff5d20f3",
+    "native_hash": "dd45371755513744",
+    "primary_hash": "dd45371755513744",
+    "native_source": "R6/webp/lossy-0032x0031-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0031-s16.webp",
+    "bytes": 192,
+    "sha256": "d603db96550561bda90363581af81577f17395b08d45c567918846d7185af587",
+    "native_hash": "dd45371755513744",
+    "primary_hash": "dd45371755513744",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0031-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0031-s16.webp",
+    "bytes": 1194,
+    "sha256": "f06acad2993d814155c2c32f936a71fa8a4971cde87094110f3f7e5650a612f3",
+    "native_hash": "dd45371755513744",
+    "primary_hash": "dd45371755513744",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0031-s16"
+  },
+  {
+    "file": "simple-lossy-0032x0032-s00.webp",
+    "bytes": 324,
+    "sha256": "020707a47f5f10eec833ccc5a9f3b3f917710fe929305ee6b2b333c5cf250586",
+    "native_hash": "a08b1e912b7ed535",
+    "primary_hash": "a08b1e912b7ed535",
+    "native_source": "R6/webp/lossy-0032x0032-s00"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0032-s00.webp",
+    "bytes": 342,
+    "sha256": "bd0ab67c88f55a53bce17c52abc45bbbf9d57fd9b1a16093f59e88ebff112795",
+    "native_hash": "a08b1e912b7ed535",
+    "primary_hash": "a08b1e912b7ed535",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0032-s00"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0032-s00.webp",
+    "bytes": 1376,
+    "sha256": "757c32fd7ed8569acd1da0771d7415212680ecc84972eac54f2e69d75d9e0c6e",
+    "native_hash": "a08b1e912b7ed535",
+    "primary_hash": "a08b1e912b7ed535",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0032-s00"
+  },
+  {
+    "file": "simple-lossy-0032x0032-s07.webp",
+    "bytes": 1078,
+    "sha256": "c0a57a75967660a937abd58340bdb41e7783f72b949078dafe018c96c8f51c60",
+    "native_hash": "da76e461c18f29a6",
+    "primary_hash": "da76e461c18f29a6",
+    "native_source": "R6/webp/lossy-0032x0032-s07"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0032-s07.webp",
+    "bytes": 1096,
+    "sha256": "9caacc95cd2c9695fa82d41cae6e83bb9b063237125d760f28ba1ac379df31f4",
+    "native_hash": "da76e461c18f29a6",
+    "primary_hash": "da76e461c18f29a6",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0032-s07"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0032-s07.webp",
+    "bytes": 2130,
+    "sha256": "1e20d0a966b7d4b339a9e88c609e0baa46c327410ea64828b1546965a6d5e5d2",
+    "native_hash": "da76e461c18f29a6",
+    "primary_hash": "da76e461c18f29a6",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0032-s07"
+  },
+  {
+    "file": "simple-lossy-0032x0032-s08.webp",
+    "bytes": 454,
+    "sha256": "fce49c78df985a6f5be717e4148097753eeea80555e7ebf6d85f034bf5ce68ab",
+    "native_hash": "9d79c03f190d855d",
+    "primary_hash": "9d79c03f190d855d",
+    "native_source": "R6/webp/lossy-0032x0032-s08"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0032-s08.webp",
+    "bytes": 472,
+    "sha256": "8461fbfc8d3619e12c8b084ac29e156b8da8d6b3b0b1a4dcc80cffe143e97a04",
+    "native_hash": "9d79c03f190d855d",
+    "primary_hash": "9d79c03f190d855d",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0032-s08"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0032-s08.webp",
+    "bytes": 1506,
+    "sha256": "c4a8d6290d0f6015036901107089defc68f6acc16c6c1ca52300251fd1a016f5",
+    "native_hash": "9d79c03f190d855d",
+    "primary_hash": "9d79c03f190d855d",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0032-s08"
+  },
+  {
+    "file": "simple-lossy-0032x0032-s16.webp",
+    "bytes": 174,
+    "sha256": "101953c4f7abaa6b2e203398bc3198adc7466ccf8964ead4c1188c77bd07b8c2",
+    "native_hash": "8955a2ddc455a2dd",
+    "primary_hash": "8955a2ddc455a2dd",
+    "native_source": "R6/webp/lossy-0032x0032-s16"
+  },
+  {
+    "file": "vp8x-opaque-lossy-0032x0032-s16.webp",
+    "bytes": 192,
+    "sha256": "ed362f3fb2f4068a7fa908ecfb112248171144f6b353d61c85adcc2660a12989",
+    "native_hash": "8955a2ddc455a2dd",
+    "primary_hash": "8955a2ddc455a2dd",
+    "native_source": "R11/vp8x-opaque/lossy-0032x0032-s16"
+  },
+  {
+    "file": "vp8x-raw-alpha-lossy-0032x0032-s16.webp",
+    "bytes": 1226,
+    "sha256": "c6e7f025f9284b07fb16c7c3bfeaa0ed1801db54d65609ff80f92629b213ddba",
+    "native_hash": "8955a2ddc455a2dd",
+    "primary_hash": "8955a2ddc455a2dd",
+    "native_source": "R11/vp8x-raw-alpha/lossy-0032x0032-s16"
+  },
+  {
+    "file": "alpha-lossy-0001x0001-s00.webp",
+    "bytes": 72,
+    "sha256": "bc822f20d9f942a5d9161799f8db6a723b297fca87b56acb77740eb37d8683c8",
+    "native_hash": "0000000000000000",
+    "primary_hash": "0000000000000000",
+    "native_source": "R6/webp/alpha-lossy-0001x0001-s00"
+  },
+  {
+    "file": "alpha-lossy-0001x0001-s08.webp",
+    "bytes": 80,
+    "sha256": "3adce9b377477adb41b54a7d07f3c75b21ce368cd33bad573f0075e04375862d",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R6/webp/alpha-lossy-0001x0001-s08"
+  },
+  {
+    "file": "alpha-lossy-0001x0001-s16.webp",
+    "bytes": 80,
+    "sha256": "c872669bb3b29d3654680ee5700be903f521c1c378077986f8fc2074fdb5ee28",
+    "native_hash": "8000000000000000",
+    "primary_hash": "8000000000000000",
+    "native_source": "R6/webp/alpha-lossy-0001x0001-s16"
+  },
+  {
+    "file": "alpha-lossy-0002x0003-s00.webp",
+    "bytes": 88,
+    "sha256": "e13193db336838f507596e0a0a1ab20933659c72e5418296c305f686c85a379f",
+    "native_hash": "8000808000008000",
+    "primary_hash": "8000808000008000",
+    "native_source": "R6/webp/alpha-lossy-0002x0003-s00"
+  },
+  {
+    "file": "alpha-lossy-0002x0003-s08.webp",
+    "bytes": 94,
+    "sha256": "c67ea06f88d41f6024a3f1466cc1b016fe5ddca82be5f33de531decd8a726774",
+    "native_hash": "8080000080800080",
+    "primary_hash": "8080000080800080",
+    "native_source": "R6/webp/alpha-lossy-0002x0003-s08"
+  },
+  {
+    "file": "alpha-lossy-0002x0003-s16.webp",
+    "bytes": 100,
+    "sha256": "13335f685293a3f0bcb2784864d8f79e3f585c4519dbf687cd48b5a43812e3c9",
+    "native_hash": "8080000080800080",
+    "primary_hash": "8080000080800080",
+    "native_source": "R6/webp/alpha-lossy-0002x0003-s16"
+  },
+  {
+    "file": "alpha-lossy-0004x0004-s00.webp",
+    "bytes": 96,
+    "sha256": "b9bbf3a067c44652e3929d7160cf9840b6e1a11327fa10a6e17012beaebeeb2a",
+    "native_hash": "b35865db98b1c34a",
+    "primary_hash": "b35865db98b1c34a",
+    "native_source": "R6/webp/alpha-lossy-0004x0004-s00"
+  },
+  {
+    "file": "alpha-lossy-0004x0004-s08.webp",
+    "bytes": 110,
+    "sha256": "f15fc270cb5776ef0270598f384740dc3b612dcd8ed4a3a62103b0c22ff41aa0",
+    "native_hash": "a64e3319cce63b19",
+    "primary_hash": "a64e3319cce63b19",
+    "native_source": "R6/webp/alpha-lossy-0004x0004-s08"
+  },
+  {
+    "file": "alpha-lossy-0004x0004-s16.webp",
+    "bytes": 118,
+    "sha256": "8202a5bb453566678cf0fcddae2f7233dfa44d67754d2335528bb28e139fb87d",
+    "native_hash": "f1e3d93a270c4ae8",
+    "primary_hash": "f1e3d93a270c4ae8",
+    "native_source": "R6/webp/alpha-lossy-0004x0004-s16"
+  },
+  {
+    "file": "alpha-lossy-0005x0017-s00.webp",
+    "bytes": 144,
+    "sha256": "d5b320e14fcf50d9c39929f440047ab335bc666628c9b6d2b75b612bf463ddfc",
+    "native_hash": "bc2c53d22d52ad72",
+    "primary_hash": "bc2c53d22d52ad72",
+    "native_source": "R6/webp/alpha-lossy-0005x0017-s00"
+  },
+  {
+    "file": "alpha-lossy-0005x0017-s08.webp",
+    "bytes": 194,
+    "sha256": "87c283c075ac96cbd9cef0c6e4d3f962e6121377c04070ca92cd2f5548609d20",
+    "native_hash": "e892622d6758e727",
+    "primary_hash": "e892622d6758e727",
+    "native_source": "R6/webp/alpha-lossy-0005x0017-s08"
+  },
+  {
+    "file": "alpha-lossy-0005x0017-s16.webp",
+    "bytes": 182,
+    "sha256": "3546b48ad04dda0d2507c416a1d41a4892181b22c472f24c44f662439fc00631",
+    "native_hash": "e6ece0e8e0e8e4e8",
+    "primary_hash": "e6ece0e8e0e8e4e8",
+    "native_source": "R6/webp/alpha-lossy-0005x0017-s16"
+  },
+  {
+    "file": "alpha-lossy-0017x0005-s00.webp",
+    "bytes": 136,
+    "sha256": "b823a8497101686a0306e3ede4de1ca85e4b6428d1e6afb3b12d0342f5f8e2a5",
+    "native_hash": "8a663847ae9be3a4",
+    "primary_hash": "8a663847ae9be3a4",
+    "native_source": "R6/webp/alpha-lossy-0017x0005-s00"
+  },
+  {
+    "file": "alpha-lossy-0017x0005-s08.webp",
+    "bytes": 184,
+    "sha256": "cad758e8b133767123adb4fa994d1828278b4bdee81809662c558d44d50dd024",
+    "native_hash": "b83fd6803f75c061",
+    "primary_hash": "b83fd6803f75c061",
+    "native_source": "R6/webp/alpha-lossy-0017x0005-s08"
+  },
+  {
+    "file": "alpha-lossy-0017x0005-s16.webp",
+    "bytes": 186,
+    "sha256": "1e301ac899be8b87c0e464327356b661dab6a865c31e42f6c5fc294ff93875ff",
+    "native_hash": "ffffff00554a8000",
+    "primary_hash": "ffffff00554a8000",
+    "native_source": "R6/webp/alpha-lossy-0017x0005-s16"
+  },
+  {
+    "file": "alpha-lossy-0010x0011-s00.webp",
+    "bytes": 116,
+    "sha256": "99d52342fe2599803a606c164187ecf6506e624abed7ce069f7ce536b88d6b49",
+    "native_hash": "a57d7c785e380760",
+    "primary_hash": "a57d7c785e380760",
+    "native_source": "R6/webp/alpha-lossy-0010x0011-s00"
+  },
+  {
+    "file": "alpha-lossy-0010x0011-s08.webp",
+    "bytes": 166,
+    "sha256": "af0e2b984d6c6454686d93512b2fad264af3a7689e0570e4083a898ece42bcca",
+    "native_hash": "f6837c7b9c078483",
+    "primary_hash": "f6837c7b9c078483",
+    "native_source": "R6/webp/alpha-lossy-0010x0011-s08"
+  },
+  {
+    "file": "alpha-lossy-0010x0011-s16.webp",
+    "bytes": 142,
+    "sha256": "b5b32d33dd9073700285b8c90d147d0edd1a50bfb12001032aaea7a2009852b1",
+    "native_hash": "ad78bca9f8f80306",
+    "primary_hash": "ad78bca9f8f80306",
+    "native_source": "R6/webp/alpha-lossy-0010x0011-s16"
+  },
+  {
+    "file": "alpha-lossy-0032x0032-s00.webp",
+    "bytes": 382,
+    "sha256": "ee597d2b17614b777d379a5a3461d99091a34bda425aea6b15a28f3768a1d792",
+    "native_hash": "a08b1e912b7ad73c",
+    "primary_hash": "a08b1e912b7ad73c",
+    "native_source": "R6/webp/alpha-lossy-0032x0032-s00"
+  },
+  {
+    "file": "alpha-lossy-0032x0032-s08.webp",
+    "bytes": 512,
+    "sha256": "02e05ec503f9668c071eaf17a5c2ac4f7eccd490b0e3d32dd4ccbdcc1b144796",
+    "native_hash": "bd59c07e190d855d",
+    "primary_hash": "bd59c07e190d855d",
+    "native_source": "R6/webp/alpha-lossy-0032x0032-s08"
+  },
+  {
+    "file": "alpha-lossy-0032x0032-s16.webp",
+    "bytes": 232,
+    "sha256": "85826e443670b5052ac1c3374c90fde15a961b4d947950a209e8ea9b9ae6ca9a",
+    "native_hash": "8855a3d50a57b755",
+    "primary_hash": "8855a3d50a57b755",
+    "native_source": "R6/webp/alpha-lossy-0032x0032-s16"
+  }
+]

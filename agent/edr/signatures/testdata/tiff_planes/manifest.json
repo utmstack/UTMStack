@@ -1,0 +1,2344 @@
+[
+  {
+    "name": "planes-0-p0-r0-s0.tiff",
+    "bytes": 2199,
+    "sha256": "ba5fd858eafa8f94e2b89d8161cde8be63a66eb15c2d9bedcc8d18b74e7ef194",
+    "hash": "e46d556a4d4d0b59",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "05ad919fa45f3d3958a4123ed3bbb7002005f762d775d31baca1f8304d68bc2e"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-0-p0-r0-s1.tiff",
+    "bytes": 1511,
+    "sha256": "a18782897a4a7a3c01530b3c7d672bfa4074aa279b9954c1a081282964e65235",
+    "hash": "e95b7e4f52536900",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "581066b71091b4375d6a4d0499c51cb433e6a2f03940fd2d871e0600ee8f299c"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-0-p0-r2-s0.tiff",
+    "bytes": 2210,
+    "sha256": "6621538bbe98835b95357d0629faca0d5f1fb54b0ce4ae951e0a44eb7fa7e813",
+    "hash": "e46d556a4d4d0b59",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "05ad919fa45f3d3958a4123ed3bbb7002005f762d775d31baca1f8304d68bc2e"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-0-p0-r2-s1.tiff",
+    "bytes": 1519,
+    "sha256": "d97a5920b3e74597535c8bf5ce4a71299cfb71bee996dc9fa70eb463f1283adf",
+    "hash": "e95b7e4f52536900",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "581066b71091b4375d6a4d0499c51cb433e6a2f03940fd2d871e0600ee8f299c"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-0-p1-r0-s0.tiff",
+    "bytes": 2064,
+    "sha256": "96673d42272858aef3147c1b78d61faa5d3ec4f62dbb615c7d5cafdc2b586d8c",
+    "hash": "e4ed546a6d4d0b19",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "7f5380454e2a67211377848e1df2cac6694a9229e154ee0fb03e22bf69e54c08"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-0-p1-r0-s1.tiff",
+    "bytes": 1410,
+    "sha256": "5773228f0bdf749893bedb82cc4a31c55a50d4bd305fadee2fbe1d564a5b3a25",
+    "hash": "e94b7e4f5313e900",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "c67cc3acb80ef1292867b9cbdf45472bca36b3f69f212efff7a7c0b182664159"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-0-p1-r2-s0.tiff",
+    "bytes": 2289,
+    "sha256": "a430ab495305b6777bd4fc9f3380b98698e2f0f706f0a6687555e920297968e6",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-0-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-0-p1-r2-s1.tiff",
+    "bytes": 1511,
+    "sha256": "da0f2cdbad42fdb42b83300842e7dd508caa172d94395c165dec45b5413bb680",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-0-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-1-p0-r0-s0.tiff",
+    "bytes": 2200,
+    "sha256": "f2ecae1a09e61669ee11b5047083ff6e06350bed7b9fce1bbd789692796f04cf",
+    "hash": "e46d56696d4d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "5530ed830ab4379860bcccd4c9b5fa67cd2d314f8d44b83beb799bec6c0875ea"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-1-p0-r0-s1.tiff",
+    "bytes": 1505,
+    "sha256": "de9bea674420243b025689265cac6c5b80f01833308f5dc68df086e753f6a806",
+    "hash": "ed5b4e595e136901",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "d50feac8d670ddcf99b1f4ac438d2af74e70e00f17dff3af9814d88c1df1401c"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-1-p0-r2-s0.tiff",
+    "bytes": 2212,
+    "sha256": "a280fb8fdaa851d1373bd53f579f8b05d7016f4b6729fe04c7d707077bf91d7d",
+    "hash": "e46d56696d4d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "5530ed830ab4379860bcccd4c9b5fa67cd2d314f8d44b83beb799bec6c0875ea"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-1-p0-r2-s1.tiff",
+    "bytes": 1512,
+    "sha256": "312efec9366992fd19d4cbefb855ea423958bf4992f46e898f68ab1622aa2ec0",
+    "hash": "ed5b4e595e136901",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "d50feac8d670ddcf99b1f4ac438d2af74e70e00f17dff3af9814d88c1df1401c"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-1-p1-r0-s0.tiff",
+    "bytes": 2062,
+    "sha256": "52f9a454ef9128a3badc7fc2dc4fb2a71f72c5590a30c4b8845d60d7a3ab65f8",
+    "hash": "e4ed51ac6dcd0b42",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "4b6bb56ef00de19a3c1939d3aa670397c592cbab61d02636dbb6eb2efb867e9d"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-1-p1-r0-s1.tiff",
+    "bytes": 1403,
+    "sha256": "9b8ef60f8fa83c2c48e12c082aa73b0ba39f810f78c99155dd3456470bc349ca",
+    "hash": "ed794d5f52530341",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "3936c923239a1230669791b737b43efff68583d37798533ac1700d2fa2b8b46c"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-1-p1-r2-s0.tiff",
+    "bytes": 2288,
+    "sha256": "67a6281ed2579ee5b29cb5d094f95fb023cbffd344e7e754edf010ec854368b3",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-1-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-1-p1-r2-s1.tiff",
+    "bytes": 1503,
+    "sha256": "f5e24633105d81857ddf2a0faf21136b08931303b7bc4decae9e110711475c17",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-1-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-2-p0-r0-s0.tiff",
+    "bytes": 2800,
+    "sha256": "450f13203eea73ec7d0ed32bf8bd31bc8af323744c30bd2905dba8ec5d5ec8ee",
+    "hash": "e46d56696d4d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "03f2af6ff7449659e52271cf7080d520d78810ffaa05e64350b191bd3c1cfb72"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-2-p0-r0-s1.tiff",
+    "bytes": 1854,
+    "sha256": "ad797b0de3c3e39e4c9c445e4b252fa961aefff4bf42d03a0073758a269780d7",
+    "hash": "ed5b4c5b5a136b01",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "54f226981d7d1aaa95e340dbca5674d4f19b89cba4dde5a347374b47181460bb"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-2-p0-r2-s0.tiff",
+    "bytes": 2825,
+    "sha256": "6e21ad1416a0eca9337f4418f8883e0a4985c2ccd6bed277a0bbb9d684bd9974",
+    "hash": "e46d56696d4d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "03f2af6ff7449659e52271cf7080d520d78810ffaa05e64350b191bd3c1cfb72"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-2-p0-r2-s1.tiff",
+    "bytes": 1868,
+    "sha256": "21ee38f75142693c008e88872ca93e99fa2e5e84bfe919f142e90cac5659a3dd",
+    "hash": "ed5b4c5b5a136b01",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "54f226981d7d1aaa95e340dbca5674d4f19b89cba4dde5a347374b47181460bb"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-2-p1-r0-s0.tiff",
+    "bytes": 2602,
+    "sha256": "6be321fa224f90c5c3b2c4cbc2d1c8dcebf1db141ac258398ab556986d77eb11",
+    "hash": "e4ed44eb6c4d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "996d48ae74985dc226bfcf2c27d27b8293e58a33c95de11010ab29f35a822339"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-2-p1-r0-s1.tiff",
+    "bytes": 1718,
+    "sha256": "2f7a332c71db0d132c0b28d18f412641091f8165e3983d05e0074d200d2db42f",
+    "hash": "ed4b46595f136941",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "d8d7c735f1e229aa8541453625a821cdc51cd979a2f4954da17c29cf3784b0f3"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-2-p1-r2-s0.tiff",
+    "bytes": 2899,
+    "sha256": "4caf172469cecc99320d1117cb8a3a7bce5463eed817a8a7ee46df010d4ccb00",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-2-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-2-p1-r2-s1.tiff",
+    "bytes": 1859,
+    "sha256": "00074f8d5e2c4dd6add8abcdf0d9278da7907139b4316df4e7e51da707e20421",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-2-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-3-p0-r0-s0.tiff",
+    "bytes": 2759,
+    "sha256": "ef823e8a6291353f44cb36fd8599a4810f7ae8ebd2384702c71d3d3fe1df60f3",
+    "hash": "e46d546b4d6d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ee579ed8a82b2697fa88f817b34fa416453c4a5f0bed4138246fcc5567b6ad9c"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-3-p0-r0-s1.tiff",
+    "bytes": 1850,
+    "sha256": "421c606a81e0f399c68a56c2ec063ec4953ff9959869476736873af0451517e4",
+    "hash": "ed5b664b5e136901",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "f6765ae875da2a92abd922915c34580ff329cbbe9ced185487053d0ad086ca97"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-3-p0-r2-s0.tiff",
+    "bytes": 2776,
+    "sha256": "000687f6d90cc514022501648726939ebde3c85d8f5d87aac4be3dfc7887b43a",
+    "hash": "e46d546b4d6d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ee579ed8a82b2697fa88f817b34fa416453c4a5f0bed4138246fcc5567b6ad9c"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-3-p0-r2-s1.tiff",
+    "bytes": 1864,
+    "sha256": "2bb0a31aa7c2fe54a0160be68b61daa2c8ed5430988e30fa77a548fd54dad74e",
+    "hash": "ed5b664b5e136901",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "f6765ae875da2a92abd922915c34580ff329cbbe9ced185487053d0ad086ca97"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-3-p1-r0-s0.tiff",
+    "bytes": 2562,
+    "sha256": "fb92a01506fae1ea66c386906d1d24e3b4ea8b0e9f14bfbbe2d0582ed398d394",
+    "hash": "e4ed51ec6dcd0b02",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "0777e4cb84a9aec3d42154ba22690ea614e628d5e2f53cde4066bf6bd471a7c8"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-3-p1-r0-s1.tiff",
+    "bytes": 1726,
+    "sha256": "cde1fd2c220cff63ec37c5d3e7e8371be6b77d7c97dc77c7579853d3e59939bc",
+    "hash": "ed5f596f52530340",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "dade9ad8021cc6736a25f0e651bafb50020b6beaa9a295fa47a0496be921376b"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-3-p1-r2-s0.tiff",
+    "bytes": 2855,
+    "sha256": "1b87f7e18bc770b48dd975c554db3fd41257ecdf93c47ec7c3aac4aec6d276be",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-3-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-3-p1-r2-s1.tiff",
+    "bytes": 1862,
+    "sha256": "501ef7ddfa7dab52795b49da39b8183bbb1eeba6f517837f63cddc2f2aaabdcc",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-3-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-4-p0-r0-s0.tiff",
+    "bytes": 1868,
+    "sha256": "fa2d268b9e9e2d96ddf41212333522899059397e5dd0cbc606f3ef3649eef1e3",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815082) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-4-p0-r0-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-4-p0-r0-s1.tiff",
+    "bytes": 1331,
+    "sha256": "3437e305c3093d708e0a5d218c4577d9b744497119d97623977fae398d78f9ff",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815087) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-4-p0-r0-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-4-p0-r2-s0.tiff",
+    "bytes": 1885,
+    "sha256": "c4544241e38799dbc30ad20fa06e0df6343e2645c439b2a71fc0d9ab7b024d2c",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815091) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-4-p0-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-4-p0-r2-s1.tiff",
+    "bytes": 1339,
+    "sha256": "d1c1ffa94c0036bac872ccca8f845db9e173b9808ad6b9e605171ecffe5232c3",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815095) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-4-p0-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-4-p1-r0-s0.tiff",
+    "bytes": 1723,
+    "sha256": "5ce8a7cbeb7497a17d96ce0fbee19101736033803b77df910f5145c7c64ff8aa",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-4-p1-r0-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-4-p1-r0-s1.tiff",
+    "bytes": 1215,
+    "sha256": "b278f7387f78c553119e9a4b1ccb469bfd50ca59f8d1f71049a9f58aa2f9b771",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-4-p1-r0-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-4-p1-r2-s0.tiff",
+    "bytes": 1879,
+    "sha256": "8d34167c2113625a288756018e33d2d782cda47315d96a76a9a373b1d7915e52",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-4-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-4-p1-r2-s1.tiff",
+    "bytes": 1272,
+    "sha256": "c51fb90ed0e16ff934f9fe6a638ae5d9771c195301aa8d7726f720c103eb3372",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-4-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-5-p0-r0-s0.tiff",
+    "bytes": 1879,
+    "sha256": "2403504c380f519cd409143f7044d6bb8db5a76ce006b46dd735bd51ab15bd15",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815116) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-5-p0-r0-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-5-p0-r0-s1.tiff",
+    "bytes": 1343,
+    "sha256": "579499009182afd2edf9a6450905a57e6b7702d222ac27053bfe11139030f1bb",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815120) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-5-p0-r0-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-5-p0-r2-s0.tiff",
+    "bytes": 1893,
+    "sha256": "428883f351c1840b34ba9100be86466327d11d2a8093022c004efbefaf8ff216",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815124) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-5-p0-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-5-p0-r2-s1.tiff",
+    "bytes": 1351,
+    "sha256": "8aaf73826655a4a6b75e692180ad8d7fc131f6fc154f3c3085b02615ad8ed1fa",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815129) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-5-p0-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-5-p1-r0-s0.tiff",
+    "bytes": 1731,
+    "sha256": "42f6bc59d94ffc89ec46de0fdf56896bfe74658a382d355ecbac45842a46933a",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-5-p1-r0-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-5-p1-r0-s1.tiff",
+    "bytes": 1220,
+    "sha256": "68d2e255e7b2f5c093cbd3f76467425aa7edeb7ab641f5be22d6c49c6943c666",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-5-p1-r0-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-5-p1-r2-s0.tiff",
+    "bytes": 1881,
+    "sha256": "2864309bd61098cfc426b84f7ad5f8f0011aa49a074978b67210b20123da54b3",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-5-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-5-p1-r2-s1.tiff",
+    "bytes": 1282,
+    "sha256": "6677169ea2b709309edc8e7430acbff64e5093e52779f1573111924762612966",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-5-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-6-p0-r0-s0.tiff",
+    "bytes": 1675,
+    "sha256": "94d7f796b90223cd571c1c41b97750d29a95e218945678cf0a99be2060ff292e",
+    "hash": "e46d56696d4d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "25de6db0a932f442d2faf2ee82e01092c7200b0459ef85aa28335fcb343b6417"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-6-p0-r0-s1.tiff",
+    "bytes": 1215,
+    "sha256": "e67ab314e19bf3351272b903a339434773a54dca50a53985e47bbbf4746e9b75",
+    "hash": "ed5b4e5957136901",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "e4f3571271f4ef6215baf9f078c96f3c569df57fd892d0f44b67705ee59902c1"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-6-p0-r2-s0.tiff",
+    "bytes": 1691,
+    "sha256": "12cddfd2c22a5f62016c21b362d524e1cd34db79ae9c4e0511d71396519e7bb7",
+    "hash": "e46d56696d4d0a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "25de6db0a932f442d2faf2ee82e01092c7200b0459ef85aa28335fcb343b6417"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-6-p0-r2-s1.tiff",
+    "bytes": 1221,
+    "sha256": "56f0f6c88db453767b27394ea9449962546d4d20b7d3cc980e1f52843c68d5bd",
+    "hash": "ed5b4e5957136901",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "e4f3571271f4ef6215baf9f078c96f3c569df57fd892d0f44b67705ee59902c1"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-6-p1-r0-s0.tiff",
+    "bytes": 1565,
+    "sha256": "09cefe68c4a7cb5aff0a17250e36d5035279ae0c43f3a5e525dc6c48e1f48cf9",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815172) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-6-p1-r0-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-6-p1-r0-s1.tiff",
+    "bytes": 1117,
+    "sha256": "5f6bcc108da3a381e6bf8b56899d317081939a8ffc7096353522a6f28997d4ab",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815182) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-6-p1-r0-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-6-p1-r2-s0.tiff",
+    "bytes": 1721,
+    "sha256": "5c288e9388445fb0ad9bede6dca6f6700df04d9da3b7863a7d12eed0df99b294",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815191) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-6-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-6-p1-r2-s1.tiff",
+    "bytes": 1180,
+    "sha256": "cf7a70da605b7f513aa3299ad273891cb7583310aeabbffb93500950bc3d6a15",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-6-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-7-p0-r0-s0.tiff",
+    "bytes": 1973,
+    "sha256": "41c6abba16096ac4f147a23399296c1fd8ee536df5bbcc059de001b65f20f240",
+    "hash": "f463298717782763",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "a12cde1715c57655678821f9bb5e046f3fad3363b1c7330c54315f0b66143a56"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-7-p0-r0-s1.tiff",
+    "bytes": 1398,
+    "sha256": "ec98e295665842549583a789ef2c71623247296d4811c289e1df204ebb9e17c9",
+    "hash": "c3433bc170cdcad9",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "b1af903c1d9da0f0cfaa56b99a66d988ec5d4b403ed14f2562c6f51df54107da"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-7-p0-r2-s0.tiff",
+    "bytes": 1990,
+    "sha256": "79056e202d66242523cf4449c3a2b30f0b89ad8c2278b1b5d257dedd91b2afb9",
+    "hash": "f463298717782763",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "a12cde1715c57655678821f9bb5e046f3fad3363b1c7330c54315f0b66143a56"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-7-p0-r2-s1.tiff",
+    "bytes": 1407,
+    "sha256": "67c17cdcf98f1abd9b8371514d2fdc8e15c70edd59eddfb5c3688b59884a3cd6",
+    "hash": "c3433bc170cdcad9",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "b1af903c1d9da0f0cfaa56b99a66d988ec5d4b403ed14f2562c6f51df54107da"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-7-p1-r0-s0.tiff",
+    "bytes": 1866,
+    "sha256": "4a6128dc12afc2d35749165c0e685e580e20318de22c573d4e0b52c2c86a792a",
+    "hash": "f463298717782763",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "a12cde1715c57655678821f9bb5e046f3fad3363b1c7330c54315f0b66143a56"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-7-p1-r0-s1.tiff",
+    "bytes": 1317,
+    "sha256": "0483785c196866e29c9edb4c2260a6ae61328a1717b1477d2870171de4b4b6ba",
+    "hash": "c3433bc170cdcad9",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "b1af903c1d9da0f0cfaa56b99a66d988ec5d4b403ed14f2562c6f51df54107da"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-7-p1-r2-s0.tiff",
+    "bytes": 2073,
+    "sha256": "c6c2dd90e375d98a1e82eb95de6aa0047087907f04674adf9d44db4633542466",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-7-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-7-p1-r2-s1.tiff",
+    "bytes": 1407,
+    "sha256": "335a1e0abb9cff7f16ea429f88bde51bf193cd975656954e8f2aeede35fec917",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-7-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-8-p0-r0-s0.tiff",
+    "bytes": 2243,
+    "sha256": "cbb9235101a0cb4c4438dd34a4201f0db97cb5c8dc134f4d974ba034d42a6213",
+    "hash": "e46f57686c590a59",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "5b9ba02501732362baf139b32b56983a5a6e2ed366583fe94a3456d7ff44d2a8"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-8-p0-r0-s1.tiff",
+    "bytes": 1510,
+    "sha256": "d4794084c48f4012ceae95d8702e15182a143e484a6e11977c3cfbf47e857e01",
+    "hash": "ed474b5957134b03",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "3117241345e279006eace25d9637d60ebad0b300c23d123bfb499829364b80e7"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-8-p0-r2-s0.tiff",
+    "bytes": 2259,
+    "sha256": "53c9026eea29edc4d87f0a8465218478af03a2a6c433e57fad3e99d1f1f85613",
+    "hash": "e46f57686c590a59",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "5b9ba02501732362baf139b32b56983a5a6e2ed366583fe94a3456d7ff44d2a8"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-8-p0-r2-s1.tiff",
+    "bytes": 1517,
+    "sha256": "60a330c82b16332953996ebb371743c5f00d85e0b36294bb628070c0278944e9",
+    "hash": "ed474b5957134b03",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "3117241345e279006eace25d9637d60ebad0b300c23d123bfb499829364b80e7"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-8-p1-r0-s0.tiff",
+    "bytes": 2113,
+    "sha256": "b5f15e22454ce7ff4feef025d0685cb3f9b834fbc79058af5b141fb5fb5ba82f",
+    "hash": "e467556c6c591b19",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "6cf18d4f87f88b51991f9f6f26935676072f064ce57277b391757b4c44740e1e"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-8-p1-r0-s1.tiff",
+    "bytes": 1417,
+    "sha256": "824e0a0b7e82f3cd94566196661da76326f39d77fa376134b8a29c45246ac501",
+    "hash": "ed456b5957136903",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "6b2948462d4991c5e9a5c184d3af4960a2a67575e08c9c20640875eaea366a1a"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-8-p1-r2-s0.tiff",
+    "bytes": 2347,
+    "sha256": "a95477c47aa4ef47554b2bafd667a495940e4b743ecaf44f8718fadb22fc039e",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-8-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-8-p1-r2-s1.tiff",
+    "bytes": 1515,
+    "sha256": "d5a321405649bbb3829d7bbfafdc44cf204fe2905617cfbe56a5ee739be1a6d5",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-8-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-9-p0-r0-s0.tiff",
+    "bytes": 1959,
+    "sha256": "e5431befd70567625d96827a675516826818b1d661f6fc47c5dc75d3e1256453",
+    "hash": "e6ed56e00ccd2a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "cda729a2840cd96e3785add8c68fd43577ec2a3432d11ef29b87fdf0238a1d17"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-9-p0-r0-s1.tiff",
+    "bytes": 1331,
+    "sha256": "a9c89041b068f843e81c0ed2e33475288ab72e0ac10d3ad6fd25f380dba500ff",
+    "hash": "eddb64c95e926980",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "b0be14f60efccab04a18bf54b9ea58326c1a57c40240ac89c6d38a7221a78502"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-9-p0-r2-s0.tiff",
+    "bytes": 1976,
+    "sha256": "4c678b3b6140f8dace61c5630d0d7e6797d76a022023eb56e4b39dce27aff52c",
+    "hash": "e6ed56e00ccd2a99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "cda729a2840cd96e3785add8c68fd43577ec2a3432d11ef29b87fdf0238a1d17"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-9-p0-r2-s1.tiff",
+    "bytes": 1339,
+    "sha256": "0981b68c2137d5280208e320becbead9f36b9a3c2ff3d5a8679838caf0941f87",
+    "hash": "eddb64c95e926980",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "b0be14f60efccab04a18bf54b9ea58326c1a57c40240ac89c6d38a7221a78502"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-9-p1-r0-s0.tiff",
+    "bytes": 1826,
+    "sha256": "068245780ece6e55071683098100ce2a7cb8fb6abc54f360607c153094e761dd",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-9-p1-r0-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-9-p1-r0-s1.tiff",
+    "bytes": 1221,
+    "sha256": "1e7829cab8b676010a7391ddb31c72841a92b87dbb598f92bb2820d201d0be2c",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-9-p1-r0-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-9-p1-r2-s0.tiff",
+    "bytes": 1999,
+    "sha256": "a7e89601365a1642cfdd328e69c7737193d8abc8ef0f77c653797fcfc24d146a",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-9-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-9-p1-r2-s1.tiff",
+    "bytes": 1276,
+    "sha256": "30199e429d7e188582c4f795d1d8fcf9eae9fdd48010669accfac18f0a432247",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-9-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-10-p0-r0-s0.tiff",
+    "bytes": 2791,
+    "sha256": "6e6ce855a48ce629665477ffa26838bdb9be69fb17af6de0c418f84e810cdfc7",
+    "hash": "e46d566b4d6d0a19",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3eb663ed937b083b7e496196bcb15fa4a8bea6cb2f09364dd77785b476f9182a"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-10-p0-r0-s1.tiff",
+    "bytes": 1847,
+    "sha256": "3484f9ede345f939237285556848a194896fd677e26f70f3e47da7c1d3a321be",
+    "hash": "ed5b764957136901",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "bdb797b7a66b36cb22ea1fe66988ff7153de201e56119d7e6d284da186065322"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-10-p0-r2-s0.tiff",
+    "bytes": 2814,
+    "sha256": "2f946384cecfc9c228660c7a3c9dcd929344670d8e81500eeea72ccfef6039ba",
+    "hash": "e46d566b4d6d0a19",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3eb663ed937b083b7e496196bcb15fa4a8bea6cb2f09364dd77785b476f9182a"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-10-p0-r2-s1.tiff",
+    "bytes": 1861,
+    "sha256": "71d5491203b0c5cc6c824bd67677cbe86262b808d69adc4996d97cf29634cc55",
+    "hash": "ed5b764957136901",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "bdb797b7a66b36cb22ea1fe66988ff7153de201e56119d7e6d284da186065322"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-10-p1-r0-s0.tiff",
+    "bytes": 2598,
+    "sha256": "143a9665a902955b2aaf449afc426fa6c0e08254dce14f1901b731e881608ca6",
+    "hash": "e7615d6c05eea164",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "153002762f31909fc197079e8ec18c42c46b89248973ec80a3f566ce9329d180"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-10-p1-r0-s1.tiff",
+    "bytes": 1722,
+    "sha256": "a96e83c9f9096425471f6ccf539ea43010a4692f24285422a26026fba7eb31e8",
+    "hash": "ef5f1b07e2069f00",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "8c3145bc59c788253a997af93ac91c3a532e412b10f49fec3aca8aaba3706cd3"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-10-p1-r2-s0.tiff",
+    "bytes": 2899,
+    "sha256": "cb2e0a914c97ec09a37157749dbe015f083f35d357c9144667e057c5e876ab68",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-10-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-10-p1-r2-s1.tiff",
+    "bytes": 1860,
+    "sha256": "bbd0bc7613e20aba05a7cc87c5a06583919c1ef724c075954e889a1095ea0b1f",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-10-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-11-p0-r0-s0.tiff",
+    "bytes": 3256,
+    "sha256": "f38caadc231fe2e0923efaa821ebce63a0d60de15664bf6fb6ee4040dd885481",
+    "hash": "e97322b15a2cd8dc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e7ec841e0cad8cddd843f0e8c014cf3dc2e2bf5a2794ef9c095b056dd3a42d8c"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-11-p0-r0-s0-rgba.tiff",
+    "bytes": 3256,
+    "sha256": "e19017751b542b139bb72c50ac48596cf801ed7875333feadb3184c17e916dd9",
+    "hash": "9603e90d91f82b3f",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1f853bfbf7ac87e2ff3a4a27f37cd74d2bd856535909cc3165d7f61b09d43f60"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-11-p0-r0-s1.tiff",
+    "bytes": 1836,
+    "sha256": "f8ca1c3ab04e615e95f1a5105682597c3d5dd376ec2d58095fda46eb51e876e0",
+    "hash": "fa66f27559903e10",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "2fff80ac350e7547d18e9f9d45132d900a9c2b02aa6fe7a9b47d768a4432948d"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-11-p0-r0-s1-rgba.tiff",
+    "bytes": 1836,
+    "sha256": "b50503d6b9c7b015f720be97defead0770d081f4e80f5c6d05ae861d23db01aa",
+    "hash": "a7009bd2f30eb36c",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "3e962de7917b54eb03abbd5bc05aa8b59db3b817c07c3e5c742b15ab7ab2af45"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-11-p0-r2-s0.tiff",
+    "bytes": 3274,
+    "sha256": "2cff5cd296d85598daf7c88e3fd6d3b4a97d31a96f196602ba8c081c23dd3042",
+    "hash": "e97322b15a2cd8dc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "e7ec841e0cad8cddd843f0e8c014cf3dc2e2bf5a2794ef9c095b056dd3a42d8c"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-11-p0-r2-s0-rgba.tiff",
+    "bytes": 3274,
+    "sha256": "d7479f7f867663bef2fa90b4c002ed2101085d69dc2d4f95c3ab1d006f58487f",
+    "hash": "9603e90d91f82b3f",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "1f853bfbf7ac87e2ff3a4a27f37cd74d2bd856535909cc3165d7f61b09d43f60"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-11-p0-r2-s1.tiff",
+    "bytes": 1847,
+    "sha256": "e56d16d3fc23ee2d7e40bc63bf2b0f4a87d9da64f36718772d9209dd8945293d",
+    "hash": "fa66f27559903e10",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "2fff80ac350e7547d18e9f9d45132d900a9c2b02aa6fe7a9b47d768a4432948d"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-11-p0-r2-s1-rgba.tiff",
+    "bytes": 1847,
+    "sha256": "4df85bc70a4a1226b3bfbdeeb71d06dd0245e4dbd77cc76861a48cae94acf968",
+    "hash": "a7009bd2f30eb36c",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "3e962de7917b54eb03abbd5bc05aa8b59db3b817c07c3e5c742b15ab7ab2af45"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-11-p1-r0-s0.tiff",
+    "bytes": 3591,
+    "sha256": "d978891050246d45dfd687a2a812f9a25517c1d41d5d382312cff05ed6eb954d",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-11-p1-r0-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-11-p1-r0-s0-rgba.tiff",
+    "bytes": 3591,
+    "sha256": "ced5d11828bb0b8dd16ee7c7c1caf1c63f46203812559a26e90ab1482f40b2f9",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-11-p1-r0-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-11-p1-r0-s1.tiff",
+    "bytes": 2238,
+    "sha256": "eedebb2c44c9cd161be69dc2d47a043d8f09921fe029434fcfed3ff8f4516064",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-11-p1-r0-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-11-p1-r0-s1-rgba.tiff",
+    "bytes": 2238,
+    "sha256": "864644ba95688994535b7593a9283f6204f493623b775811d3274b08e0319461",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-11-p1-r0-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-11-p1-r2-s0.tiff",
+    "bytes": 4012,
+    "sha256": "97962f7bd26e8e87cb4c01dce0c428e9ae2a7eea47d0ad3ac7084136739dd0c9",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-11-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-11-p1-r2-s0-rgba.tiff",
+    "bytes": 4012,
+    "sha256": "53867fee1e9fa9121cbaaaee466331d586ddfd8eb21627d9e3888cae479b8a5a",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-11-p1-r2-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-11-p1-r2-s1.tiff",
+    "bytes": 2417,
+    "sha256": "f1ff3edf999a7cd3a818e4a14d5cffd712dab8bcafd632a34fe75452a61a4da8",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-11-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-11-p1-r2-s1-rgba.tiff",
+    "bytes": 2417,
+    "sha256": "97ba9f548f09d05557778353d6aeabf2071d0ab37ca2dc07b0c78704ed02368c",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-11-p1-r2-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-12-p0-r0-s0.tiff",
+    "bytes": 2901,
+    "sha256": "2c70b9cd52efb2e6a2bacfb7b6ebb4cbd0a10f20b680de8b449ef4829b44c0c3",
+    "hash": "ed0263b1582edcdc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "40e67f7e2f8fe54bbb82af5f8e51be68fa17797bbc905b2a24b178e065b56c8f"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p0-r0-s0-rgba.tiff",
+    "bytes": 2901,
+    "sha256": "38d3705945090191ffdd1233c635ac86eb4fefa5d36dc177a1a2d3132dea750c",
+    "hash": "f423984dd3e82b27",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c8d300eb4fd6dcbbea6cbed9dde1d7c8c1d0cb00b0b81627dfd905b90029e1f9"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p0-r0-s1.tiff",
+    "bytes": 1713,
+    "sha256": "09e6fd8c1cca27b825daf211258c5757748fd6cac9200339bd975aa949c1cf5f",
+    "hash": "fa66f6f559982c00",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "c2c7bf3858387df819d61178632b1a785819c8736c2f3377155c0ca86d699995"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p0-r0-s1-rgba.tiff",
+    "bytes": 1713,
+    "sha256": "681fb15c94a992c521ae9656e312762ecc78212aa3986d94772570180644ce70",
+    "hash": "a5009b9bf227b371",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "63db2928b162600981ae9c72aa47ab1de760857a317ccba5186edb24dd569451"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p0-r2-s0.tiff",
+    "bytes": 2913,
+    "sha256": "8ff9078597f95c05b3f23ebc3d016b9a83a624ae422e42210efbdf7812e79101",
+    "hash": "ed0263b1582edcdc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "40e67f7e2f8fe54bbb82af5f8e51be68fa17797bbc905b2a24b178e065b56c8f"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p0-r2-s0-rgba.tiff",
+    "bytes": 2913,
+    "sha256": "49d3a181782f423966af7dd402e130d1985a5244321c2faee444b10ce60dd68b",
+    "hash": "f423984dd3e82b27",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c8d300eb4fd6dcbbea6cbed9dde1d7c8c1d0cb00b0b81627dfd905b90029e1f9"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p0-r2-s1.tiff",
+    "bytes": 1721,
+    "sha256": "5b0433ec38dc659bbd3837c49ba1dca29e742f05d6694755cb853d191529a295",
+    "hash": "fa66f6f559982c00",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "c2c7bf3858387df819d61178632b1a785819c8736c2f3377155c0ca86d699995"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p0-r2-s1-rgba.tiff",
+    "bytes": 1721,
+    "sha256": "76cbd1297369530a361c0e7d877a90d3df9e47714176de641debb331b9465a31",
+    "hash": "a5009b9bf227b371",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "63db2928b162600981ae9c72aa47ab1de760857a317ccba5186edb24dd569451"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p1-r0-s0.tiff",
+    "bytes": 3234,
+    "sha256": "f81c6da56681e1405b6824cd31b58e7bbcbab093350beab20c6b18e05d627fc2",
+    "hash": "f9a66330c85cdc99",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "c91d0bd30f2768f00e69afb1896e68bb4d81703bbd10abee51748ed109201277"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p1-r0-s0-rgba.tiff",
+    "bytes": 3234,
+    "sha256": "032ee6f239a0032e2d1bc1c3fd11e90e485763855bb0f0d017f159785181d24a",
+    "hash": "b423994dd3e82b27",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "f9b4321687cae7c9aa0c554d9e8fea4090e32f079a523012a4c5d8c31c65d2f5"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p1-r0-s1.tiff",
+    "bytes": 2106,
+    "sha256": "11337e283abb56e2c2487f9aa86b3d85536be2e1bb5474d956d447a1c612c16c",
+    "hash": "d06ffe01fcb86c10",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "3fd0e200cdcd99ae615425c89b2983c476a0c244467e1d8ff1f78ab92e5a1f8f"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p1-r0-s1-rgba.tiff",
+    "bytes": 2106,
+    "sha256": "00745a5ffd0a907a2a5f6702adaa19120a0f9334d0b1b5f526e36387f5be8400",
+    "hash": "a7009b92f22793f9",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "ab2167773e51f1ee706d655522c85ad62dccc3c9a5022a52ae466eddbb6f70a8"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-12-p1-r2-s0.tiff",
+    "bytes": 3587,
+    "sha256": "a906b37679b9e540674dab4d3f12e352580551de77687f11d621efbc787eeade",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-12-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-12-p1-r2-s0-rgba.tiff",
+    "bytes": 3587,
+    "sha256": "1683621f50170ea4d5550bb0768b4c45911ba2dcc9a8f595140856fa70ea1c29",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-12-p1-r2-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-12-p1-r2-s1.tiff",
+    "bytes": 2259,
+    "sha256": "9aafd447547479d5fe420c391950b172b55c974ae935e468ce5eccd5ffa1d4e1",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-12-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-12-p1-r2-s1-rgba.tiff",
+    "bytes": 2259,
+    "sha256": "5a7a0773d18fe972d22d1905c4062c1d598004a39316b2d4ea5f660c653c6d77",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-12-p1-r2-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-13-p0-r0-s0.tiff",
+    "bytes": 3630,
+    "sha256": "7a53228435318d78158d322c650fca09b210c1de6b92902657ce419faa962e9e",
+    "hash": "ed1262b1582edcdc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ce37502d99447a87e660ab6dbff1dc760f2608b864c93dd4e57144dfa5d46f5b"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p0-r0-s0-rgba.tiff",
+    "bytes": 3630,
+    "sha256": "dd76571e8cd7f65f4f7d3890d175a6465974a0d7b98242218f60565e6557ec27",
+    "hash": "b423994dd3e82b27",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "8fc407382524299b881e2f55e06dfa56cf46ce0aa01b03ef88d0e23edaa5b626"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p0-r0-s1.tiff",
+    "bytes": 2179,
+    "sha256": "6c97856e34956877f9f2f1db508d512b7c47c730be9331189ece1b2e22a16cf6",
+    "hash": "f866f6f15d986c00",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "6ba2736ccdf4b5f94c883200b1cbcefa1858b938793c8a92ed82705776749ebc"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p0-r0-s1-rgba.tiff",
+    "bytes": 2179,
+    "sha256": "8551bf0b82bb7acaa67b77943d903435d28efa182952b1de68aedc3a557723ee",
+    "hash": "a7009b93f22793f1",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "67a90c2cb602ffbe9dc9a0ce10f5adedda2f50157c8a9d9ba4cc5d0dd38f2c95"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p0-r2-s0.tiff",
+    "bytes": 3653,
+    "sha256": "99d9ce0254b0c1660efd77b9086973883be5fadc5aadac306e0b971a3d024e10",
+    "hash": "ed1262b1582edcdc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "ce37502d99447a87e660ab6dbff1dc760f2608b864c93dd4e57144dfa5d46f5b"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p0-r2-s0-rgba.tiff",
+    "bytes": 3653,
+    "sha256": "0c8a3cababf45997560d49c8936c748faa4ba70d3ce603b7187f4ed2838f0ceb",
+    "hash": "b423994dd3e82b27",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "8fc407382524299b881e2f55e06dfa56cf46ce0aa01b03ef88d0e23edaa5b626"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p0-r2-s1.tiff",
+    "bytes": 2191,
+    "sha256": "5375875ee83d8c1b6ef87c0be073e474645bbfa12f4d33c64309b7c15467c3b9",
+    "hash": "f866f6f15d986c00",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "6ba2736ccdf4b5f94c883200b1cbcefa1858b938793c8a92ed82705776749ebc"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p0-r2-s1-rgba.tiff",
+    "bytes": 2191,
+    "sha256": "565da4c75b76e12ff037f42bd20f8a5d8098c284523bda2c79311504f02abf99",
+    "hash": "a7009b93f22793f1",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "67a90c2cb602ffbe9dc9a0ce10f5adedda2f50157c8a9d9ba4cc5d0dd38f2c95"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p1-r0-s0.tiff",
+    "bytes": 3956,
+    "sha256": "3125da0aa85d2590d72d6c112a5a7d403d39ba1ed2e9b0e6acb66492c26fe852",
+    "hash": "ee1262b1582edcdc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "7081c83a3cd21612a9268f1440f4d6a9b03e3eba7140dd24129936e525dcbdc6"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p1-r0-s0-rgba.tiff",
+    "bytes": 3956,
+    "sha256": "144c99877034bed4537cbb5168fd31224502eacbd9c9343c07e0bebbdce83514",
+    "hash": "b423994dd3e82b27",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "576c838806547b7ac40e01bc7b87f3a250f7b65794431450bc34b887f1d406ca"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p1-r0-s1.tiff",
+    "bytes": 2588,
+    "sha256": "bf02240957d4ead3b84a3bcfbff5c67a0308749f3233649c477204182962446a",
+    "hash": "f866f6f15d986c00",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "eb7f8016c374659242e6033e4eeb4701efecc34fcd7d68da5b1589739c5eff06"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p1-r0-s1-rgba.tiff",
+    "bytes": 2588,
+    "sha256": "8a44dcbb9e665d33583d90c0c4950d8a661c9a6a395c2f7798c3bb4a48c873ce",
+    "hash": "a7009b93f22793f1",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "d28e003549b222fa7873ca4f34d00cf9ea8d772cb6fb2f6e463aaa92c2993576"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-13-p1-r2-s0.tiff",
+    "bytes": 4405,
+    "sha256": "1fa54e34129b4123ffa973414e72391cecd9fa157b3d0197a918583841663a2d",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-13-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-13-p1-r2-s0-rgba.tiff",
+    "bytes": 4405,
+    "sha256": "ff2b4da37a79c90ebfd23bec02110460bc690f0a4ae36156eaf8bfec50e00b25",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-13-p1-r2-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-13-p1-r2-s1.tiff",
+    "bytes": 2808,
+    "sha256": "3e10054d25b7748e7e6edec93bc17fc11a1ba5839f67590fa145b06cdca117af",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-13-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-13-p1-r2-s1-rgba.tiff",
+    "bytes": 2808,
+    "sha256": "82ac4acb6bed7910a99e2c84eb799d919a02860c594102c1951e2c3b731c7508",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-13-p1-r2-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-14-p0-r0-s0.tiff",
+    "bytes": 2329,
+    "sha256": "3b48f0becff40ea31846a03bf3545e1da91866e2f3a61390b70ab25704ba1fa2",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815602) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-14-p0-r0-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-14-p0-r0-s0-rgba.tiff",
+    "bytes": 2329,
+    "sha256": "8bbf1fee2e5511572f8efe5eb03715982fbbddadb05e957d1f66a77e883b9209",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815604) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-14-p0-r0-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-14-p0-r0-s1.tiff",
+    "bytes": 1408,
+    "sha256": "93469aeec3f65f010a3f37b70452ef070cbb81bfe7594de0a95ed47375760783",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815608) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-14-p0-r0-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-14-p0-r0-s1-rgba.tiff",
+    "bytes": 1408,
+    "sha256": "96b83841866d453d77ff62b50e73e347c53a63f622d7fdac504e271a18315af1",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815610) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-14-p0-r0-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-14-p0-r2-s0.tiff",
+    "bytes": 2345,
+    "sha256": "7fc99b18875d5f1f35a778a25f67be8b87c651d887da36e87940dd984440c9de",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815614) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-14-p0-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-14-p0-r2-s0-rgba.tiff",
+    "bytes": 2345,
+    "sha256": "088a1930ab14282688902d82e08ca31e12b52b5e4dd86ed1a5aceade0d081a61",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815616) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 80\n right: 40\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-14-p0-r2-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-14-p0-r2-s1.tiff",
+    "bytes": 1415,
+    "sha256": "b82ed6846509a1b15401e3d19cb31d310cb10655775d6bfca988e2ef429c1844",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815620) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-14-p0-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-14-p0-r2-s1-rgba.tiff",
+    "bytes": 1415,
+    "sha256": "5dbe04c2734a8727a8f5ee713c95c8fc4bb502093c7ba758ecbc5f8027342b7c",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815622) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/upsampler/scalar.rs:59:5:\nassertion `left == right` failed\n  left: 64\n right: 32\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-14-p0-r2-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-14-p1-r0-s0.tiff",
+    "bytes": 2729,
+    "sha256": "5b9dd0d6de0fa3f3f69ceec128616004cd178932d6ee88eca7053d98429848fd",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-14-p1-r0-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-14-p1-r0-s0-rgba.tiff",
+    "bytes": 2729,
+    "sha256": "4c9354a9cd6ac727c402db729d4e4112057aad232081464de19cb76e792c3a99",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-14-p1-r0-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-14-p1-r0-s1.tiff",
+    "bytes": 1832,
+    "sha256": "6adf12cffdc846923dda933ccb32167c1aa737ed9469c15f96ee57bfad667099",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-14-p1-r0-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-14-p1-r0-s1-rgba.tiff",
+    "bytes": 1832,
+    "sha256": "a6b0cccfb40ab2d6364cb7bf2daf01d74ceb0640be439be6ed42f09c61f0f1fe",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-14-p1-r0-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-14-p1-r2-s0.tiff",
+    "bytes": 3011,
+    "sha256": "e66dde39b1cca2d3b198b7752f5adc9559d1c144fd53c85a54d0fb5ee62c12e3",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-14-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-14-p1-r2-s0-rgba.tiff",
+    "bytes": 3011,
+    "sha256": "e32a0c9ca6917942e58aa350551a6eb1e8d2135a8188aada61cacd12c459502c",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-14-p1-r2-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-14-p1-r2-s1.tiff",
+    "bytes": 1938,
+    "sha256": "60e21773c090f8d01223cd7f5f88b1e34da38f660fc990d9e56acb06faabb92f",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-14-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-14-p1-r2-s1-rgba.tiff",
+    "bytes": 1938,
+    "sha256": "0912d20d6f0467f247a35432fdaa150df6fe945befcd3a83056eef04b1088dae",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-14-p1-r2-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: \"Invalid image\""
+  },
+  {
+    "name": "planes-15-p0-r0-s0.tiff",
+    "bytes": 2551,
+    "sha256": "dbcf240e9775a950a1a7da50939cb33dc4c02e8265bf255df23812c1a6e3e07b",
+    "hash": "e95362b34826dcdc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3da7fa493262e63b0c6d2bf9466d7d50ab404180d41fc9a176f746674a2f4c08"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p0-r0-s0-rgba.tiff",
+    "bytes": 2551,
+    "sha256": "79e74e8eadd3bb55f38105d6f711cca97655173ca4330b009bffed6a7b04b3ef",
+    "hash": "d423994cd3e92337",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "a7d6729c39c976ae39eb33ca2e947aac6b01458123ffac96bf94d1b1411f85b5"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p0-r0-s1.tiff",
+    "bytes": 1412,
+    "sha256": "e25386d6250b81747d00d1be96aece8186c86e5fbb57c3852c90f3d1e481a933",
+    "hash": "f266f27549983c1c",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "966c220c57d3c8621374e30d5f4e9dd2da92b44bce720a59b7f70111fc4fab68"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p0-r0-s1-rgba.tiff",
+    "bytes": 1412,
+    "sha256": "418e81c1c64c6d24c059ba1fede735271c1d6d4de99e55c62562b1bd730a3224",
+    "hash": "a5009ddaf227b3f0",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "fb034c9dde17358c25e2d026ff0718a3fb6df168baae03aba805dd8048f4d5de"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p0-r2-s0.tiff",
+    "bytes": 2561,
+    "sha256": "6dde2de47437a303561dd290a9df97411c4695b66ce15fbc2793fd5fbe6747d1",
+    "hash": "e95362b34826dcdc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3da7fa493262e63b0c6d2bf9466d7d50ab404180d41fc9a176f746674a2f4c08"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p0-r2-s0-rgba.tiff",
+    "bytes": 2561,
+    "sha256": "e0e0351c1f4ae523844878f880c239374f1b30b2cb7e542e1e87c5d2bc18a2eb",
+    "hash": "d423994cd3e92337",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "a7d6729c39c976ae39eb33ca2e947aac6b01458123ffac96bf94d1b1411f85b5"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p0-r2-s1.tiff",
+    "bytes": 1420,
+    "sha256": "30880ae236de9bcf5d0fcf48f5720ea6e11c8ebc9d26bbb78746c508bb27bdec",
+    "hash": "f266f27549983c1c",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "966c220c57d3c8621374e30d5f4e9dd2da92b44bce720a59b7f70111fc4fab68"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p0-r2-s1-rgba.tiff",
+    "bytes": 1420,
+    "sha256": "534b07982c164d424f8842755e93b6a2eb744c96699dda53bc9dae332e9b1869",
+    "hash": "a5009ddaf227b3f0",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "fb034c9dde17358c25e2d026ff0718a3fb6df168baae03aba805dd8048f4d5de"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p1-r0-s0.tiff",
+    "bytes": 2943,
+    "sha256": "e5c745111f91859d56d9fd5bb6aabb6706dfecb0d356ee9c5eab4f80dd47772c",
+    "hash": "e95362b34826dcdc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "3da7fa493262e63b0c6d2bf9466d7d50ab404180d41fc9a176f746674a2f4c08"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p1-r0-s0-rgba.tiff",
+    "bytes": 2943,
+    "sha256": "6a88443aed069368b770b7fcd44fc5ec83635d0736a2c0d02d6f867cfda1bb6c",
+    "hash": "d423994cd3e92337",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "a7d6729c39c976ae39eb33ca2e947aac6b01458123ffac96bf94d1b1411f85b5"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p1-r0-s1.tiff",
+    "bytes": 1815,
+    "sha256": "815e4d779f9a6667c91e392fd951b94bfe8569fc18f52490664ea3b0c2a4de94",
+    "hash": "f266f27549983c1c",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "966c220c57d3c8621374e30d5f4e9dd2da92b44bce720a59b7f70111fc4fab68"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p1-r0-s1-rgba.tiff",
+    "bytes": 1815,
+    "sha256": "cca6dfdd112b1e32438c227c46521b9d9a0c29ad7a58257c0e9db78d247ae79c",
+    "hash": "a5009ddaf227b3f0",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "fb034c9dde17358c25e2d026ff0718a3fb6df168baae03aba805dd8048f4d5de"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-15-p1-r2-s0.tiff",
+    "bytes": 3253,
+    "sha256": "4b82c7fd8f82564d7de3e4757c3b503d4e24eb87c708f73e8deadea8fcbcb307",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-15-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-15-p1-r2-s0-rgba.tiff",
+    "bytes": 3253,
+    "sha256": "ab8f74e46dfd2221992107a2623e49d5b99623f9af4dfe92b59d8c7cf4079192",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-15-p1-r2-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-15-p1-r2-s1.tiff",
+    "bytes": 1922,
+    "sha256": "a43b035db8298daad0c8cf281136f6dc428f1cf99c8c8f784408eb3c226d1730",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-15-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-15-p1-r2-s1-rgba.tiff",
+    "bytes": 1922,
+    "sha256": "91dead46f0b6399903c2df6d37992df7c4c87be05199171a4d134cd83b4da3bf",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-15-p1-r2-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-16-p0-r0-s0.tiff",
+    "bytes": 2366,
+    "sha256": "e43cfdf152e0b31297d3404fabc5bf81ae7ea629c6b0eaafafa54acec8f16499",
+    "hash": "fad14aa1bc78489d",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "5471fbceaf8099199f8281eee4ce2df5ddc2ec8df7c6be8ba181100e9f19f2ca"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p0-r0-s0-rgba.tiff",
+    "bytes": 2366,
+    "sha256": "085b045f346490fc95c31b7668bcf5dbf01f679b59b5d3d45c37da25c986f8e5",
+    "hash": "a57a9578c3bfa021",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "145671130c4a88a69eb4ad5d60757b9a4614219f04d86700ad300e54e9724bb7"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p0-r0-s1.tiff",
+    "bytes": 1419,
+    "sha256": "f080176f09edd4252d9af74d1ca7034b92a77ba98f7e09960aedb53b3853bb61",
+    "hash": "d307de04559c7f12",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "28819aff80b54fb9d4738b84cd536ae8872a1b46d1048ef811f80f8c73ab9983"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p0-r0-s1-rgba.tiff",
+    "bytes": 1419,
+    "sha256": "eeecaa7e79a6c61ed40eeeeb759e826c92dccd2d463a077c1c1e7b0718d05441",
+    "hash": "ac3cb0bbd227b063",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "8f5fcefbeb6cd54e9a8a83edf4c1646eef9aca85c4c5aa3a18f47bfe46a8bc49"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p0-r2-s0.tiff",
+    "bytes": 2379,
+    "sha256": "766a70b97792c31bcee86d70fb6ecd81bf6167d2d4b2aa3947b459da38df2ccf",
+    "hash": "fad14aa1bc78489d",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "5471fbceaf8099199f8281eee4ce2df5ddc2ec8df7c6be8ba181100e9f19f2ca"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p0-r2-s0-rgba.tiff",
+    "bytes": 2379,
+    "sha256": "d7b1fc917865f51ce645f95928be5df988d4c3145db0463f10ed815ee6e140be",
+    "hash": "a57a9578c3bfa021",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "145671130c4a88a69eb4ad5d60757b9a4614219f04d86700ad300e54e9724bb7"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p0-r2-s1.tiff",
+    "bytes": 1427,
+    "sha256": "b43f0dafc529dbe93266449ac4dcdede737d3d29f039900d6f0c27882d0c8293",
+    "hash": "d307de04559c7f12",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "28819aff80b54fb9d4738b84cd536ae8872a1b46d1048ef811f80f8c73ab9983"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p0-r2-s1-rgba.tiff",
+    "bytes": 1427,
+    "sha256": "01358d2f89e13935e3d66eeb8dad7b063dc4f5c423dd777544b27835600aace5",
+    "hash": "ac3cb0bbd227b063",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "8f5fcefbeb6cd54e9a8a83edf4c1646eef9aca85c4c5aa3a18f47bfe46a8bc49"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p1-r0-s0.tiff",
+    "bytes": 2753,
+    "sha256": "13b551347c9446f3bfa8a48d78c45df025a92b1ea586bfeb96531c63fddbae0f",
+    "hash": "fad14aa1bc78489d",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "5471fbceaf8099199f8281eee4ce2df5ddc2ec8df7c6be8ba181100e9f19f2ca"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p1-r0-s0-rgba.tiff",
+    "bytes": 2753,
+    "sha256": "08f972a095f8bbd4fc9b95c57e1eacf47e85cbeb65a2d083b6c9e2f369fb3d55",
+    "hash": "a57a9578c3bfa021",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "145671130c4a88a69eb4ad5d60757b9a4614219f04d86700ad300e54e9724bb7"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p1-r0-s1.tiff",
+    "bytes": 1823,
+    "sha256": "430f0b2b8059c2dd8eeec8cd32b4c6b36fcf3c5bd5d4507ba3757efcba319d4b",
+    "hash": "d307de04559c7f12",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "28819aff80b54fb9d4738b84cd536ae8872a1b46d1048ef811f80f8c73ab9983"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p1-r0-s1-rgba.tiff",
+    "bytes": 1823,
+    "sha256": "ff01363fce9aa26e19034546a5184c9d645bb5474aaa013625f7f122b6973183",
+    "hash": "ac3cb0bbd227b063",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "8f5fcefbeb6cd54e9a8a83edf4c1646eef9aca85c4c5aa3a18f47bfe46a8bc49"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-16-p1-r2-s0.tiff",
+    "bytes": 3032,
+    "sha256": "3310ad3f013946e1a2b69d133bfa799b2756efdfdc35e16299eb8f177dc93031",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-16-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-16-p1-r2-s0-rgba.tiff",
+    "bytes": 3032,
+    "sha256": "80e5f1e3f835b96f471a72db01171132a162160b1530220e4f20b7269ccd59d1",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "ERROR: planes-16-p1-r2-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-16-p1-r2-s1.tiff",
+    "bytes": 1934,
+    "sha256": "fd5b699f0516767d44c60c07e8962e630ae15c49c1b00fe66c590cff4c96e2bd",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-16-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-16-p1-r2-s1-rgba.tiff",
+    "bytes": 1934,
+    "sha256": "183557f72c8de0034f07e81f99e7890cc6a528682c23827db3b5be74ac38ee7f",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-16-p1-r2-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-17-p0-r0-s0.tiff",
+    "bytes": 2041,
+    "sha256": "dc05f287c1d264f5510bd5c7eb44673a9e1e7f65c8112251dd60428c8c718468",
+    "hash": "e91223b1d82edcdc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "536dd8108de44043d08153b549a6fff9e334ec43180f95288a256257fc8ad5fc"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-17-p0-r0-s0-rgba.tiff",
+    "bytes": 2041,
+    "sha256": "d5f756990d595d82becebdd11a432d5db976b218627de4e227046fbf7b9691d0",
+    "hash": "d423984df1e82b37",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "9cbf4315a08d920e54735b519d6d545bc00b53aa682e3984a871e8fac66d1989"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-17-p0-r0-s1.tiff",
+    "bytes": 1222,
+    "sha256": "fba64c8230dc5f2a4c56f0b3a18348014bc1688740a2b34a259b865c5b889dce",
+    "hash": "fa66f2f559983c00",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "93418bc961853867972d44d932cd3a2e584bacac3cd14acd9158202189bf0606"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-17-p0-r0-s1-rgba.tiff",
+    "bytes": 1222,
+    "sha256": "9c3f3dcf0cd9c77816f895b154a5ca3c5930ee7af2a668231c0efe8cc442082d",
+    "hash": "a5009bd3f2279379",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "7acf5a0b4b52901f248355f4abd79dd2fa139869b060c4813f41a07ba450c7be"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-17-p0-r2-s0.tiff",
+    "bytes": 2058,
+    "sha256": "eaa5ea9ad6847ad43e629d8d30a3b20a346479016adb5b83c3c60fd9e6f2fa5f",
+    "hash": "e91223b1d82edcdc",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "536dd8108de44043d08153b549a6fff9e334ec43180f95288a256257fc8ad5fc"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-17-p0-r2-s0-rgba.tiff",
+    "bytes": 2058,
+    "sha256": "2db445da029ebf2363592c000cabd3fac348d6d5d4c7764e1a9d0fd37ed2b02d",
+    "hash": "d423984df1e82b37",
+    "width": 37,
+    "height": 43,
+    "rgb": {
+      "bytes": 4773,
+      "sha256": "9cbf4315a08d920e54735b519d6d545bc00b53aa682e3984a871e8fac66d1989"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-17-p0-r2-s1.tiff",
+    "bytes": 1230,
+    "sha256": "74df2ad36340c8ef1f5db12411c1c68ddfe27b2a17e9105b17a26fef598e2baf",
+    "hash": "fa66f2f559983c00",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "93418bc961853867972d44d932cd3a2e584bacac3cd14acd9158202189bf0606"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-17-p0-r2-s1-rgba.tiff",
+    "bytes": 1230,
+    "sha256": "05c28a7d00f17cbee5b80928f5c38d3c9c87f56437ce6d4d1511db79cbc258b1",
+    "hash": "a5009bd3f2279379",
+    "width": 32,
+    "height": 32,
+    "rgb": {
+      "bytes": 3072,
+      "sha256": "7acf5a0b4b52901f248355f4abd79dd2fa139869b060c4813f41a07ba450c7be"
+    },
+    "native_error": null
+  },
+  {
+    "name": "planes-17-p1-r0-s0.tiff",
+    "bytes": 2445,
+    "sha256": "7aac4da9ef61004b62aa736df7546855b0f4890e1f5173eb8485e719b644f167",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815852) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-17-p1-r0-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-17-p1-r0-s0-rgba.tiff",
+    "bytes": 2445,
+    "sha256": "e9c7681934d7a1723cd11ec8289187ad1df5ace3e7ba8228f43fe2f9512a0a37",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815854) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-17-p1-r0-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-17-p1-r0-s1.tiff",
+    "bytes": 1645,
+    "sha256": "eb541261d98ed957a1c523dc277dfa64ea8fef82e2cc2364e0de2b1a251b929e",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815858) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-17-p1-r0-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-17-p1-r0-s1-rgba.tiff",
+    "bytes": 1645,
+    "sha256": "d002e4865ff68868a8c8c1e57c88221573a5e5ee7545082aaaddb4ae6f1cd701",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815860) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-17-p1-r0-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-17-p1-r2-s0.tiff",
+    "bytes": 2692,
+    "sha256": "452799c00450f26529b8dd0004d0b408595a31595eccac9d2568c78df3d864ee",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815864) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-17-p1-r2-s0.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-17-p1-r2-s0-rgba.tiff",
+    "bytes": 2692,
+    "sha256": "a70fa39375f950181a1dd98b75df216b1589cd4f2318ec2078bc1cdf39a85906",
+    "hash": null,
+    "width": 37,
+    "height": 43,
+    "rgb": null,
+    "native_error": "thread '<unnamed>' (1815866) panicked at /Users/clamav_jenkins_svc/jenkins/workspace/ClamAV_build-pipelines_build-1.5@4/clamav-devel/.cargo/vendor/zune-jpeg-0.4.21/src/mcu_prog.rs:260:30:\ncalled `Option::unwrap()` on a `None` value\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\nERROR: planes-17-p1-r2-s0-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image due to bug in image decoder"
+  },
+  {
+    "name": "planes-17-p1-r2-s1.tiff",
+    "bytes": 1732,
+    "sha256": "42207b118d4c4d97bb50be3037de84ee536461e77c1387f1cda302e105d8114e",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-17-p1-r2-s1.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  },
+  {
+    "name": "planes-17-p1-r2-s1-rgba.tiff",
+    "bytes": 1732,
+    "sha256": "8e4b397d4a66cd5c12851bea5986bc1d8d0952109a5ee6a40168b885a538c379",
+    "hash": null,
+    "width": 32,
+    "height": 32,
+    "rgb": null,
+    "native_error": "ERROR: planes-17-p1-r2-s1-rgba.tiff: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Tiff: format error: compressed data is corrupt: Error in decoding MCU. Reason Marker DHT found in bitstream, possibly corrupt jpeg"
+  }
+]

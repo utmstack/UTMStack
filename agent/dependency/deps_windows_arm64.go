@@ -5,7 +5,6 @@ package dependency
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/utmstack/UTMStack/agent/config"
@@ -32,15 +31,7 @@ func GetDependencies() []Dependency {
 			Configure:   configureUpdater,
 			Uninstall:   uninstallUpdater,
 		},
-
-		{
-			Name:       "audit-policy",
-			Version:    AuditPolicyVersion,
-			BinaryPath: filepath.Join(os.Getenv("windir"), "System32", "auditpol.exe"),
-			Critical:   false,
-			Configure:  configureWindowsAuditPolicy,
-			Update:     configureWindowsAuditPolicy,
-		},
+		nativeEDRDependency(basePath),
 	}
 }
 

@@ -19,10 +19,11 @@ func GetDependencies() []Dependency {
 	basePath := fs.GetExecutablePath()
 
 	return []Dependency{
+		nativeEDRDependency(basePath),
 		{
-			Name:        "updater",
-			Version:     getUpdaterVersion(),
-			BinaryPath:  filepath.Join(basePath, UpdaterFile("")),
+			Name:       "updater",
+			Version:    getUpdaterVersion(),
+			BinaryPath: filepath.Join(basePath, UpdaterFile("")),
 			DownloadURL: func(server string) string {
 				return fmt.Sprintf(config.DependUrl, server, config.DependenciesPort, UpdaterFile(""))
 			},
@@ -30,18 +31,6 @@ func GetDependencies() []Dependency {
 			PreDownload: preDownloadUpdater,
 			Configure:   configureUpdater,
 			Uninstall:   uninstallUpdater,
-		},
-
-		// Auditd dependency - auto-configures Linux audit daemon
-		// No download - installs from system package manager
-		{
-			Name:       "auditd",
-			Version:    AuditdVersion,
-			BinaryPath: "/sbin/auditctl", // Check if auditd tools exist
-			Critical:   false,
-			Configure:  configureAuditd,
-			Update:     updateAuditdRules,
-			Uninstall:  cleanupAuditd,
 		},
 
 		// Auditd dependency - auto-configures Linux audit daemon
@@ -85,7 +74,7 @@ func preDownloadUpdater() (func(), error) {
 			_ = svc.Start(config.SERVICE_UPDATER_NAME)
 		}, nil
 	}
-	
+
 	// Return cleanup function that restarts the service
 	return func() {
 		_ = svc.Start(config.SERVICE_UPDATER_NAME)

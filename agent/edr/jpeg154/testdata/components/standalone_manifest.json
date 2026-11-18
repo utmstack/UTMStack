@@ -1,0 +1,29 @@
+[
+  {
+    "name": "462e4387d4e0e7ef13b07cae94ffd58e27ce9e690a328ca91407ba7c0fff4581.jpg",
+    "bytes": 927,
+    "sha256": "462e4387d4e0e7ef13b07cae94ffd58e27ce9e690a328ca91407ba7c0fff4581",
+    "hash": "b839e3629e2bd813",
+    "native_exit": 0,
+    "native_stdout": "462e4387d4e0e7ef13b07cae94ffd58e27ce9e690a328ca91407ba7c0fff4581.jpg: b839e3629e2bd813\n",
+    "native_stderr": ""
+  },
+  {
+    "name": "89709d5ad9ae48d6731fcbbe6e501856a81d5991ca72bd2aea6bdb1da459b0e6.jpg",
+    "bytes": 928,
+    "sha256": "89709d5ad9ae48d6731fcbbe6e501856a81d5991ca72bd2aea6bdb1da459b0e6",
+    "hash": "b839e3629e2bd813",
+    "native_exit": 0,
+    "native_stdout": "89709d5ad9ae48d6731fcbbe6e501856a81d5991ca72bd2aea6bdb1da459b0e6.jpg: b839e3629e2bd813\n",
+    "native_stderr": ""
+  },
+  {
+    "name": "d38201b4bb322447c5faa3289e662083150b9cfb1380e3d90f583d6024b96134.jpg",
+    "bytes": 645,
+    "sha256": "d38201b4bb322447c5faa3289e662083150b9cfb1380e3d90f583d6024b96134",
+    "hash": null,
+    "native_exit": 1,
+    "native_stdout": "",
+    "native_stderr": "ERROR: d38201b4bb322447c5faa3289e662083150b9cfb1380e3d90f583d6024b96134.jpg: Failed to calculate image fuzzy hash: Failed to load image: Format error decoding Jpeg: Error parsing DQT segment. Reason:No quantization table for component Y\n"
+  }
+]

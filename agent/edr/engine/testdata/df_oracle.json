@@ -1,0 +1,162 @@
+[
+  {
+    "name": "key0-payload0",
+    "source": "<html><script>before();dF('%61%6c%65%72%74%28%31%29%3b0');after();</script></html>",
+    "output": "<script>before();after();</script>alert(1);</script>"
+  },
+  {
+    "name": "key0-payload1",
+    "source": "<html><script>before();dF('%76%61%72%20%78%3d%31%3b0');after();</script></html>",
+    "output": "<script>before();after();</script>var n000=1;</script>"
+  },
+  {
+    "name": "key0-payload2",
+    "source": "<html><script>before();dF('%66%75%6e%63%74%69%6f%6e%20%66%28%29%7b%72%65%74%75%72%6e%20%37%3b%7d0');after();</script></html>",
+    "output": "<script>before();after();</script>function n000(){return 7;}</script>"
+  },
+  {
+    "name": "key0-payload3",
+    "source": "<html><script>before();dF('%64%6f%63%75%6d%65%6e%74%2e%77%72%69%74%65%28%22%6f%6b%22%29%3b0');after();</script></html>",
+    "output": "<script>before();after();</script>document.write(\"ok\");</script>"
+  },
+  {
+    "name": "key0-payload4",
+    "source": "<html><script>before();dF('%78%3d%27%73%61%66%65%27%3b0');after();</script></html>",
+    "output": "<script>before();after();</script>x=\"safe\";</script>"
+  },
+  {
+    "name": "key0-payload5",
+    "source": "<html><script>before();dF('%61%3d%32%3b%62%3d%33%3b0');after();</script></html>",
+    "output": "<script>before();after();</script>a=2;b=3;</script>"
+  },
+  {
+    "name": "key1-payload0",
+    "source": "<html><script>before();dF('%62%6d%66%73%75%29%32%2a%3c1');after();</script></html>",
+    "output": "<script>before();after();</script>alert(1);</script>"
+  },
+  {
+    "name": "key1-payload1",
+    "source": "<html><script>before();dF('%77%62%73%21%79%3e%32%3c1');after();</script></html>",
+    "output": "<script>before();after();</script>var n000=1;</script>"
+  },
+  {
+    "name": "key1-payload2",
+    "source": "<html><script>before();dF('%67%76%6f%64%75%6a%70%6f%21%67%29%2a%7c%73%66%75%76%73%6f%21%38%3c%7e1');after();</script></html>",
+    "output": "<script>before();after();</script>function n000(){return 7;}</script>"
+  },
+  {
+    "name": "key1-payload3",
+    "source": "<html><script>before();dF('%65%70%64%76%6e%66%6f%75%2f%78%73%6a%75%66%29%23%70%6c%23%2a%3c1');after();</script></html>",
+    "output": "<script>before();after();</script>document.write(\"ok\");</script>"
+  },
+  {
+    "name": "key1-payload4",
+    "source": "<html><script>before();dF('%79%3e%28%74%62%67%66%28%3c1');after();</script></html>",
+    "output": "<script>before();after();</script>x=\"safe\";</script>"
+  },
+  {
+    "name": "key1-payload5",
+    "source": "<html><script>before();dF('%62%3e%33%3c%63%3e%34%3c1');after();</script></html>",
+    "output": "<script>before();after();</script>a=2;b=3;</script>"
+  },
+  {
+    "name": "key2-payload0",
+    "source": "<html><script>before();dF('%63%6e%67%74%76%2a%33%2b%3d2');after();</script></html>",
+    "output": "<script>before();after();</script>alert(1);</script>"
+  },
+  {
+    "name": "key2-payload1",
+    "source": "<html><script>before();dF('%78%63%74%22%7a%3f%33%3d2');after();</script></html>",
+    "output": "<script>before();after();</script>var n000=1;</script>"
+  },
+  {
+    "name": "key2-payload2",
+    "source": "<html><script>before();dF('%68%77%70%65%76%6b%71%70%22%68%2a%2b%7d%74%67%76%77%74%70%22%39%3d%7f2');after();</script></html>",
+    "output": "<script>before();after();</script>function n000(){return 7;}</script>"
+  },
+  {
+    "name": "key2-payload3",
+    "source": "<html><script>before();dF('%66%71%65%77%6f%67%70%76%30%79%74%6b%76%67%2a%24%71%6d%24%2b%3d2');after();</script></html>",
+    "output": "<script>before();after();</script>document.write(\"ok\");</script>"
+  },
+  {
+    "name": "key2-payload4",
+    "source": "<html><script>before();dF('%7a%3f%29%75%63%68%67%29%3d2');after();</script></html>",
+    "output": "<script>before();after();</script>x=\"safe\";</script>"
+  },
+  {
+    "name": "key2-payload5",
+    "source": "<html><script>before();dF('%63%3f%34%3d%64%3f%35%3d2');after();</script></html>",
+    "output": "<script>before();after();</script>a=2;b=3;</script>"
+  },
+  {
+    "name": "key5-payload0",
+    "source": "<html><script>before();dF('%66%71%6a%77%79%2d%36%2e%405');after();</script></html>",
+    "output": "<script>before();after();</script>alert(1);</script>"
+  },
+  {
+    "name": "key5-payload1",
+    "source": "<html><script>before();dF('%7b%66%77%25%7d%42%36%405');after();</script></html>",
+    "output": "<script>before();after();</script>var n000=1;</script>"
+  },
+  {
+    "name": "key5-payload2",
+    "source": "<html><script>before();dF('%6b%7a%73%68%79%6e%74%73%25%6b%2d%2e%80%77%6a%79%7a%77%73%25%3c%40%825');after();</script></html>",
+    "output": "<script>before();after();</script>function n000(){return 7;}</script>"
+  },
+  {
+    "name": "key5-payload3",
+    "source": "<html><script>before();dF('%69%74%68%7a%72%6a%73%79%33%7c%77%6e%79%6a%2d%27%74%70%27%2e%405');after();</script></html>",
+    "output": "<script>before();after();</script>document.write(\"ok\");</script>"
+  },
+  {
+    "name": "key5-payload4",
+    "source": "<html><script>before();dF('%7d%42%2c%78%66%6b%6a%2c%405');after();</script></html>",
+    "output": "<script>before();after();</script>x=\"safe\";</script>"
+  },
+  {
+    "name": "key5-payload5",
+    "source": "<html><script>before();dF('%66%42%37%40%67%42%38%405');after();</script></html>",
+    "output": "<script>before();after();</script>a=2;b=3;</script>"
+  },
+  {
+    "name": "key9-payload0",
+    "source": "<html><script>before();dF('%6a%75%6e%7b%7d%31%3a%32%449');after();</script></html>",
+    "output": "<script>before();after();</script>alert(1);</script>"
+  },
+  {
+    "name": "key9-payload1",
+    "source": "<html><script>before();dF('%7f%6a%7b%29%81%46%3a%449');after();</script></html>",
+    "output": "<script>before();after();</script>var n000=1;</script>"
+  },
+  {
+    "name": "key9-payload2",
+    "source": "<html><script>before();dF('%6f%7e%77%6c%7d%72%78%77%29%6f%31%32%84%7b%6e%7d%7e%7b%77%29%40%44%869');after();</script></html>",
+    "output": "<script>before();after();</script>function n000(){return 7;}</script>"
+  },
+  {
+    "name": "key9-payload3",
+    "source": "<html><script>before();dF('%6d%78%6c%7e%76%6e%77%7d%37%80%7b%72%7d%6e%31%2b%78%74%2b%32%449');after();</script></html>",
+    "output": "<script>before();after();</script>document.write(\"ok\");</script>"
+  },
+  {
+    "name": "key9-payload4",
+    "source": "<html><script>before();dF('%81%46%30%7c%6a%6f%6e%30%449');after();</script></html>",
+    "output": "<script>before();after();</script>x=\"safe\";</script>"
+  },
+  {
+    "name": "key9-payload5",
+    "source": "<html><script>before();dF('%6a%46%3b%44%6b%46%3c%449');after();</script></html>",
+    "output": "<script>before();after();</script>a=2;b=3;</script>"
+  },
+  {
+    "name": "seventeen-adjacent",
+    "source": "<html><script>dF('%61%3d%30%3b0');dF('%61%3d%31%3b0');dF('%61%3d%32%3b0');dF('%61%3d%33%3b0');dF('%61%3d%34%3b0');dF('%61%3d%35%3b0');dF('%61%3d%36%3b0');dF('%61%3d%37%3b0');dF('%61%3d%38%3b0');dF('%61%3d%39%3b0');dF('%61%3d%31%30%3b0');dF('%61%3d%31%31%3b0');dF('%61%3d%31%32%3b0');dF('%61%3d%31%33%3b0');dF('%61%3d%31%34%3b0');dF('%61%3d%31%35%3b0');dF('%61%3d%31%36%3b0');</script></html>",
+    "output": "<script>df(\"%61%3d%31%3b0\");df(\"%61%3d%33%3b0\");df(\"%61%3d%35%3b0\");df(\"%61%3d%37%3b0\");df(\"%61%3d%39%3b0\");df(\"%61%3d%31%31%3b0\");df(\"%61%3d%31%33%3b0\");df(\"%61%3d%31%35%3b0\");</script>a=0;a=2;a=4;a=6;a=8;a=10;a=12;a=14;a=16;</script>"
+  },
+  {
+    "name": "nested",
+    "source": "<html><script>dF('%64%46%28%27%25%36%31%25%36%63%25%36%35%25%37%32%25%37%34%25%32%38%25%33%37%25%32%39%25%33%62%30%27%29%3b0');</script></html>",
+    "output": "<script></script>alert(7);</script>"
+  }
+]
