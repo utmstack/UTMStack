@@ -40,9 +40,20 @@ function timeZone(): string | undefined {
   return prefs.timezone && prefs.timezone !== 'system' ? prefs.timezone : undefined
 }
 
+/** Parse timezone-less backend timestamps as UTC; Date supports milliseconds. */
+export function parseTimestamp(value: string | number | Date): Date {
+  if (typeof value !== 'string') return new Date(value)
+  const normalized = value.replace(
+    /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}:\d{2})(?:\.(\d+))?(Z|[+-]\d{2}:?\d{2})?$/,
+    (_, date: string, time: string, fraction: string | undefined, zone: string | undefined) =>
+      `${date}T${time}${fraction ? `.${fraction.slice(0, 3)}` : ''}${zone || 'Z'}`,
+  )
+  return new Date(normalized)
+}
+
 /** Full date + time, in the configured timezone & style. */
 export function formatDateTime(value: string | number | Date): string {
-  const d = new Date(value)
+  const d = parseTimestamp(value)
   if (Number.isNaN(d.getTime())) return '—'
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: prefs.dateFormat,
@@ -53,7 +64,7 @@ export function formatDateTime(value: string | number | Date): string {
 
 /** Date only, in the configured timezone & style. */
 export function formatDate(value: string | number | Date): string {
-  const d = new Date(value)
+  const d = parseTimestamp(value)
   if (Number.isNaN(d.getTime())) return '—'
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: prefs.dateFormat,
@@ -63,7 +74,7 @@ export function formatDate(value: string | number | Date): string {
 
 /** Time only, in the configured timezone. */
 export function formatTime(value: string | number | Date): string {
-  const d = new Date(value)
+  const d = parseTimestamp(value)
   if (Number.isNaN(d.getTime())) return '—'
   return new Intl.DateTimeFormat(undefined, {
     timeStyle: 'medium',
