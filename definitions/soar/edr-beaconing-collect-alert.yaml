@@ -1,0 +1,47 @@
+# UTMStack EDR SOAR flow
+#
+# Triggered by the correlation rule "UTMStack EDR Repeated Blocked Connections
+# (Beaconing Shape)" (definitions/rules/edr/utmstack_edr/repeated_blocked_connections_beaconing.yaml).
+# Three or more blocked connections from one host to the same known-bad
+# destination is an implant phoning home on a schedule — the file scanner did
+# not catch it, so something is already running. This playbook collects the
+# live process / connection / persistence evidence from the endpoint and raises
+# a high-severity alert.
+#
+# Guard: the incident node is the dedup gate — the incidents store links each
+# alert to at most one incident (unique tenant+alert), so a re-trigger for an
+# already-incidented alert stops there and the notify chain does not fire again.
+# Collection is read-only (no state changed on the host), so a duplicate run
+# cannot stack either.
+#
+# Record: the execution Result holds the collected stdout; the incident and the
+# notify both name the host, the C2 destination and what was collected.
+- name: 'EDR: Repeated blocked connections — collect and alert'
+  description: 'Beaconing shape detected: collect the running process, connection and persistence evidence from the endpoint, then open an incident and alert. Treat as active C2 and isolate at the perimeter.'
+  conditions:
+  - operator: IS
+    field: name
+    value: UTMStack EDR Repeated Blocked Connections (Beaconing Shape)
+  maxDepth: 10
+  roots: [collect]
+  nodes:
+    collect:
+      kind: executor
+      executor: shell
+      platform: windows
+      shell: powershell
+      command: 'Get-CimInstance Win32_Process -Property ProcessId,ParentProcessId,Name,CommandLine,CreationDate | ConvertTo-Json -Compress; $c2 = "$(alert.target.ip)"; Get-NetTCPConnection -RemoteAddress $c2 -ErrorAction SilentlyContinue | Select-Object LocalPort,RemotePort,State,OwningProcess | ConvertTo-Json -Compress; Get-CimInstance Win32_StartupCommand | Select-Object Name,Command,Location | ConvertTo-Json -Compress'
+      onSuccess: [incident]
+    incident:
+      kind: executor
+      executor: incident
+      params:
+        name: 'EDR Beaconing Detected: $(alert.dataSource) -> $(alert.target.ip)'
+        description: 'SOAR flow edr-beaconing-collect-alert: endpoint $(alert.dataSource) made 3+ blocked connections to known-bad destination $(alert.target.ip) within 30 minutes (beaconing shape). Live process, connection and persistence evidence was collected from the endpoint. Alert $(alert.id). Block the destination at the perimeter and hunt the persistence behind origin.process.'
+      onSuccess: [notify]
+    notify:
+      kind: executor
+      executor: notify
+      params:
+        type: ERROR
+        message: 'EDR beaconing detected: $(alert.dataSource) repeatedly attempting $(alert.target.ip). Evidence collected — treat as active C2, isolate the host and block the destination at the perimeter.'

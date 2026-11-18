@@ -1,0 +1,45 @@
+# UTMStack EDR SOAR flow — J1.3: ransomware contained → isolate the endpoint.
+#
+# Triggered by the correlation rule "UTMStack EDR Ransomware Contained"
+# (definitions/rules/edr/utmstack_edr/ransomware_contained.yaml). The behavioral
+# guard already killed the process tree and quarantined the image; this playbook
+# pulls the machine off the network so it cannot exfiltrate until a human looks
+# at it, then records the automated action.
+#
+# Guard: the `incident` node is the dedup gate. The incidents store links each
+# alert to at most one incident (unique tenant+alert), so a re-trigger for an
+# already-incidented alert fails there and the notify chain never fires again.
+# Isolation itself is idempotent — disabling adapters on an already-isolated
+# host is a no-op — so a duplicate re-run cannot stack.
+#
+# Record: the incident description plus the notify message both name the host,
+# the alert and what the flow did automatically.
+- name: 'EDR: Ransomware contained — isolate endpoint'
+  description: 'Isolate the host the ransomware ran on after containment, then open an incident and notify. The process was already killed and quarantined by the behavioral guard; this pulls the machine off the network until a human assesses it.'
+  conditions:
+  - operator: IS
+    field: name
+    value: UTMStack EDR Ransomware Contained
+  maxDepth: 10
+  roots: [isolate]
+  nodes:
+    isolate:
+      kind: executor
+      executor: shell
+      platform: windows
+      shell: powershell
+      command: 'Get-NetAdapter | Disable-NetAdapter -Confirm:$false'
+      onSuccess: [incident]
+    incident:
+      kind: executor
+      executor: incident
+      params:
+        name: 'EDR Ransomware Contained: $(alert.dataSource)'
+        description: 'SOAR flow edr-ransomware-contained-isolate: the ransomware process tree was killed and the image quarantined by the behavioral guard, and the endpoint $(alert.dataSource) was automatically isolated from the network. Alert $(alert.id). The host must be assessed for damage (rename/delete activity and exfiltration in the pre-containment window) before reconnection.'
+      onSuccess: [notify]
+    notify:
+      kind: executor
+      executor: notify
+      params:
+        type: WARNING
+        message: 'EDR ransomware contained on $(alert.dataSource): host automatically isolated from the network. Incident opened — assess the pre-containment window before reconnecting.'

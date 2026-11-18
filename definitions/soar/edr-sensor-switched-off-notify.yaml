@@ -1,0 +1,37 @@
+# UTMStack EDR SOAR flow — J1.3: sensor switched off → notify.
+#
+# Triggered by the correlation rule "UTMStack EDR Sensor Switched Off"
+# (definitions/rules/edr/utmstack_edr/sensor_switched_off.yaml). A sensor toggle
+# is normally an admin decision, but the identical action is how an attacker
+# blinds the agent — so either someone is tuning or someone is tampering, and
+# both are worth knowing about. This playbook does not change anything on the
+# host; it raises the alert so a human can establish who toggled it.
+#
+# Guard: the notify chain is side-effect-free on the endpoint and the incident
+# node dedups by alert (unique tenant+alert), so a re-trigger for the same
+# alert cannot stack duplicate notifications or records.
+#
+# Record: the incident names the endpoint and the sensor; the notify message
+# tells the operator to check management-plane records to attribute the change.
+- name: 'EDR: Sensor switched off — notify'
+  description: 'An endpoint sensor was toggled off. Notify immediately so someone can establish whether it was an authorized admin change or tampering; re-enable the sensor if the toggle is not explained.'
+  conditions:
+  - operator: IS
+    field: name
+    value: UTMStack EDR Sensor Switched Off
+  maxDepth: 10
+  roots: [incident]
+  nodes:
+    incident:
+      kind: executor
+      executor: incident
+      params:
+        name: 'EDR Sensor Switched Off: $(alert.dataSource)'
+        description: 'SOAR flow edr-sensor-switched-off-notify: the EDR sensor on endpoint $(alert.dataSource) was toggled off. Establish who made the change from management-plane records and endpoint logs around the alert time; a toggle with no matching admin action is a tamper signal. Alert $(alert.id).'
+      onSuccess: [notify]
+    notify:
+      kind: executor
+      executor: notify
+      params:
+        type: WARNING
+        message: 'EDR sensor toggled off on $(alert.dataSource): verify whether this was an authorized admin change or tampering, and re-enable the sensor if not explained.'
