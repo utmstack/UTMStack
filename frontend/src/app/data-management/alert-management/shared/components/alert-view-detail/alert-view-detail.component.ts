@@ -28,6 +28,9 @@ import {AlertUpdateTagBehavior} from '../../behavior/alert-update-tag.behavior';
 import {AlertHistoryActionEnum} from '../../enums/alert-history-action.enum';
 import {EventDataTypeEnum} from '../../enums/event-data-type.enum';
 import {AlertFieldService} from '../../services/alert-field.service';
+import {ElasticDataService} from '../../../../../shared/services/elasticsearch/elastic-data.service';
+import {DataNatureTypeEnum} from '../../../../../shared/enums/nature-data.enum';
+import {ElasticOperatorsEnum} from '../../../../../shared/enums/elastic-operators.enum';
 
 @Component({
     standalone: false,
@@ -78,7 +81,8 @@ export class AlertViewDetailComponent implements OnInit {
   constructor(private alertUpdateHistoryBehavior: AlertUpdateHistoryBehavior,
               private alertUpdateTagBehavior: AlertUpdateTagBehavior,
               private moduleService: UtmModulesService,
-              private alertFieldService: AlertFieldService) {
+              private alertFieldService: AlertFieldService,
+              private elasticDataService: ElasticDataService) {
   }
 
   ngOnInit() {
@@ -97,6 +101,50 @@ export class AlertViewDetailComponent implements OnInit {
       reason: `Response to alert ${this.alert.name} with severity ${this.alert.severityLabel}`,
       command: ''
     };
+
+    // #2937: a PARENT alert with echoes shows only its OWN events in this
+    // drawer (this.logs = this.alert.events). The echoes are separate
+    // v11-alert-* docs linked by parentId and are never fetched here, so their
+    // events are missing from the "related events" table. The list page already
+    // enriches the row with hasChildren/echoes (includeChildren), so when this
+    // is a parent with echoes, load the children and merge their events.
+    // Echo rows themselves ([isEcho]) and plain alerts are left untouched.
+    const isParentWithEchoes = !this.isEcho
+      && (this.alert.hasChildren === true || (typeof this.alert.echoes === 'number' && this.alert.echoes > 0));
+    if (isParentWithEchoes) {
+      this.loadEchoEvents();
+    }
+  }
+
+  // #2937: merge the echo children's events into this.alert.events so the
+  // related-events table shows the full sequence, not just the parent's.
+  loadEchoEvents() {
+    this.elasticDataService.search(1, 100, 100, DataNatureTypeEnum.ALERT, [{
+      field: 'parentId',
+      operator: ElasticOperatorsEnum.IS,
+      value: this.alert.id
+    }]).subscribe({
+      next: response => {
+        const children = response.body || [];
+        const existing = this.alert.events || [];
+        const merged = [...existing];
+        children.forEach(child => {
+          const evs = child && Array.isArray(child.events) ? child.events : [];
+          evs.forEach(ev => {
+            // de-duplicate on event id (echoes may share events with the parent)
+            if (ev && ev.id && merged.some(m => m && m.id === ev.id)) return;
+            merged.push(ev);
+          });
+        });
+        this.alert.events = merged;
+        this.logs = merged;
+        this.countRelatedEvents = merged.length;
+      },
+      error: () => {
+        // If the children lookup fails, the parent's own events are already
+        // shown (set in ngOnInit) - nothing to clean up.
+      }
+    });
   }
 
   getFieldByName(name: string): UtmFieldType {
