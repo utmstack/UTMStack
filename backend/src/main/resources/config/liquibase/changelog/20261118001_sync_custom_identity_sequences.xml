@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <!--
+      Companion to the CustomIdentityGenerator fix.
+
+      The 22 entities whose @Id uses CustomIdentityGenerator have their id filled from a
+      per-table sequence. On real instances those sequences can sit BEHIND max(id) (e.g.
+      utm_correlation_rules last=1000006 < max=1000134) or at their start value with rows
+      present, so a plain nextval would hand out a colliding id. This changeset advances
+      every one of those sequences to GREATEST(max(id), min_value), so the next nextval is
+      always strictly above every existing id while preserving the reserved id partitions
+      (min_value is the floor: 1000000 for the user-facing tables, 10000 for a couple, 1
+      for the rest). It is idempotent: a re-run only advances the sequence further past the
+      new max(id) and never lowers it, and a fresh install (empty table) is a no-op beyond
+      consuming one floor value.
+    -->
+    <changeSet id="20261118001_sync_custom_identity_sequences" author="osmontero">
+        <comment>Advance each CustomIdentityGenerator table's id sequence to at least max(id) so nextval cannot collide.</comment>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                SELECT setval('utm_dashboard_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_dashboard),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_dashboard_id_seq')), true);
+                SELECT setval('utm_visualization_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_visualization),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_visualization_id_seq')), true);
+                SELECT setval('utm_menu_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_menu),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_menu_id_seq')), true);
+                SELECT setval('utm_report_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_report),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_report_id_seq')), true);
+                SELECT setval('utm_report_section_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_report_section),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_report_section_id_seq')), true);
+                SELECT setval('utm_index_pattern_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_index_pattern),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_index_pattern_id_seq')), true);
+                SELECT setval('utm_logstash_filter_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_logstash_filter),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_logstash_filter_id_seq')), true);
+                SELECT setval('utm_logstash_filter_group_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_logstash_filter_group),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_logstash_filter_group_id_seq')), true);
+                SELECT setval('utm_logstash_pipeline_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_logstash_pipeline),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_logstash_pipeline_id_seq')), true);
+                SELECT setval('utm_correlation_rules_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_correlation_rules),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_correlation_rules_id_seq')), true);
+                SELECT setval('utm_data_types_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_data_types),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_data_types_id_seq')), true);
+                SELECT setval('utm_regex_pattern_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_regex_pattern),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_regex_pattern_id_seq')), true);
+                SELECT setval('utm_tenant_config_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_tenant_config),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_tenant_config_id_seq')), true);
+                SELECT setval('utm_compliance_report_config_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_compliance_report_config),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_compliance_report_config_id_seq')), true);
+                SELECT setval('utm_compliance_standard_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_compliance_standard),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_compliance_standard_id_seq')), true);
+                SELECT setval('utm_compliance_standard_section_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_compliance_standard_section),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_compliance_standard_section_id_seq')), true);
+                SELECT setval('utm_compliance_control_config_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_compliance_control_config),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_compliance_control_config_id_seq')), true);
+                SELECT setval('utm_compliance_query_config_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_compliance_query_config),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_compliance_query_config_id_seq')), true);
+                SELECT setval('utm_alert_response_rule_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_alert_response_rule),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_alert_response_rule_id_seq')), true);
+                SELECT setval('utm_response_action_template_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_response_action_template),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_response_action_template_id_seq')), true);
+                SELECT setval('utm_space_notification_control_id_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_space_notification_control),0), (SELECT min_value FROM pg_sequences WHERE sequencename='utm_space_notification_control_id_seq')), true);
+                SELECT setval('getting_started_seq', GREATEST(COALESCE((SELECT max(id) FROM utm_getting_started),0), (SELECT min_value FROM pg_sequences WHERE sequencename='getting_started_seq')), true);
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>
