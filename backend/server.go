@@ -23,6 +23,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/compliance"
 	"github.com/utmstack/utmstack/backend/modules/dashboards"
 	datasources "github.com/utmstack/utmstack/backend/modules/datasources"
+	"github.com/utmstack/utmstack/backend/modules/edr"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing"
 	"github.com/utmstack/utmstack/backend/modules/iam"
 	"github.com/utmstack/utmstack/backend/modules/incidents"
@@ -229,6 +230,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 		storage.RegisterRoutes(api, m.storage, internalAuth,userAuth)
 	}
 
+	edr.RegisterRoutes(api, m.edr, userAuth)
 	datasources.RegisterRoutes(api, m.datasources, userAuth)
 	adaudit.RegisterRoutes(api, m.adaudit, userAuth)
 	if m.mcp != nil {

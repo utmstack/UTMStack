@@ -30,6 +30,10 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/datasources"
 	ns_repository "github.com/utmstack/utmstack/backend/modules/datasources/repository"
 	ns_usecase "github.com/utmstack/utmstack/backend/modules/datasources/usecase"
+	"github.com/utmstack/utmstack/backend/modules/edr"
+	edr_connectors "github.com/utmstack/utmstack/backend/modules/edr/connectors"
+	edr_counter "github.com/utmstack/utmstack/backend/modules/edr/counter"
+	edr_gateway "github.com/utmstack/utmstack/backend/modules/edr/gateway"
 	"github.com/utmstack/utmstack/backend/modules/eventprocessing"
 	ep_repository "github.com/utmstack/utmstack/backend/modules/eventprocessing/repository"
 	"github.com/utmstack/utmstack/backend/modules/iam"
@@ -90,6 +94,7 @@ type modules struct {
 	threatIntel     *threatintel.Module
 	storage         *storage.Module
 	mcp             *mcpmod.Module
+	edr             *edr.Module
 	signer          *jwtpkg.Signer
 }
 
@@ -288,6 +293,19 @@ func initModules(db *gorm.DB, events *eventstore.Store, cfg *config) *modules {
 		agentClient,
 	)
 
+	// EDR console: policies live here, endpoint state folds from the
+	// agent-manager, detections count from the logs store. A nil agentClient
+	// (manager down at boot) degrades every route to a 502, not a panic.
+	var edrGw edr_connectors.AgentGateway
+	if agentClient != nil {
+		edrGw = edr_gateway.NewManagerGateway(agentClient)
+	}
+	var edrCntr edr_connectors.DetectionCounter
+	if events != nil {
+		edrCntr = edr_counter.NewLogsCounter(events)
+	}
+	edrMod := edr.NewModule(db, edrGw, edrCntr)
+
 	var mcpModule *mcpmod.Module
 	if cfg.mcpEnabled {
 		mcpModule = mcpmod.NewModule(&mcpmod.Deps{
@@ -336,6 +354,7 @@ func initModules(db *gorm.DB, events *eventstore.Store, cfg *config) *modules {
 		threatIntel:     threatintelMod,
 		storage:         storageMod,
 		mcp:             mcpModule,
+		edr:             edrMod,
 		signer:          signer,
 	}
 }
