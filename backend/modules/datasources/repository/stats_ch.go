@@ -40,8 +40,9 @@ func (r *chStatsReader) DistinctSources(ctx context.Context, from, to time.Time)
 		GROUP BY tenantId, dataSource, dataType`,
 		r.store.TableName(eventstore.DatasetStats),
 		enqueueSuccessType,
-		from.UTC().Format(time.RFC3339),
-		to.UTC().Format(time.RFC3339))
+		// ClickHouse rejects RFC3339 (T/Z) for DateTime64; use 'YYYY-MM-DD HH:MM:SS'.
+		from.UTC().Format("2006-01-02 15:04:05"),
+		to.UTC().Format("2006-01-02 15:04:05"))
 
 	rows, err := r.store.Query(ctx, q)
 	if err != nil {
