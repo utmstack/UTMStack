@@ -122,7 +122,7 @@ export class CreateIncidentComponent implements OnInit {
       incidentName: ['', [Validators.required]],
       incidentDescription: ['', [Validators.required]],
       incidentAssignedTo: [],
-      alertList: [null, [Validators.required]]
+      alertList: [null, [Validators.required, Validators.minLength(1)]]
     });
   }
 
@@ -159,13 +159,16 @@ export class CreateIncidentComponent implements OnInit {
       this.addAsIncident(res.body);
       this.utmToastService.showSuccessBottom('Incident created successfully');
     }, (error: HttpErrorResponse) => {
-      let message = 'Han error occurred while creating incident, please contact your administrator';
+      let message = 'An error occurred while creating incident, please contact your administrator';
       this.creating = false;
       const ruleName: string = this.formIncident.get('incidentName').value;
       this.formIncident.get('incidentName').setValue(ruleName.replace(this.irPrefix, ''));
+      const backendError = error.headers ? error.headers.get('x-utmstack-error') : null;
       if (error.status === 409) {
-        message = error.headers.get('x-utmstack-error');
+        message = backendError || message;
         this.incidentService.showDialog(message);
+      } else if (error.status >= 400 && error.status < 500 && backendError) {
+        this.utmToastService.showError('Error creating incident', backendError);
       } else {
         this.utmToastService.showError('Error creating incident', message);
       }

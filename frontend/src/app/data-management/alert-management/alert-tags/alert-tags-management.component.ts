@@ -59,7 +59,7 @@ export class AlertTagsManagementComponent implements OnInit {
     this.alertTagService.delete(tag.id).subscribe(() => {
       const index = this.tags.findIndex(value => value.id === tag.id);
       this.tags.splice(index, 1);
-      this.utmToastService.showSuccessBottom('Tag ' + tag.name + ' deleted successfully');
+      this.utmToastService.showSuccessBottom('Tag ' + tag.tagName + ' deleted successfully');
     });
   }
 

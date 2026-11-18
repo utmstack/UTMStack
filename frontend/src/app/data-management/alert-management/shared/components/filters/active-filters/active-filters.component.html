@@ -26,8 +26,8 @@
            {{resolveFieldName(filter)}}:&nbsp;
       </span>
         <span class="font-weight-light">
-        {{filter.operator === operatorsEnum.IS_BETWEEN ? 'Is' : 'Is not'}} between {{filter.value[1]}}
-          and {{filter.value[0]}}
+        {{filter.operator === operatorsEnum.IS_BETWEEN ? 'Is' : 'Is not'}} between {{filter.value[0]}}
+          and {{filter.value[1]}}
       </span>
       </ng-container>
       <ng-container
