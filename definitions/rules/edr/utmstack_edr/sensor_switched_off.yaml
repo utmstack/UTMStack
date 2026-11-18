@@ -1,0 +1,28 @@
+# Rule version v1.0.0
+
+dataTypes:
+  - utmstack_edr
+name: UTMStack EDR Sensor Switched Off
+impact:
+  confidentiality: 3
+  integrity: 3
+  availability: 2
+category: Defense Evasion
+technique: "T1562.001 - Impair Defenses: Disable or Modify Tools"
+adversary: origin
+references:
+  - https://attack.mitre.org/techniques/T1562/001/
+description: |
+  Detects an endpoint sensor being toggled off. Turning off a sensor is normally an admin decision, but the exact same action is how an attacker running on the endpoint blinds the agent - file_watcher off stops detection of dropped payloads, process_guard off stops on-launch scanning, amsi off stops script inspection. log.sensor names the sensor that went off; the event is emitted at the moment the config change is applied, so the state shown is the new one.
+
+  Next Steps:
+  1. Establish who made the change: check endpoint logs and management-plane records around the alert time
+  2. A sensor toggle with no matching admin action is a tamper signal - treat the endpoint as compromised until proven otherwise
+  3. Look at what was running on the endpoint before the toggle: a process that disables a sensor and then drops a file is a classic sequence
+  4. Correlate other EDR events from the same host in the window before and after the toggle
+  5. If the toggle is confirmed malicious, re-enable the sensor and hunt the endpoint for the disabling process
+where: |
+  equals("log.source", "edr_engine") &&
+  equals("action", "config_change") &&
+  equals("log.signature", "sensor_toggled") &&
+  equals("log.verdict", "off")

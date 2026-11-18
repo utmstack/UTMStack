@@ -29,6 +29,7 @@ type StackConfig struct {
 	EventsEngineWorkdir string
 	LocksDir            string
 	ShmFolder           string
+	EDRMirror           string
 }
 
 var (
@@ -74,6 +75,7 @@ func GetStackConfig() *StackConfig {
 		stackConfig.ValkeyData = utils.MakeDir(0777, cnf.DataDir, "valkey")
 		stackConfig.LocksDir = utils.MakeDir(0777, cnf.DataDir, "locks")
 		stackConfig.ShmFolder = utils.MakeDir(0777, cnf.DataDir, "tmpfs")
+		stackConfig.EDRMirror = utils.MakeDir(0777, cnf.DataDir, "edr-mirror")
 
 		Services = []system.ServiceConfig{
 			{Name: "event-processor", Priority: 1, MinMemory: 5120, MaxMemory: 60 * 1024},
@@ -85,6 +87,7 @@ func GetStackConfig() *StackConfig {
 			{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
 			{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 			{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
+			{Name: "edr", Priority: 3, MinMemory: 150, MaxMemory: 512},
 		}
 
 		if rsrcs, ok := loadPersistedMemoryAllocation(); ok {
