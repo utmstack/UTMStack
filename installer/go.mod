@@ -1,9 +1,9 @@
 module github.com/utmstack/UTMStack/installer
 
-go 1.26.10
+go 1.26.11
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.131
+	github.com/cloudfoundry/gosigar v1.3.133
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/kardianos/service v1.3.0
 	github.com/shirou/gopsutil/v3 v3.24.5
