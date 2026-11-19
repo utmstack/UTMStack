@@ -62,7 +62,7 @@ func (s *darwinStub) last() []string {
 // command must be launchctl, with load/unload addressed by the plist PATH and
 // list by the bare label.
 func TestDarwinUsesLaunchctlWithPlistPath(t *testing.T) {
-	s := &darwinStub{installed: true}
+	s := &darwinStub{installed: true, listExit: 113} // daemon not loaded: Start must load
 	s.install(t)
 	plist := daemonPlistPath("UTMStackAgent")
 
@@ -76,11 +76,13 @@ func TestDarwinUsesLaunchctlWithPlistPath(t *testing.T) {
 		t.Fatalf("Restart: unexpected error: %v", err)
 	}
 
-	// Stop(unload) + Start(load) + Restart(unload+load) = 4 commands.
+	// Stop(unload) + Start(list+load) + Restart(unload + list+load).
 	want := [][]string{
 		{"launchctl", "unload", plist},
+		{"launchctl", "list", "UTMStackAgent"},
 		{"launchctl", "load", plist},
 		{"launchctl", "unload", plist},
+		{"launchctl", "list", "UTMStackAgent"},
 		{"launchctl", "load", plist},
 	}
 	if !reflect.DeepEqual(s.calls, want) {
@@ -91,6 +93,24 @@ func TestDarwinUsesLaunchctlWithPlistPath(t *testing.T) {
 	for _, c := range s.calls {
 		if c[0] == "systemctl" {
 			t.Fatalf("found systemctl in darwin service calls: %v", c)
+		}
+	}
+}
+
+// TestDarwinStartIsNoOpWhenAlreadyLoaded: launchctl load is not idempotent -
+// loading an already-loaded daemon fails (exit 37/17). Start must therefore
+// probe first and do nothing when `launchctl list` already succeeds, instead
+// of issuing a second load.
+func TestDarwinStartIsNoOpWhenAlreadyLoaded(t *testing.T) {
+	s := &darwinStub{installed: true} // list exits 0 by default
+	s.install(t)
+
+	if err := Start("UTMStackAgent"); err != nil {
+		t.Fatalf("Start (already loaded): unexpected error: %v", err)
+	}
+	for _, c := range s.calls {
+		if c[0] == "launchctl" && c[1] == "load" {
+			t.Fatalf("Start issued a load for an already-loaded daemon: %v", s.calls)
 		}
 	}
 }
@@ -175,7 +195,7 @@ func TestDarwinIsActiveSurfacesQueryFailure(t *testing.T) {
 // TestDarwinMissingPlistIsAnError: a never-installed service has no plist;
 // Start/Stop must fail rather than silently do nothing.
 func TestDarwinMissingPlistIsAnError(t *testing.T) {
-	s := &darwinStub{installed: false}
+	s := &darwinStub{installed: false, listExit: 113} // not loaded -> Start reaches the plist check
 	s.install(t)
 
 	if err := Start("NoSuchAgent"); err == nil {

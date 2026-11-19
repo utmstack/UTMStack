@@ -57,11 +57,16 @@ var plistInstalled = func(serviceName string) bool {
 	return err == nil
 }
 
-// Start starts a launch daemon by loading its plist. launchctl load is
-// idempotent (exit 0 when already loaded), so no pre-check is needed.
+// Start starts a launch daemon by loading its plist. launchctl load is NOT
+// idempotent - loading an already-loaded daemon fails with exit 37
+// ("Operation already in progress") or 17 ("File exists") - so Start first
+// checks `launchctl list` and is a no-op when the daemon is already loaded.
 func Start(serviceName string) error {
 	if !validLaunchdName(serviceName) {
 		return fmt.Errorf("invalid service name %q", serviceName)
+	}
+	if _, exit, _ := runDarwin("launchctl", "list", serviceName); exit == 0 {
+		return nil // already loaded: nothing to do
 	}
 	plistPath := daemonPlistPath(serviceName)
 	if !plistInstalled(serviceName) {
