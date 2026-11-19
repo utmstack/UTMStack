@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/plugins/shared
 go 1.26.0
 
 require (
-	github.com/nats-io/nats.go v1.55.0
+	github.com/nats-io/nats.go v1.56.0
 	golang.org/x/crypto v0.59.0
 )
 

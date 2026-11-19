@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
 	github.com/tidwall/gjson v1.20.4
-	github.com/tidwall/sjson v1.2.9
+	github.com/tidwall/sjson v1.2.10
 )
 
 require (
