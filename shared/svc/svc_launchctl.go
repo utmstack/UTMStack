@@ -6,6 +6,39 @@ import (
 	"strings"
 )
 
+// validLaunchdName reports whether serviceName is a safe launchd label /
+// systemd-style unit name: it must start with an ASCII letter or digit and
+// contain only alphanumerics, dots, hyphens and underscores. This is a
+// defense-in-depth guard so the plist path built from the name can never
+// escape /Library/LaunchDaemons (no "..", no separators) even though all
+// current callers pass trusted constants.
+func validLaunchdName(serviceName string) bool {
+	if serviceName == "" {
+		return false
+	}
+	for i, r := range serviceName {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9':
+		case i > 0 && (r == '.' || r == '-' || r == '_'):
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+// launchctlListNotFound reports whether a `launchctl list <label>` result means
+// the service is not loaded. The not-loaded condition is signalled by the exit
+// code 113 (macOS 12+) or, on older releases, by a "Could not find service ..."
+// message; either indicates the daemon is absent, as opposed to a transient
+// error (permission, launchd hiccup) that must NOT be treated as "stopped".
+func launchctlListNotFound(exitCode int, out string) bool {
+	if exitCode == 113 {
+		return true
+	}
+	return strings.Contains(strings.ToLower(out), "could not find service")
+}
+
 // daemonPlistPath returns the launch daemon plist path for a service installed
 // by kardianos/service with the default options (optionUserService=false),
 // i.e. a system daemon in /Library/LaunchDaemons/<name>.plist. launchctl
