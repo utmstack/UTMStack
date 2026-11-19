@@ -1,4 +1,4 @@
-FROM nginx:1.25.3-alpine
+FROM nginx:1.31.8-alpine
 
 WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
