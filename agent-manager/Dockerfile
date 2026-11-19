@@ -1,14 +1,13 @@
-FROM ubuntu:24.04
+FROM debian:trixie-slim
 
 COPY agent-manager /app/
 COPY ./dependencies/agent/ /dependencies/agent/
 COPY ./dependencies/collector/ /dependencies/collector/
 
-# Install jq
-RUN apt-get update && \
-    apt-get install -y ca-certificates jq wget && \
+# Install jq + wget (ca-certificates for grpcurl's TLS)
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends ca-certificates jq wget && \
     update-ca-certificates && \
-    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Install grpcurl
@@ -18,14 +17,9 @@ RUN GRPCURL_VERSION=1.8.1 && \
     rm /tmp/grpcurl.tar.gz && \
     chmod +x /usr/local/bin/grpcurl
 
-
 # Expose the gRPC agent-manager port
 EXPOSE 9000
 EXPOSE 9001
-
-# Set the health check
-# HEALTHCHECK --interval=60s --timeout=5s --start-period=5s --retries=3 CMD grpcurl -insecure -plaintext -d '{"service": ""}' localhost:50051 grpc.health.v1.Health/Check | jq -e '.status == "SERVING"' || exit 1
-
 
 # Run the agent-manager binary
 CMD ["/app/agent-manager"]

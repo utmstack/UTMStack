@@ -1,4 +1,4 @@
-FROM nginx:1.30.1
+FROM nginx:1.31.9
 WORKDIR /usr/share/nginx/html
 COPY ./nginx/mime.types /etc/nginx/mime.types
 COPY ./dist/utm-stack/ /usr/share/nginx/html/
