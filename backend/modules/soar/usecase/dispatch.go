@@ -420,46 +420,83 @@ func (d *Dispatcher) fireChildren(ctx context.Context, flow *domain.Flow, parent
 			_ = catcher.Error("soar dispatch: record edge failed", err, map[string]any{"parent": parent.ID, "child": id})
 			continue
 		}
-		d.transitionChild(ctx, node, parent, child)
+		d.maybePromote(ctx, flow, parent, child)
 	}
 }
 
-func (d *Dispatcher) markDeadBranches(ctx context.Context, flow *domain.Flow, parent domain.SoarExecution, childIDs []string, branch domain.EdgeBranch) {
-	if len(childIDs) == 0 || parent.FlowRunID == nil {
+// maybePromote runs the wait gate for one WAITING child: every parent in the
+// node's wait set must have reached a terminal state before the child may
+// turn PENDING. The check re-runs on every fired edge to the child, so the
+// last-settling parent is the one that actually promotes it.
+func (d *Dispatcher) maybePromote(ctx context.Context, flow *domain.Flow, parent domain.SoarExecution, child *domain.SoarExecution) {
+	if child.Status != domain.ExecutionStatusWaiting || child.FlowRunID == nil {
 		return
 	}
-	maxDepth := flow.ResolvedMaxDepth()
-	for _, id := range childIDs {
-		node, ok := flow.Nodes[id]
-		if !ok {
-			continue
+	if !d.waitSetSettled(ctx, flow, *child.FlowRunID, child.NodeID) {
+		return
+	}
+	d.transitionChild(ctx, flow.Nodes[child.NodeID], parent, child)
+}
+
+// waitSetSettled reports whether every wait-set parent has a terminal row in
+// this run. Missing = not settled: a parent node always produces a row before
+// any of its children can, so a zero count means it is still in flight.
+func (d *Dispatcher) waitSetSettled(ctx context.Context, flow *domain.Flow, runID uuid.UUID, childID string) bool {
+	for _, parentID := range flow.WaitSet(childID) {
+		n, err := d.exec.CountSettled(ctx, runID, parentID)
+		if err != nil {
+			_ = catcher.Error("soar dispatch: wait-set query failed", err, map[string]any{"run": runID, "parent": parentID})
+			return false
 		}
-		childDepth := parent.Depth + 1
-		if childDepth > maxDepth {
-			continue
-		}
-		if err := d.exec.RecordDeadBranch(ctx, connectors.RecordEdgeRequest{
-			FlowRunID:     *parent.FlowRunID,
-			TenantID:      parent.TenantID,
-			RulePath:      parent.RulePath,
-			AlertID:       parent.AlertID,
-			Parent:        parent,
-			ChildNodeID:   id,
-			ChildDepth:    childDepth,
-			ChildKind:     node.Kind,
-			ChildExecutor: node.Executor,
-			Branch:        branch,
-			Fired:         false,
-		}); err != nil {
-			_ = catcher.Error("soar dispatch: record dead branch failed", err, map[string]any{"parent": parent.ID, "child": id})
+		if n == 0 {
+			return false
 		}
 	}
+	return true
+}
+
+// parentContributions gathers the context of every fired parent of the child
+// — not just the one that settled last — so an enrichment parent's output is
+// present no matter which parent's edge triggered the promote. The triggering
+// parent is appended last so its values win key collisions ("most recent wins").
+func (d *Dispatcher) parentContributions(ctx context.Context, child *domain.SoarExecution, trigger domain.SoarExecution) ([]ParentContribution, error) {
+	parents, err := d.exec.ListFiredParents(ctx, child.ID)
+	if err != nil {
+		return nil, err
+	}
+	contribs := make([]ParentContribution, 0, len(parents))
+	for i := range parents {
+		p := parents[i]
+		if trigger.ID == p.ID {
+			continue
+		}
+		c := ParentContribution{Context: p.Context}
+		if p.Kind == domain.NodeKindEnrichment && len(p.Output) > 0 {
+			c.EnrichmentNodeID = p.NodeID
+			c.Output = p.Output
+		}
+		contribs = append(contribs, c)
+	}
+	contribs = append(contribs, ParentContribution{
+		EnrichmentNodeID: triggerEnrichID(trigger),
+		Context:          trigger.Context,
+		Output:           trigger.Output,
+	})
+	return contribs, nil
+}
+
+func triggerEnrichID(p domain.SoarExecution) string {
+	if p.Kind == domain.NodeKindEnrichment && len(p.Output) > 0 {
+		return p.NodeID
+	}
+	return ""
 }
 
 func (d *Dispatcher) transitionChild(ctx context.Context, node domain.FlowNode, parent domain.SoarExecution, child *domain.SoarExecution) {
-	contribs := []ParentContribution{{Context: parent.Context}}
-	if parent.Kind == domain.NodeKindEnrichment && len(parent.Output) > 0 {
-		contribs = append(contribs, ParentContribution{EnrichmentNodeID: parent.NodeID, Output: parent.Output})
+	contribs, err := d.parentContributions(ctx, child, parent)
+	if err != nil {
+		_ = catcher.Error("soar dispatch: parent context merge failed", err, map[string]any{"execution": child.ID})
+		return
 	}
 	bag := MergeContexts(contribs)
 
@@ -501,7 +538,10 @@ func (d *Dispatcher) transitionChild(ctx context.Context, node domain.FlowNode, 
 		}
 	}
 
-	_ = d.exec.TransitionReady(ctx, child.ID, connectors.ReadyUpdate{
+	// PromoteIfReady's WAITING guard is the race: two parents settling in the
+	// same tick both pass the gate, but only the first write lands; the loser
+	// keeps the child owned by the winner and skips the kick.
+	applied, err := d.exec.PromoteIfReady(ctx, child.ID, connectors.ReadyUpdate{
 		Status:  domain.ExecutionStatusPending,
 		Context: bag,
 		Params:  params,
@@ -509,7 +549,47 @@ func (d *Dispatcher) transitionChild(ctx context.Context, node domain.FlowNode, 
 		Shell:   shell,
 		Agent:   agent,
 	})
+	if err != nil {
+		_ = catcher.Error("soar dispatch: promote failed", err, map[string]any{"execution": child.ID})
+		return
+	}
+	if !applied {
+		return
+	}
+	child.Context = json.RawMessage(bag)
 	d.Kick()
+}
+
+func (d *Dispatcher) markDeadBranches(ctx context.Context, flow *domain.Flow, parent domain.SoarExecution, childIDs []string, branch domain.EdgeBranch) {
+	if len(childIDs) == 0 || parent.FlowRunID == nil {
+		return
+	}
+	maxDepth := flow.ResolvedMaxDepth()
+	for _, id := range childIDs {
+		node, ok := flow.Nodes[id]
+		if !ok {
+			continue
+		}
+		childDepth := parent.Depth + 1
+		if childDepth > maxDepth {
+			continue
+		}
+		if err := d.exec.RecordDeadBranch(ctx, connectors.RecordEdgeRequest{
+			FlowRunID:     *parent.FlowRunID,
+			TenantID:      parent.TenantID,
+			RulePath:      parent.RulePath,
+			AlertID:       parent.AlertID,
+			Parent:        parent,
+			ChildNodeID:   id,
+			ChildDepth:    childDepth,
+			ChildKind:     node.Kind,
+			ChildExecutor: node.Executor,
+			Branch:        branch,
+			Fired:         false,
+		}); err != nil {
+			_ = catcher.Error("soar dispatch: record dead branch failed", err, map[string]any{"parent": parent.ID, "child": id})
+		}
+	}
 }
 
 func (d *Dispatcher) loadFlow(exec domain.SoarExecution) *domain.Flow {

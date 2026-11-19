@@ -88,6 +88,23 @@ func validateFlow(f domain.Flow) error {
 				errs = append(errs, fmt.Sprintf("node %q: onError target %q does not exist", id, t))
 			}
 		}
+		// waitFor entries must be direct predecessors: the gate can only observe
+		// parents that record an edge to this child in the same run.
+		preds := map[string]bool{}
+		for pid, pn := range f.Nodes {
+			for _, t := range append(append([]string{}, pn.OnSuccess...), pn.OnError...) {
+				if t == id {
+					preds[pid] = true
+				}
+			}
+		}
+		for _, w := range n.WaitFor {
+			if _, ok := f.Nodes[w]; !ok {
+				errs = append(errs, fmt.Sprintf("node %q: waitFor references missing node %q", id, w))
+			} else if !preds[w] {
+				errs = append(errs, fmt.Sprintf("node %q: waitFor %q is not a direct predecessor", id, w))
+			}
+		}
 		errs = append(errs, validateNodeParams(id, n)...)
 	}
 
