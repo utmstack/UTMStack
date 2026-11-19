@@ -33,7 +33,7 @@ func NewStatsReader(s *eventstore.Store) connectors.StatsReader {
 
 func (r *chStatsReader) DistinctSources(ctx context.Context, from, to time.Time) ([]connectors.StatSource, error) {
 	q := fmt.Sprintf(`
-		SELECT tenantId, dataSource, dataType, formatDateTime(max(`+"`@timestamp`"+`), '%%Y-%%m-%%dT%%H:%%M:%%SZ') AS lastSeen
+		SELECT tenantId, dataSource, dataType, formatDateTime(max(`+"`@timestamp`"+`), '%%Y-%%m-%%dT%%H:%%i:%%SZ') AS lastSeen
 		FROM %s
 		WHERE type = '%s'
 		  AND `+"`@timestamp`"+` BETWEEN '%s' AND '%s'

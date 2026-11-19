@@ -80,7 +80,7 @@ func buildStorageConfig(password string, secondary *osSecondaryInfo) storageYAML
 				TenantColumn:   "tenantId",
 				TimeColumn:     "@timestamp",
 				DataTypeColumn: "dataType",
-				Tables:         map[string]string{"logs": "logs", "alerts": "alerts"},
+				Tables:         map[string]string{"logs": "logs", "alerts": "alerts", "statistics": "statistics", "user_profile_history": "user_profile_history"},
 				TextColumns:    map[string]string{"logs": "raw"},
 				IDColumns:      map[string]string{"logs": "id"},
 			},

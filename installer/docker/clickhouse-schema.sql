@@ -503,11 +503,6 @@ SETTINGS ttl_only_drop_parts = 1;
 ALTER TABLE utmstack.user_profile_history
     ADD COLUMN IF NOT EXISTS `@timestamp` DateTime64(3) MATERIALIZED snapshotted_at;
 
-ALTER TABLE utmstack.user_profile_history
-    MATERIALIZE COLUMN `@timestamp`
-SETTINGS mutations_sync = 1;
-
-
 CREATE MATERIALIZED VIEW IF NOT EXISTS utmstack.user_profile_history_mv
 REFRESH EVERY 1 DAY APPEND TO utmstack.user_profile_history AS
 SELECT
