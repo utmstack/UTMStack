@@ -7,10 +7,10 @@ require (
 	github.com/AtlasInsideCorp/AtlasInsideAES v1.0.0
 	github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/v2 v2.0.2
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.8.3
-	github.com/aws/aws-sdk-go-v2/config v1.33.20
-	github.com/aws/aws-sdk-go-v2/credentials v1.21.2
+	github.com/aws/aws-sdk-go-v2/config v1.33.21
+	github.com/aws/aws-sdk-go-v2/credentials v1.21.3
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.92.2
-	github.com/aws/aws-sdk-go-v2/service/sts v1.52.0
+	github.com/aws/aws-sdk-go-v2/service/sts v1.53.0
 	github.com/crowdstrike/gofalcon v0.25.0
 	github.com/gin-gonic/gin v1.12.0
 	github.com/threatwinds/go-sdk v1.1.39

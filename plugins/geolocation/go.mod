@@ -4,8 +4,8 @@ go 1.26.0
 
 require (
 	github.com/threatwinds/go-sdk v1.1.39
-	github.com/tidwall/gjson v1.20.4
-	github.com/tidwall/sjson v1.2.10
+	github.com/tidwall/gjson v1.20.5
+	github.com/tidwall/sjson v1.2.11
 )
 
 require (
