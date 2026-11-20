@@ -12,6 +12,10 @@ import (
 	am "github.com/utmstack/utmstack/backend/pkg/agentmanager"
 )
 
+// agentLastSeenLayout is how agent-manager serializes a LastPing into the
+// Agent proto's last_seen string (see agent-manager/agent/lastseen_imp.go).
+const agentLastSeenLayout = "2006-01-02 15:04:05"
+
 // managerGateway adapts the agent-manager gRPC client to the EDR gateway.
 type managerGateway struct {
 	client *am.AgentManagerClient
@@ -28,7 +32,7 @@ func (g *managerGateway) ListEndpoints(ctx context.Context) ([]dto.Endpoint, err
 	}
 	out := make([]dto.Endpoint, 0, len(rows))
 	for _, a := range rows {
-		out = append(out, dto.Endpoint{
+		ep := dto.Endpoint{
 			AgentID:  a.GetId(),
 			Hostname: a.GetHostname(),
 			IP:       a.GetIp(),
@@ -36,7 +40,13 @@ func (g *managerGateway) ListEndpoints(ctx context.Context) ([]dto.Endpoint, err
 			Platform: a.GetPlatform(),
 			Version:  a.GetVersion(),
 			Status:   a.GetStatus().String(),
-		})
+		}
+		if s := a.GetLastSeen(); s != "" {
+			if t, perr := time.ParseInLocation(agentLastSeenLayout, s, time.Local); perr == nil {
+				ep.LastSeen = t
+			}
+		}
+		out = append(out, ep)
 	}
 	return out, nil
 }
