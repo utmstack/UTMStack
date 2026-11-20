@@ -11,7 +11,7 @@ import (
 
 func runVersion(args []string, out io.Writer) error {
 	info := buildinfo.Current(engine.ImplementationVersion)
-	if len(args) == 1 && args[0] == "--json" {
+	if jsonMode || (len(args) == 1 && args[0] == "--json") {
 		return json.NewEncoder(out).Encode(info)
 	}
 	if len(args) != 0 {

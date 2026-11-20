@@ -62,7 +62,7 @@ func runDryRun(args []string, out io.Writer) int {
 	asJSON := flags.Bool("json", false, "")
 	db := flags.String("db", "", "")
 	workers := flags.Int("workers", 1, "")
-	if err := flags.Parse(args); err != nil || !*dryRun || !*asJSON || *workers < 1 || flags.NArg() == 0 {
+	if err := flags.Parse(args); err != nil || !*dryRun || !(*asJSON || jsonMode) || *workers < 1 || flags.NArg() == 0 {
 		fmt.Fprintln(os.Stderr, dryRunUsage)
 		return 2
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -62,10 +63,15 @@ func main() {
 		logger.Info("UTMStack EDR: cgroup Go memory target %d bytes", limit)
 	}
 
-	if len(os.Args) > 1 {
-		switch os.Args[1] {
+	// Strip --json from all positions so verb handlers see clean args; the
+	// flag can appear anywhere (the agent appends it at the end).
+	args := os.Args[1:]
+	jsonMode, args = parseJSONFlag(args)
+
+	if len(args) > 0 {
+		switch args[0] {
 		case "version":
-			if err := runVersion(os.Args[2:], os.Stdout); err != nil {
+			if err := runVersion(args[1:], os.Stdout); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
@@ -75,52 +81,63 @@ func main() {
 			return
 		case "install":
 			service.InstallService()
-			fmt.Println("UTMStackEDR service installed")
+			if jsonMode {
+				emitJSON(true, "", map[string]interface{}{"action": "install"})
+			} else {
+				fmt.Println("UTMStackEDR service installed")
+			}
 			return
 		case "uninstall":
 			service.UninstallService()
-			fmt.Println("UTMStackEDR service uninstalled")
+			if jsonMode {
+				emitJSON(true, "", map[string]interface{}{"action": "uninstall"})
+			} else {
+				fmt.Println("UTMStackEDR service uninstalled")
+			}
 			return
 		case "scan":
-			if len(os.Args) < 3 {
+			if len(args) < 2 {
+				if jsonMode {
+					failJSON("usage: utmstack_edr scan <path>")
+				}
 				fmt.Println("usage: utmstack_edr scan <path>")
 				os.Exit(1)
 			}
-			if strings.HasPrefix(os.Args[2], "--") {
-				os.Exit(runDryRun(os.Args[2:], os.Stdout))
+			if strings.HasPrefix(args[1], "--") {
+				os.Exit(runDryRun(args[1:], os.Stdout))
 			}
-			runScan(os.Args[2])
+			runScan(args[1])
 			return
 		case "restore":
-			if len(os.Args) < 3 {
+			if len(args) < 2 {
+				if jsonMode {
+					failJSON("usage: utmstack_edr restore <id>")
+				}
 				fmt.Println("usage: utmstack_edr restore <id>")
 				os.Exit(1)
 			}
-			runRestore(os.Args[2])
+			runRestore(args[1])
 			return
 		case "config":
-			runConfig(os.Args[2:])
+			runConfig(args[1:])
 			return
 		case "network":
-			os.Exit(runNetwork(os.Args[2:], os.Stdout))
+			os.Exit(runNetwork(args[1:], os.Stdout))
 		case "allow":
-			runAllow(os.Args[2:])
+			runAllow(args[1:])
 			return
 		case "quarantine":
-			runQuarantine(os.Args[2:])
+			runQuarantine(args[1:])
 			return
 		case "help", "-h", "--help":
-			printUsage()
+			if jsonMode {
+				emitJSON(true, "", map[string]interface{}{"usage": usageText()})
+			} else {
+				printUsage()
+			}
 			return
 		case "status":
-			if fs.Exists(config.StatusFile) {
-				lines, _ := fs.ReadLines(config.StatusFile)
-				for _, l := range lines {
-					fmt.Println(l)
-				}
-			} else {
-				fmt.Println("UTMStack EDR: not running")
-			}
+			runStatus()
 			return
 		}
 	}
@@ -130,17 +147,26 @@ func main() {
 func runScan(path string) {
 	cfg, err := config.Load()
 	if err != nil {
+		if jsonMode {
+			failJSON("config: " + err.Error())
+		}
 		fmt.Println("config:", err)
 		os.Exit(1)
 	}
 	c, err := cache.Open(config.DBFile)
 	if err != nil {
+		if jsonMode {
+			failJSON("cache: " + err.Error())
+		}
 		fmt.Println("cache:", err)
 		os.Exit(1)
 	}
 	defer c.Close()
 	sp, err := event.OpenSpool(config.SpoolFile, 8<<20)
 	if err != nil {
+		if jsonMode {
+			failJSON("spool: " + err.Error())
+		}
 		fmt.Println("spool:", err)
 		os.Exit(1)
 	}
@@ -148,6 +174,9 @@ func runScan(path string) {
 
 	store, err := quarantine.New(cfg.QuarantineDir, c)
 	if err != nil {
+		if jsonMode {
+			failJSON("quarantine: " + err.Error())
+		}
 		fmt.Println("quarantine:", err)
 		os.Exit(1)
 	}
@@ -155,8 +184,14 @@ func runScan(path string) {
 	if err := eng.EnsureRunning(); err != nil {
 		// Rejected loose files do not make an active signed generation unusable.
 		if !errors.Is(err, engine.ErrLocalSignatures) || eng.Version() == "" {
+			if jsonMode {
+				failJSON("signature database unavailable: " + err.Error())
+			}
 			fmt.Println("UTMStack EDR: signature database unavailable:", err)
 			os.Exit(1)
+		}
+		if jsonMode {
+			failJSON("warning: " + err.Error())
 		}
 		fmt.Println("UTMStack EDR: warning:", err)
 	}
@@ -164,10 +199,57 @@ func runScan(path string) {
 	s := scanner.New(cfg, c, sp, store, eng)
 	verdict, sig, err := s.ScanFile(path, event.SourceEngine)
 	if err != nil {
+		if jsonMode {
+			failJSON("scan error: " + err.Error())
+		}
 		fmt.Println("scan error:", err)
 		os.Exit(1)
 	}
-	fmt.Println(verdictLine(verdict, sig))
+	if jsonMode {
+		emitJSON(true, "", map[string]interface{}{"verdict": verdict, "signature": sig})
+	} else {
+		fmt.Println(verdictLine(verdict, sig))
+	}
+}
+
+func runStatus() {
+	if jsonMode {
+		data, err := statusData()
+		if err != nil {
+			failJSON(err.Error())
+		}
+		emitJSON(true, "", data)
+		return
+	}
+	if fs.Exists(config.StatusFile) {
+		lines, _ := fs.ReadLines(config.StatusFile)
+		for _, l := range lines {
+			fmt.Println(l)
+		}
+	} else {
+		fmt.Println("UTMStack EDR: not running")
+	}
+}
+
+func statusData() (interface{}, error) {
+	if !fs.Exists(config.StatusFile) {
+		return map[string]interface{}{"running": false}, nil
+	}
+	b, err := os.ReadFile(config.StatusFile)
+	if err != nil {
+		return nil, fmt.Errorf("status: %w", err)
+	}
+	var m map[string]interface{}
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, fmt.Errorf("status: %w", err)
+	}
+	return m, nil
+}
+
+func usageText() string {
+	var b strings.Builder
+	printUsageWriter(&b)
+	return b.String()
 }
 
 // verdictLine is the on-demand scan's output. Detection names pass the
@@ -180,16 +262,25 @@ func runRestore(id string) {
 	cfg, _ := config.Load()
 	c, err := cache.Open(config.DBFile)
 	if err != nil {
+		if jsonMode {
+			failJSON("cache: " + err.Error())
+		}
 		fmt.Println("cache:", err)
 		os.Exit(1)
 	}
 	defer c.Close()
 	store, err := quarantine.New(cfg.QuarantineDir, c)
 	if err != nil {
+		if jsonMode {
+			failJSON("quarantine: " + err.Error())
+		}
 		fmt.Println("quarantine:", err)
 		os.Exit(1)
 	}
 	if err := store.Restore(id); err != nil {
+		if jsonMode {
+			failJSON("restore error: " + err.Error())
+		}
 		fmt.Println("restore error:", err)
 		os.Exit(1)
 	}
@@ -200,5 +291,9 @@ func runRestore(id string) {
 			_ = sp.Append(js)
 		}
 	}
-	fmt.Println("UTMStack EDR: restored", id)
+	if jsonMode {
+		emitJSON(true, "", map[string]interface{}{"restored": id})
+	} else {
+		fmt.Println("UTMStack EDR: restored", id)
+	}
 }

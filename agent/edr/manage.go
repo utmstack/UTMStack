@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/netip"
 	"os"
 	"sort"
@@ -28,8 +29,10 @@ import (
 
 const reloadNote = "saved. The running service applies reloadable settings (allowlists, response mode, blocklist.enforce) within a few seconds; structural changes (enabled, blocklist.enabled, sensors, engine) need disable-edr/enable-edr."
 
-func printUsage() {
-	fmt.Print(`UTMStack EDR — management CLI
+func printUsage() { printUsageWriter(os.Stdout) }
+
+func printUsageWriter(out io.Writer) {
+	fmt.Fprint(out, `UTMStack EDR — management CLI
 
 Lifecycle (run via the agent, needs server creds):
   utmstack_agent enable-edr | disable-edr | edr-status
@@ -141,6 +144,9 @@ own working tree) always apply on top of your config and cannot be removed.
 
 func runConfig(args []string) {
 	if len(args) == 0 {
+		if jsonMode {
+			failJSON("usage: utmstack_edr config show|get <key>|set <key> <value>")
+		}
 		fmt.Println("usage: utmstack_edr config show|get <key>|set <key> <value>")
 		os.Exit(1)
 	}
@@ -148,10 +154,17 @@ func runConfig(args []string) {
 	case "show":
 		cfg, err := config.Load()
 		exitOn(err)
+		if jsonMode {
+			emitJSON(true, "", map[string]interface{}{"config": cfg})
+			return
+		}
 		b, _ := json.MarshalIndent(cfg, "", "  ")
 		fmt.Println(string(b))
 	case "get":
 		if len(args) < 2 {
+			if jsonMode {
+				failJSON("usage: utmstack_edr config get <key>")
+			}
 			fmt.Println("usage: utmstack_edr config get <key>")
 			os.Exit(1)
 		}
@@ -159,24 +172,44 @@ func runConfig(args []string) {
 		exitOn(err)
 		v, ok := getByPath(cfg, args[1])
 		if !ok {
+			if jsonMode {
+				failJSON("unknown key: " + args[1])
+			}
 			fmt.Printf("unknown key: %s\n", args[1])
 			os.Exit(1)
+		}
+		if jsonMode {
+			emitJSON(true, "", map[string]interface{}{"key": args[1], "value": v})
+			return
 		}
 		fmt.Println(v)
 	case "set":
 		if len(args) < 3 {
+			if jsonMode {
+				failJSON("usage: utmstack_edr config set <key> <value>")
+			}
 			fmt.Println("usage: utmstack_edr config set <key> <value>")
 			os.Exit(1)
 		}
 		cfg, err := config.Load()
 		exitOn(err)
 		if err := applySet(&cfg, args[1], strings.Join(args[2:], " ")); err != nil {
+			if jsonMode {
+				failJSON(err.Error())
+			}
 			fmt.Println("error:", err)
 			os.Exit(1)
 		}
 		exitOn(config.Save(cfg))
+		if jsonMode {
+			emitJSON(true, "", map[string]interface{}{"key": args[1], "value": strings.Join(args[2:], " ")})
+			return
+		}
 		fmt.Printf("set %s = %s (%s)\n", args[1], strings.Join(args[2:], " "), reloadNote)
 	default:
+		if jsonMode {
+			failJSON("usage: utmstack_edr config show|get <key>|set <key> <value>")
+		}
 		fmt.Println("usage: utmstack_edr config show|get <key>|set <key> <value>")
 		os.Exit(1)
 	}
@@ -420,6 +453,9 @@ func setScanResource(cfg *config.EDRConfig, key, val string) error {
 
 func runAllow(args []string) {
 	if len(args) < 2 {
+		if jsonMode {
+			failJSON("usage: utmstack_edr allow path|process|command|network add|remove|list [value]")
+		}
 		fmt.Println("usage: utmstack_edr allow path|process|command|network add|remove|list [value]")
 		os.Exit(1)
 	}
@@ -438,12 +474,21 @@ func runAllow(args []string) {
 	case "network":
 		list = &cfg.Allowlist.Networks
 	default:
+		if jsonMode {
+			failJSON("category must be path|process|command|network")
+		}
 		fmt.Println("category must be path|process|command|network")
 		os.Exit(1)
 	}
 
 	switch action {
 	case "list":
+		if jsonMode {
+			items := make([]string, len(*list))
+			copy(items, *list)
+			emitJSON(true, "", map[string]interface{}{"category": category, "items": items})
+			return
+		}
 		if len(*list) == 0 {
 			fmt.Printf("(no user %s entries; built-in defaults still apply)\n", category)
 			return
@@ -453,6 +498,9 @@ func runAllow(args []string) {
 		}
 	case "add":
 		if len(args) < 3 {
+			if jsonMode {
+				failJSON("usage: utmstack_edr allow " + category + " add <value>")
+			}
 			fmt.Printf("usage: utmstack_edr allow %s add <value>\n", category)
 			os.Exit(1)
 		}
@@ -460,20 +508,34 @@ func runAllow(args []string) {
 		if category == "network" {
 			if _, errAddr := netip.ParseAddr(val); errAddr != nil {
 				if _, errPfx := netip.ParsePrefix(val); errPfx != nil {
+					if jsonMode {
+						failJSON("network entry must be an IP or CIDR")
+					}
 					fmt.Println("network entry must be an IP or CIDR")
 					os.Exit(1)
 				}
 			}
 		}
 		if containsFold(*list, val) {
+			if jsonMode {
+				emitJSON(true, "", map[string]interface{}{"category": category, "added": val, "already_present": true})
+				return
+			}
 			fmt.Printf("%s already allowlisted: %s\n", category, val)
 			return
 		}
 		*list = append(*list, val)
 		exitOn(config.Save(cfg))
+		if jsonMode {
+			emitJSON(true, "", map[string]interface{}{"category": category, "added": val, "already_present": false})
+			return
+		}
 		fmt.Printf("added %s allowlist: %s (%s)\n", category, val, reloadNote)
 	case "remove":
 		if len(args) < 3 {
+			if jsonMode {
+				failJSON("usage: utmstack_edr allow " + category + " remove <value>")
+			}
 			fmt.Printf("usage: utmstack_edr allow %s remove <value>\n", category)
 			os.Exit(1)
 		}
@@ -488,13 +550,23 @@ func runAllow(args []string) {
 			out = append(out, e)
 		}
 		if !removed {
+			if jsonMode {
+				failJSON("not found in " + category + " allowlist: " + val)
+			}
 			fmt.Printf("not found in %s allowlist: %s\n", category, val)
 			os.Exit(1)
 		}
 		*list = out
 		exitOn(config.Save(cfg))
+		if jsonMode {
+			emitJSON(true, "", map[string]interface{}{"category": category, "removed": val})
+			return
+		}
 		fmt.Printf("removed %s allowlist: %s (%s)\n", category, val, reloadNote)
 	default:
+		if jsonMode {
+			failJSON("action must be add|remove|list")
+		}
 		fmt.Println("action must be add|remove|list")
 		os.Exit(1)
 	}
@@ -504,6 +576,9 @@ func runAllow(args []string) {
 
 func runQuarantine(args []string) {
 	if len(args) == 0 {
+		if jsonMode {
+			failJSON("usage: utmstack_edr quarantine list|recover|restore <id>|purge <id>|purge --expired")
+		}
 		fmt.Println("usage: utmstack_edr quarantine list|recover|restore <id>|purge <id>|purge --expired")
 		os.Exit(1)
 	}
@@ -518,6 +593,11 @@ func runQuarantine(args []string) {
 		exitOn(err)
 		store, err := quarantine.New(cfg.QuarantineDir, c)
 		exitOn(err)
+		items, warnings := quarantineListData(c, store)
+		if jsonMode {
+			emitJSON(true, "", map[string]interface{}{"items": items, "warnings": warnings})
+			return
+		}
 		for _, r := range store.RecoveryStatus() {
 			if r.Status == "needs_attention" {
 				fmt.Printf("Recovery needed for %s (%s): %s\n", r.QuarantineID, r.OriginalPath, r.Detail)
@@ -550,27 +630,46 @@ func runQuarantine(args []string) {
 		exitOn(err)
 		results := store.RecoveryStatus()
 		if len(results) == 0 {
+			if jsonMode {
+				emitJSON(true, "", map[string]interface{}{"pending": false})
+				return
+			}
 			fmt.Println("No pending quarantine operations.")
 			return
 		}
 		pending := false
-		for _, r := range results {
+		items := make([]map[string]interface{}, len(results))
+		for i, r := range results {
 			operation := r.Operation
 			if operation == "" {
 				operation = "admission"
 			}
-			fmt.Printf("%s  %s  %s  %s\n", r.QuarantineID, operation, r.Status, r.Detail)
+			items[i] = map[string]interface{}{"id": r.QuarantineID, "operation": operation, "status": r.Status, "detail": r.Detail}
 			pending = pending || r.Status == "needs_attention"
+			if !jsonMode {
+				fmt.Printf("%s  %s  %s  %s\n", r.QuarantineID, operation, r.Status, r.Detail)
+			}
+		}
+		if jsonMode {
+			emitJSON(!pending, "", map[string]interface{}{"pending": pending, "items": items})
+			if pending {
+				os.Exit(1)
+			}
+			return
 		}
 		if pending {
 			os.Exit(1)
 		}
 	case "restore":
 		if len(args) < 2 {
+			if jsonMode {
+				failJSON("usage: utmstack_edr quarantine restore <id>")
+			}
 			fmt.Println("usage: utmstack_edr quarantine restore <id>")
 			os.Exit(1)
 		}
 		runRestore(args[1])
+		return
 	case "purge":
 		cfg, _ := config.Load()
 		c, err := cache.Open(config.DBFile)
@@ -581,19 +680,36 @@ func runQuarantine(args []string) {
 		if len(args) >= 2 && args[1] == "--expired" {
 			n, err := store.PurgeExpired(cfg.QuarantineDays, time.Now())
 			exitOn(err)
+			if jsonMode {
+				emitJSON(true, "", map[string]interface{}{"purged": n})
+				return
+			}
 			fmt.Printf("UTMStack EDR: purged %d expired quarantined item(s)\n", n)
 			return
 		}
 		if len(args) < 2 {
+			if jsonMode {
+				failJSON("usage: utmstack_edr quarantine purge <id> | purge --expired")
+			}
 			fmt.Println("usage: utmstack_edr quarantine purge <id> | purge --expired")
 			os.Exit(1)
 		}
 		if err := store.Purge(args[1]); err != nil {
+			if jsonMode {
+				failJSON("purge error: " + err.Error())
+			}
 			fmt.Println("purge error:", err)
 			os.Exit(1)
 		}
+		if jsonMode {
+			emitJSON(true, "", map[string]interface{}{"purged": args[1]})
+			return
+		}
 		fmt.Println("UTMStack EDR: purged", args[1])
 	default:
+		if jsonMode {
+			failJSON("usage: utmstack_edr quarantine list|recover|restore <id>|purge <id>|purge --expired")
+		}
 		fmt.Println("usage: utmstack_edr quarantine list|recover|restore <id>|purge <id>|purge --expired")
 		os.Exit(1)
 	}
@@ -603,6 +719,9 @@ func runQuarantine(args []string) {
 
 func exitOn(err error) {
 	if err != nil {
+		if jsonMode {
+			failJSON(err.Error())
+		}
 		fmt.Println("error:", err)
 		os.Exit(1)
 	}
@@ -655,6 +774,32 @@ func truncate(s string, n int) string {
 	return s[:n-1] + "…"
 }
 
+// quarantineListData builds the machine-readable quarantine list: one item per
+// record plus recovery warnings. It reads the store twice (recovery status and
+// the full list); callers own the cache and store lifecycle.
+func quarantineListData(c *cache.Cache, store *quarantine.Store) ([]map[string]interface{}, []string) {
+	var warnings []string
+	for _, r := range store.RecoveryStatus() {
+		if r.Status == "needs_attention" {
+			warnings = append(warnings, fmt.Sprintf("recovery needed for %s (%s): %s", r.QuarantineID, r.OriginalPath, r.Detail))
+		}
+	}
+	recs, _ := c.ListQuarantine()
+	items := make([]map[string]interface{}, len(recs))
+	for i, r := range recs {
+		items[i] = map[string]interface{}{
+			"id":            r.QuarantineID,
+			"date":          r.QuarantinedAt.Format("2006-01-02T15:04:05Z"),
+			"detection":     r.Detection,
+			"state":         quarState(r),
+			"raw_retained":  r.SourceCaptureDir != "" && !r.Purged,
+			"original_path": r.OriginalPath,
+		}
+	}
+	return items, warnings
+}
+
+// quarState renders a record's lifecycle state for the human table.
 func quarState(r cache.QuarantineRecord) string {
 	switch {
 	case r.Purged:
