@@ -181,7 +181,7 @@ public class DefinitionSyncService implements CommandLineRunner {
 
         try (Stream<Path> paths = Files.walk(filtersPath)) {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path))
-                 .forEach(path -> syncUnit(path, () -> processFilterFile(path, foundFilters), anyFailed));
+                 .forEach(path -> syncUnit(path, () -> processFilterFile(path, foundFilters, anyFailed), anyFailed));
         } catch (IOException e) {
             anyFailed.set(true);
             log.error("Error listing filters directory: {}", e.getMessage());
@@ -189,7 +189,7 @@ public class DefinitionSyncService implements CommandLineRunner {
         return foundFilters;
     }
 
-    private void processFilterFile(Path path, Set<Long> foundFilters) {
+    private void processFilterFile(Path path, Set<Long> foundFilters, AtomicBoolean anyFailed) {
         String content;
         try {
             content = Files.readString(path);
@@ -197,6 +197,10 @@ public class DefinitionSyncService implements CommandLineRunner {
             throw new UncheckedIOException("reading filter file", e);
         }
         if (content.isBlank()) {
+            // A blank file cannot register the identity of any existing system row it
+            // may correspond to; mark the category incomplete so cleanup is skipped
+            // rather than delete a live row.
+            anyFailed.set(true);
             log.warn("Skipping blank filter file: {}", path);
             return;
         }
@@ -205,6 +209,8 @@ public class DefinitionSyncService implements CommandLineRunner {
 
         String dataTypeStr = extractFirstDataType(yaml.load(content));
         if (dataTypeStr == null) {
+            // Same as above: no resolvable identity, so do not allow orphan cleanup.
+            anyFailed.set(true);
             log.warn("Skipping filter file without dataType: {}", path);
             return;
         }
@@ -221,6 +227,10 @@ public class DefinitionSyncService implements CommandLineRunner {
         }
 
         if (moduleName == null) {
+            // Unknown module means this file cannot be mapped to a row; mark the
+            // category incomplete so cleanup does not delete a live system row that
+            // happens to correspond to it.
+            anyFailed.set(true);
             log.error("module name for filter: {} with dataType: {} not found, ignoring...", path, dataTypeStr);
             return;
         }
@@ -258,9 +268,17 @@ public class DefinitionSyncService implements CommandLineRunner {
 
             log.info("Creating filter from file {} for module: {} and dataType {}", path, moduleName, dataTypeStr);
             filterService.save(filter);
-            // The id is assigned by the generator at persist time; capture it now (post
-            // save) so the orphaned-filter cleanup does not delete the row we just
-            // created.
+            // The id is assigned by the generator at persist time. Verify it was
+            // actually assigned before whitelisting the row: if it were null/absent
+            // the cleanup would see the new row as an orphan and delete it.
+            if (filter.getId() == null) {
+                anyFailed.set(true);
+                log.error("Created filter from file {} has no id after save; skipping "
+                        + "filter orphan cleanup to avoid deleting it.", path);
+                return;
+            }
+            // Capture it now (post save) so the orphaned-filter cleanup does not delete
+            // the row we just created.
             foundFilters.add(filter.getId());
         }
     }
@@ -275,7 +293,7 @@ public class DefinitionSyncService implements CommandLineRunner {
 
         try (Stream<Path> paths = Files.walk(rulesPath)) {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path))
-                 .forEach(path -> syncUnit(path, () -> processRuleFile(path, foundRules), anyFailed));
+                 .forEach(path -> syncUnit(path, () -> processRuleFile(path, foundRules, anyFailed), anyFailed));
         } catch (IOException e) {
             anyFailed.set(true);
             log.error("Error listing rules directory: {}", e.getMessage());
@@ -283,7 +301,7 @@ public class DefinitionSyncService implements CommandLineRunner {
         return foundRules;
     }
 
-    private void processRuleFile(Path path, Set<String> foundRules) {
+    private void processRuleFile(Path path, Set<String> foundRules, AtomicBoolean anyFailed) {
         String content;
         try {
             content = Files.readString(path);
@@ -305,6 +323,9 @@ public class DefinitionSyncService implements CommandLineRunner {
                     Map<String, Object> ruleMap = (Map<String, Object>) element;
                     rawRules.add(ruleMap);
                 } else {
+                    // Not a rule we can map to an identity: mark the category
+                    // incomplete so cleanup does not delete a live row.
+                    anyFailed.set(true);
                     log.warn("Skipping non-map rule entry in file: {}", path);
                 }
             }
@@ -317,6 +338,9 @@ public class DefinitionSyncService implements CommandLineRunner {
         for (Map<String, Object> rawRule : rawRules) {
             RuleYaml ruleYaml = mapToRuleYaml(rawRule);
             if (ruleYaml == null || ruleYaml.getName() == null) {
+                // Cannot map this entry to a rule identity; mark the category
+                // incomplete so cleanup does not delete a matching live system row.
+                anyFailed.set(true);
                 log.warn("Skipping invalid rule in file: {}", path);
                 continue;
             }
