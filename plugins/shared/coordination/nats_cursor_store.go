@@ -36,7 +36,7 @@ func NewNATSCursorStore(ctx context.Context, js jetstream.JetStream) (*NATSCurso
 }
 
 func (s *NATSCursorStore) Load(ctx context.Context, key string) (Cursor, error) {
-	entry, err := s.kv.Get(ctx, SanitizeKVKey(key))
+	entry, err := s.kv.Get(ctx, NatsToken(key))
 	if err != nil {
 		if errors.Is(err, jetstream.ErrKeyNotFound) {
 			return Cursor{}, ErrCursorNotFound
@@ -48,7 +48,7 @@ func (s *NATSCursorStore) Load(ctx context.Context, key string) (Cursor, error) 
 }
 
 func (s *NATSCursorStore) Save(ctx context.Context, key string, c Cursor) (Cursor, error) {
-	key = SanitizeKVKey(key)
+	key = NatsToken(key)
 	if c.Revision == 0 {
 		revision, err := s.kv.Create(ctx, key, c.Data)
 		if err != nil {

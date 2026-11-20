@@ -32,7 +32,7 @@ func jobStreamName(plugin string) string {
 }
 
 func jobSubject(plugin string, job Job) string {
-	return fmt.Sprintf("%s.%s.%s.%s", jobSubjectPrefix, plugin, SanitizeSubjectToken(job.TenantID), SanitizeSubjectToken(job.GroupName))
+	return fmt.Sprintf("%s.%s.%s.%s", jobSubjectPrefix, plugin, NatsToken(job.TenantID), NatsToken(job.GroupName))
 }
 
 func jobSubjectFilter(plugin string) string {

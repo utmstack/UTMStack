@@ -61,7 +61,7 @@ func NewNATSStoreWithBucket(ctx context.Context, js jetstream.JetStream, clock C
 }
 
 func (s *NATSStore) Acquire(ctx context.Context, key, holder string, ttl time.Duration) (Lease, error) {
-	key = SanitizeKVKey(key)
+	key = NatsToken(key)
 	acquiredAt := s.clock.Now()
 	data, err := json.Marshal(leaseValue{Holder: holder, AcquiredAt: acquiredAt})
 	if err != nil {
