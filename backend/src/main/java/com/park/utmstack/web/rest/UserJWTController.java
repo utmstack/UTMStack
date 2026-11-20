@@ -92,7 +92,10 @@ public class UserJWTController {
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String token = tokenProvider.createToken(authentication, loginVM.isRememberMe(), isAuth);
+        // Null-safe: rememberMe is an optional Boolean (absent in the JSON body).
+        // Auto-unboxing a null threw an NPE -> 500 for any client that omitted it.
+        // Boolean.TRUE.equals treats null as false (standard non-remember token).
+        String token = tokenProvider.createToken(authentication, Boolean.TRUE.equals(loginVM.isRememberMe()), isAuth);
 
         User user = userService.getUserWithAuthoritiesByLogin(loginVM.getUsername())
                 .orElseThrow(() -> new BadCredentialsException("Authentication failed: user '" + loginVM.getUsername() + "' not found"));
