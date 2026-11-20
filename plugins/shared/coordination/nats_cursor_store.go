@@ -37,14 +37,21 @@ func NewNATSCursorStore(ctx context.Context, js jetstream.JetStream) (*NATSCurso
 
 func (s *NATSCursorStore) Load(ctx context.Context, key string) (Cursor, error) {
 	entry, err := s.kv.Get(ctx, NatsToken(key))
-	if err != nil {
-		if errors.Is(err, jetstream.ErrKeyNotFound) {
-			return Cursor{}, ErrCursorNotFound
-		}
+	if err == nil {
+		return Cursor{Data: entry.Value(), Revision: entry.Revision()}, nil
+	}
+	if !errors.Is(err, jetstream.ErrKeyNotFound) {
 		return Cursor{}, err
 	}
 
-	return Cursor{Data: entry.Value(), Revision: entry.Revision()}, nil
+	// Cursors written before keys were encoded live under the raw name. Revision
+	// 0 makes the next Save create the encoded key, moving the position over
+	// instead of reseeding from now and leaving a gap.
+	legacy, lerr := s.kv.Get(ctx, key)
+	if lerr != nil {
+		return Cursor{}, ErrCursorNotFound
+	}
+	return Cursor{Data: legacy.Value()}, nil
 }
 
 func (s *NATSCursorStore) Save(ctx context.Context, key string, c Cursor) (Cursor, error) {
