@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/threatwinds/go-sdk v1.1.39
-	github.com/tidwall/gjson v1.20.4
+	github.com/tidwall/gjson v1.20.5
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
 )
