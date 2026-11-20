@@ -127,6 +127,35 @@ func (s Sensors) ProcessGuardOn() bool { return sensorOn(s.ProcessGuard) }
 func (s Sensors) AMSIOn() bool         { return sensorOn(s.AMSI) }
 func (s Sensors) BehavioralOn() bool   { return sensorOn(s.Behavioral) }
 
+// Behavior configures the fuzzy (X1) behavioral sensors that turn bulk file
+// activity into sub-suspend evidence. All knobs are structural (read once when
+// the guard is constructed). Zero or negative values select the defaults
+// listed on each field (see the sensor files under edr/ransomware/).
+type Behavior struct {
+	MassRateWindowMs  int `json:"mass_rate_window_ms,omitempty"`  // default 5000; sliding window for the write-rate sensor
+	MassRateMinWrites int `json:"mass_rate_min_writes,omitempty"` // default 25; writes in-window that trip mass_rate
+	ChurnWindowMs     int `json:"churn_window_ms,omitempty"`      // default 5000; sliding window for the extension-churn sensor
+	ChurnMinDistinct  int `json:"churn_min_distinct,omitempty"`   // default 5; distinct files that must acquire new extensions in-window
+	ChurnMinRenames   int `json:"churn_min_renames,omitempty"`    // default 10; acquisition events in-window
+	EntropySampleSize int `json:"entropy_sample_size,omitempty"`  // default 4096; bytes sampled per offset
+	EntropySampleOffsets int `json:"entropy_sample_offsets,omitempty"` // default 4; sample offsets across the rewritten file
+	EntropyBitsPerByte float64 `json:"entropy_bits_per_byte,omitempty"` // default 7.5; Shannon entropy (bits/byte) that trips entropy
+	RansomNoteExts    []string `json:"ransom_note_exts,omitempty"` // extra note extensions (e.g. ".h2w"); always fires on the built-in name forms
+	CooldownMs        int      `json:"cooldown_ms,omitempty"`      // default 10000; a sensor that fired for a PID stays quiet this long
+	FuzzyWeight       int      `json:"fuzzy_weight,omitempty"`     // default 35; evidence weight of each fuzzy sensor, sub-suspend by design
+}
+
+// FuzzyWeightOf returns the configured per-sensor evidence weight. Zero/negative
+// selects the default (35), which stays below the default suspend threshold (50)
+// so a single sensor can never escalate on its own — the scorer's kind-diversity
+// bonus is what lets several agree.
+func (b Behavior) FuzzyWeightOf() int {
+	if b.FuzzyWeight > 0 {
+		return b.FuzzyWeight
+	}
+	return 35
+}
+
 // RansomwareConfig configures the behavioral ransomware guard (v1 core).
 type RansomwareConfig struct {
 	Enabled          bool     `json:"enabled"`
@@ -136,6 +165,9 @@ type RansomwareConfig struct {
 	SuspendThreshold int      `json:"suspend_threshold"`  // score to suspend a suspect
 	KillThreshold    int      `json:"kill_threshold"`     // score to kill+quarantine
 	DecayHalfLifeMs  int      `json:"decay_half_life_ms"` // per-PID score half-life
+	// Behavior carries the fuzzy (X1) sensor tuning: write-rate, extension churn,
+	// entropy sampling, ransom-note matching, cooldown and evidence weight.
+	Behavior Behavior `json:"behavior"`
 	// CommandAllowlist is DEPRECATED — migrated into Allowlist.Commands by Load()
 	// and no longer written by Save(). Kept only so existing edr.json files that
 	// still carry it keep working.
@@ -331,6 +363,7 @@ func Default() EDRConfig {
 			KillThreshold:    100,
 			DecayHalfLifeMs:  10000,
 			UseETW:           true,
+			Behavior:         Behavior{MassRateWindowMs: 5000, MassRateMinWrites: 25, ChurnWindowMs: 5000, ChurnMinDistinct: 5, ChurnMinRenames: 10, EntropySampleSize: 4096, EntropySampleOffsets: 4, EntropyBitsPerByte: 7.5, CooldownMs: 10000, FuzzyWeight: 35},
 		},
 		Blocklist: BlocklistConfig{
 			Enabled:            true,

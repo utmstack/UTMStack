@@ -110,6 +110,7 @@ type Guard struct {
 	cfg         config.EDRConfig
 	deps        GuardDeps
 	scorer      *Scorer
+	sensors     *SensorSet // the four fuzzy (X1) write sensors
 	feedHealthy atomic.Bool
 	fmu         sync.RWMutex
 	liveFeed    FileActivityFeed
@@ -174,11 +175,30 @@ func NewGuard(deps GuardDeps) *Guard {
 	sc := NewScorer(float64(rc.SuspendThreshold), float64(rc.KillThreshold), half, deps.Now)
 	return &Guard{
 		cfg: deps.Cfg, deps: deps, scorer: sc,
+		sensors: NewSensorSet(deps.Cfg, deps.Now, nil),
 		responseMode: rc.ResponseMode,
 		commands:     deps.Cfg.Allowlist.Commands,
 		contained:    map[int]containedMark{},
 		suspended:    map[int]int64{},
 	}
+}
+
+// genOfFE resolves the process generation for a file event so that fuzzy
+// sensor evidence lands in the same scorer state as the canary evidence from
+// the same PID. On Windows the ETW feed always sets OSIdentity (the native
+// birth); when it does not (Linux fanotify), fall back to the table's
+// StartTS. Returns 0 when unknown, matching the canary path.
+func (g *Guard) genOfFE(fe FileEvent) int64 {
+	if fe.OSIdentity > 0 {
+		return fe.OSIdentity
+	}
+	if fe.IdentityRequired {
+		return 0
+	}
+	if p, ok := g.deps.Table.Get(fe.PID); ok {
+		return p.StartTS
+	}
+	return 0
 }
 
 // isContained reports whether pid has an in-flight response or a retained
@@ -274,11 +294,68 @@ func (g *Guard) OnProcStart(pid, ppid int, image, cmdline string, gen int64) {
 	g.handle(g.scorer.Add(ev), culprit)
 }
 
+// OnRegistryEvent runs the registry recovery-tamper sensor for a per-process
+// registry mutation (Windows-only Kernel-Registry feed). A mutating op on a
+// key whose name matches a recovery-disabling pattern is T1490-via-registry
+// evidence. Trusted and contained processes are ignored, matching the file
+// path. No-op when the event is not on a sensitive key.
+func (g *Guard) OnRegistryEvent(re RegistryEvent) {
+	if !g.cfg.Ransomware.Enabled || re.PID <= 0 || !isSensitiveKey(re.Key) {
+		return
+	}
+	if g.isTrusted(re.PID) || g.isContained(re.PID) {
+		return
+	}
+	ev := Evidence{PID: re.PID, Gen: g.genOf(re.PID, 0), Kind: KindRegistryTamper,
+		Weight: DefaultWeights[KindRegistryTamper], Detail: re.Key, TS: g.deps.Now()}
+	g.handle(g.scorer.Add(ev), re.PID)
+}
+
 // OnFileEvent runs the canary sensor for a per-process file op. Only an op that
 // modifies the canary is evidence; opening or reading one is not.
+//
+// Before the canary early-return, every attributed modifying event is fanned
+// out to the four fuzzy sensors. The sensors are the general detectors:
+// they live wherever B's feed delivers attributed modifying events (Windows
+// ETW Kernel-File on every write/rename/delete/setinfo; Linux fanotify on the
+// attributed write stream). The canary path is byte-for-byte unchanged.
 func (g *Guard) OnFileEvent(fe FileEvent) {
 	if !g.cfg.Ransomware.Enabled || !fe.Op.Modifying() {
 		return
+	}
+	// Fuzzy (X1) sensors see every attributed modifying event. They are
+	// intentionally fed before the canary early-return so that non-canary
+	// activity still accumulates into per-PID risk. The trusted/contained gate
+	// mirrors the canary path for the same event, so a trusted writer under a
+	// watched directory can never escalate via the sensors.
+	if fe.PID > 0 {
+		if fe.IdentityRequired || fe.OSIdentity > 0 {
+			// Identity-pinned event (Windows ETW): the attributed actor is the
+			// observed process, so trusted/contained are checked on its identity.
+			p := proctable.Proc{PID: fe.PID, PPID: fe.PPID, Image: fe.Image, Cmdline: fe.Cmdline, OSIdentity: fe.OSIdentity, IdentityRequired: true}
+			if prior, ok := g.deps.Table.Get(fe.PID); ok && prior.OSIdentity == fe.OSIdentity {
+				p.StartTS = prior.StartTS
+				if p.Image == "" {
+					p.Image = prior.Image
+				}
+			}
+			if p.Image != "" && g.deps.Trusted != nil && g.deps.Trusted(p.Image) {
+				return
+			}
+			if g.isContainedObservation(p) {
+				return
+			}
+		} else if g.isTrusted(fe.PID) || g.isContained(fe.PID) {
+			// Table-attributed event (Linux fanotify): check the numeric PID.
+			return
+		}
+	}
+	gen := g.genOfFE(fe)
+	for _, evd := range g.sensors.Record(fe) {
+		if evd.Gen == 0 {
+			evd.Gen = gen
+		}
+		g.handle(g.scorer.Add(*evd), fe.PID)
 	}
 	if !g.isCanaryEvent(fe) {
 		return // v1: only canary tampering produces evidence from the file stream

@@ -127,6 +127,12 @@ func boundedKind(k SignalKind) (SignalKind, bool) {
 		return KindEntropyPlaceholder, true
 	case KindExtChurnPlaceholder:
 		return KindExtChurnPlaceholder, true
+	case KindMassRate:
+		return KindMassRate, true
+	case KindRansomNote:
+		return KindRansomNote, true
+	case KindRegistryTamper:
+		return KindRegistryTamper, true
 	default:
 		return "", false
 	}

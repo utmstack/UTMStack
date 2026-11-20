@@ -594,7 +594,18 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 			} else {
 				checks = append(checks, unverifiedFeed{})
 			}
+			// Windows-only: the Kernel-Registry ETW feed delivers per-process
+			// registry mutations for the recovery-tamper sensor. Its health is
+			// folded into the same ransomware sensor-health aggregate as the file
+			// feed; on non-Windows the feed is a healthy no-op.
+			regFeed := ransomware.NewRegistryFeed()
+			if h, ok := regFeed.(interface{ Health() error }); ok {
+				checks = append(checks, h)
+			} else {
+				checks = append(checks, unverifiedFeed{})
+			}
 			p.sensorHealth["ransomware"] = checks
+			p.goNative("ransomware-registry", func() { _ = regFeed.Run(ctx, func(re ransomware.RegistryEvent) { rwGuard.OnRegistryEvent(re) }) })
 			p.goNative("ransomware", func() { _ = rwGuard.Run(ctx, fileFeed, selfPID, ex.Excluded) })
 		}
 	}
