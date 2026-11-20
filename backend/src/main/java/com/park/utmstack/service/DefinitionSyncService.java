@@ -308,16 +308,31 @@ public class DefinitionSyncService implements CommandLineRunner {
         } catch (IOException e) {
             throw new UncheckedIOException("reading rule file", e);
         }
+        if (content.isBlank()) {
+            // A blank rule file cannot register the identities of any rules it
+            // previously held; mark the category incomplete so cleanup is skipped
+            // rather than deleting live system rows.
+            anyFailed.set(true);
+            log.warn("Skipping blank rule file: {}", path);
+            return;
+        }
 
         Yaml yaml = safeYaml();
         Object yamlObj = yaml.load(content);
         List<Map<String, Object>> rawRules = new ArrayList<>();
 
         if (yamlObj instanceof List) {
+            List<?> list = (List<?>) yamlObj;
+            if (list.isEmpty()) {
+                // An empty list maps to no rule identities at all.
+                anyFailed.set(true);
+                log.warn("Skipping rule file with an empty rule list: {}", path);
+                return;
+            }
             // Per-element type check: a list whose elements are not maps (e.g. a list of
             // scalars) must not abort the file with a ClassCastException — skip those
             // entries instead so the remaining valid rules still sync.
-            for (Object element : (List<?>) yamlObj) {
+            for (Object element : list) {
                 if (element instanceof Map) {
                     @SuppressWarnings("unchecked")
                     Map<String, Object> ruleMap = (Map<String, Object>) element;
@@ -333,6 +348,13 @@ public class DefinitionSyncService implements CommandLineRunner {
             @SuppressWarnings("unchecked")
             Map<String, Object> ruleMap = (Map<String, Object>) yamlObj;
             rawRules.add(ruleMap);
+        } else {
+            // null (unparseable / comment-only document), a scalar, or any other
+            // unsupported YAML root: it cannot be mapped to rule identities, so mark
+            // the category incomplete rather than let cleanup delete live rows.
+            anyFailed.set(true);
+            log.warn("Skipping rule file with unsupported YAML root: {}", path);
+            return;
         }
 
         for (Map<String, Object> rawRule : rawRules) {
