@@ -27,14 +27,10 @@ func v11UserUUID(v11ID int64) string {
 }
 
 func mapRoleID(authority string) string {
-	switch authority {
-	case "ROLE_ADMIN":
+	if authority == "ROLE_ADMIN" {
 		return roleAdminID
-	case "ROLE_USER":
-		return roleAnalystID
-	default:
-		return roleViewerID
 	}
+	return roleViewerID
 }
 
 func convertUsers(db *gorm.DB) error {

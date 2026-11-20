@@ -74,5 +74,5 @@ func Run(db *gorm.DB, cnf Config) error {
 		return err
 	}
 
-	return cleanupOrphans(db)
+	return cleanupOrphans(db, cnf)
 }
