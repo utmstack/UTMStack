@@ -48,6 +48,7 @@ type program struct {
 	rwGuard        *ransomware.Guard   // set by startPipeline; read by writeStatus
 	netblock       *netblock.Manager   // set by startPipeline; read by writeStatus
 	sigFeed        *feed.Feed          // set by startPipeline; read by writeStatus
+	quarantine     *cache.Cache        // set by startPipeline; read by writeStatus
 	schedule       *scheduled.Scheduler
 	scanQueue      *orchestrator.Orchestrator
 	eventSpool     *event.Spool
@@ -149,6 +150,14 @@ type statusDoc struct {
 	AllowPaths         int  `json:"allowlist_paths"`
 	AllowProcesses     int  `json:"allowlist_processes"`
 	AllowCommands      int  `json:"allowlist_commands"`
+	// Allowlist entry arrays + quarantine items are the backend-facing view
+	// (backend/modules/edr usecase statusJSON): the int counts above stay for
+	// compatibility, these carry the actual entries so the platform can list
+	// them and drive restore/purge actions.
+	AllowlistPaths     []string         `json:"allowlist_paths_entries,omitempty"`
+	AllowlistProcesses []string         `json:"allowlist_processes_entries,omitempty"`
+	AllowlistCommands  []string         `json:"allowlist_commands_entries,omitempty"`
+	QuarantineItems    []quarantineItem `json:"quarantine_items,omitempty"`
 
 	// Effective native scan budgets. Legacy resident/reload status fields are
 	// observed engine-loaded state and atomic-reload support, not RAM guarantees.
@@ -162,6 +171,18 @@ type statusDoc struct {
 	EngineMaxScanTimeMS int    `json:"engine_max_scan_time_ms"`
 	EngineReload        bool   `json:"engine_concurrent_reload"`
 	EngineTuningNote    string `json:"engine_tuning_note"`
+}
+
+// quarantineItem mirrors backend/modules/edr/dto.QuarantineItem for the
+// agent status contract. agentId/hostname are filled in by the backend from
+// the reporting endpoint; the agent only reports per-file fields.
+type quarantineItem struct {
+	ID            string `json:"id"`
+	OriginalPath  string `json:"originalPath"`
+	SHA256        string `json:"sha256"`
+	Detection     string `json:"detection"`
+	QuarantinedAt string `json:"quarantinedAt"`
+	Restorable    bool   `json:"restorable"`
 }
 
 func (p *program) run(ctx context.Context) {
@@ -302,6 +323,34 @@ func unknownRuleStatus(doc *statusDoc, byReason map[string]int) {
 	doc.SignatureUnknownByReason = byReason
 }
 
+// emitSensorStates reports the effective on/off state of each structural sensor
+// to the spool at pipeline start. Because sensor toggles are not hot-reloaded
+// (they take effect on the next service start), this is the single moment a
+// config change is "applied"; the sensor_switched_off rule keys on verdict=off,
+// so only explicitly-disabled sensors produce a report the rule can match.
+func (p *program) emitSensorStates(sp *event.Spool, cfg config.EDRConfig) {
+	if sp == nil {
+		return
+	}
+	sensors := []struct {
+		name  string
+		on    bool
+		state string
+	}{
+		{"file_watcher", cfg.Sensors.FileWatcherOn(), "off"},
+		{"process_guard", cfg.Sensors.ProcessGuardOn(), "off"},
+		{"amsi", cfg.Sensors.AMSIOn(), "off"},
+		{"behavioral", cfg.Sensors.BehavioralOn(), "off"},
+	}
+	for _, s := range sensors {
+		if !s.on {
+			if js, err := event.NewConfigChangeEvent(s.name, s.state).ToJSON(); err == nil {
+				_ = sp.Append(js)
+			}
+		}
+	}
+}
+
 func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.Manager, rwGuard *ransomware.Guard, nb *netblock.Manager, sf *feed.Feed, p *program) {
 	ver := eng.Version()
 	healthy := ver != ""
@@ -334,6 +383,23 @@ func writeStatus(cfg config.EDRConfig, eng *engine.Engine, canaries *ransomware.
 		AllowPaths:            len(cfg.Allowlist.Paths),
 		AllowProcesses:        len(cfg.Allowlist.Processes),
 		AllowCommands:         len(cfg.Allowlist.Commands),
+		AllowlistPaths:        cfg.Allowlist.Paths,
+		AllowlistProcesses:    cfg.Allowlist.Processes,
+		AllowlistCommands:     cfg.Allowlist.Commands,
+	}
+	if p.quarantine != nil {
+		if recs, err := p.quarantine.ListQuarantine(); err == nil {
+			for _, r := range recs {
+				doc.QuarantineItems = append(doc.QuarantineItems, quarantineItem{
+					ID:            r.QuarantineID,
+					OriginalPath:  r.OriginalPath,
+					SHA256:        r.SHA256,
+					Detection:     r.Detection,
+					QuarantinedAt: r.QuarantinedAt.Format("2006-01-02 15:04:05"),
+					Restorable:    r.Restorable && !r.Restored && !r.Purged,
+				})
+			}
+		}
 	}
 	if p.amsiRegistered && p.amsiPipe != nil && p.amsiPipe.Health() == nil {
 		doc.AMSILocalReady = true
@@ -421,6 +487,18 @@ func (p *program) startPipeline(ctx context.Context, cfg config.EDRConfig, c *ca
 		return
 	}
 	p.eventSpool = sp
+	p.quarantine = c
+	// Engine health signals (scan_engine_down / scan_engine_restart_failed) are
+	// reported to the spool from Supervise's 30s health check.
+	p.eng.SetEventSink(func(signature string) {
+		if js, err := event.NewHealthEvent(signature).ToJSON(); err == nil {
+			_ = sp.Append(js)
+		}
+	})
+	// Sensors are structural (applied at pipeline start, not hot-reloaded): report
+	// any that are explicitly disabled so the sensor_switched_off rule can flag
+	// a blinded endpoint at the moment the config takes effect.
+	p.emitSensorStates(sp, cfg)
 	scanCfg, backgroundLimit := backgroundScanConfig(cfg, p.eng.Tuning().MaxThreads)
 	p.backgroundCap = backgroundLimit
 	sc := scanner.New(scanCfg, c, sp, store, p.eng)

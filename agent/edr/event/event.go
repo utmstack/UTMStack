@@ -29,6 +29,8 @@ const (
 
 	ActionRansomwareSuspected = "ransomware_suspected"
 	ActionRansomwareContained = "ransomware_contained"
+	ActionConfigChange        = "config_change"
+	ActionQuarantineRestore   = "quarantined_restored"
 	// ActionRansomwareContainFailed replaces ActionRansomwareContained when the
 	// kill step did not fully succeed: the culprit itself was not terminated,
 	// or quarantining its image failed.
@@ -44,6 +46,46 @@ func NewAMSIEvent(action, verdict, signature, appName string) Event {
 		Verdict:    verdict,
 		Signature:  SanitizeName(signature),
 		ObjectPath: appName,
+	}
+}
+
+// NewHealthEvent builds a branded engine health event. signature is the
+// machine-readable health signal, e.g. "scan_engine_down" or
+// "scan_engine_restart_failed".
+func NewHealthEvent(signature string) Event {
+	return Event{
+		Source:    SourceEngine,
+		Action:    ActionHealth,
+		Signature: signature,
+		Severity:  "warning",
+	}
+}
+
+// NewConfigChangeEvent reports a sensor toggle (config change). state is the
+// new state, "on" or "off". The platform's sensor_switched_off rule matches
+// signature=sensor_toggled verdict=off.
+func NewConfigChangeEvent(sensor, state string) Event {
+	return Event{
+		Source:     SourceEngine,
+		Action:     ActionConfigChange,
+		Signature:  "sensor_toggled",
+		Verdict:    state,
+		ObjectPath: sensor,
+		Severity:   "info",
+	}
+}
+
+// NewQuarantineRestoreEvent records a quarantined file being released back to
+// its original path. It is an audit record: originalPath and sha256 identify
+// the item, quarantineID ties it to the original quarantine event.
+func NewQuarantineRestoreEvent(originalPath, sha256, quarantineID string) Event {
+	return Event{
+		Source:     SourceEngine,
+		Action:     ActionQuarantineRestore,
+		ObjectPath: originalPath,
+		FileHash:   sha256,
+		Signature:  quarantineID,
+		Severity:   "info",
 	}
 }
 

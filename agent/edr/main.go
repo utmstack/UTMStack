@@ -193,5 +193,12 @@ func runRestore(id string) {
 		fmt.Println("restore error:", err)
 		os.Exit(1)
 	}
+	rec, _, _ := c.GetQuarantine(id)
+	if sp, spErr := event.OpenSpool(config.SpoolFile, 8<<20); spErr == nil {
+		defer sp.Close()
+		if js, jErr := event.NewQuarantineRestoreEvent(rec.OriginalPath, rec.SHA256, id).ToJSON(); jErr == nil {
+			_ = sp.Append(js)
+		}
+	}
 	fmt.Println("UTMStack EDR: restored", id)
 }

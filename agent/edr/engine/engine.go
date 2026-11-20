@@ -399,9 +399,38 @@ type Engine struct {
 	tuningOnce sync.Once
 	tuning     Tuning
 	slots      chan struct{}
+
+	// eventSink reports engine-health signals to the spool; set by the
+	// service before Supervise runs. nil in tests.
+	eventSink func(signature string)
+	// restartEngine is the action taken when the engine is found down; set to
+	// EnsureRunning in production and injectable in tests (fault seam, like
+	// the quarantine store's admissionFault/restoreFault).
+	restartEngine func() error
+	// runningSeen tracks the last-observed healthy state so checkHealth only
+	// emits scan_engine_down on a genuine up→down transition, not at boot.
+	runningSeen bool
 }
 
 func New(cfg config.EDRConfig) *Engine { return &Engine{cfg: cfg} }
+
+// SetEventSink wires the spool sink used to report engine-health signals
+// (scan_engine_down / scan_engine_restart_failed). Must be called before
+// Supervise starts.
+func (e *Engine) SetEventSink(sink func(signature string)) {
+	e.mu.Lock()
+	e.eventSink = sink
+	e.mu.Unlock()
+}
+
+func (e *Engine) emitHealth(signature string) {
+	e.mu.Lock()
+	sink := e.eventSink
+	e.mu.Unlock()
+	if sink != nil {
+		sink(signature)
+	}
+}
 func (e *Engine) Tuning() Tuning {
 	e.tuningOnce.Do(func() {
 		e.tuning = PlanTuning(e.cfg)
@@ -968,10 +997,38 @@ func (e *Engine) Supervise(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			if e.current.Load() == nil {
-				_ = e.EnsureRunning()
-			}
+			e.checkHealth()
 		}
 	}
+}
+
+// checkHealth runs one 30s health-check cycle: restart the engine when it is
+// down and report the transition (scan_engine_down) and any failed restart
+// (scan_engine_restart_failed). It only emits scan_engine_down when the engine
+// was previously running, so a boot-time failure that never had a working
+// generation is reported once as restart_failed, not down-then-failed.
+func (e *Engine) checkHealth() {
+	if e.current.Load() == nil {
+		e.mu.Lock()
+		wasRunning := e.runningSeen
+		e.mu.Unlock()
+		if wasRunning {
+			e.emitHealth("scan_engine_down")
+		}
+		if e.restartEngine == nil {
+			if err := e.EnsureRunning(); err != nil {
+				e.emitHealth("scan_engine_restart_failed")
+			}
+		} else if err := e.restartEngine(); err != nil {
+			e.emitHealth("scan_engine_restart_failed")
+		}
+		e.mu.Lock()
+		e.runningSeen = e.current.Load() != nil
+		e.mu.Unlock()
+		return
+	}
+	e.mu.Lock()
+	e.runningSeen = true
+	e.mu.Unlock()
 }
 func (e *Engine) Stop() error { e.current.Store(nil); return nil }
