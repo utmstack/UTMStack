@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -122,10 +123,11 @@ public class DefinitionSyncService implements CommandLineRunner {
      * the whole file, which the lazy association reads (e.g.
      * {@code UtmDataTypes.getModule()}) require.
      */
-    private void syncUnit(Path path, Runnable work) {
+    private void syncUnit(Path path, Runnable work, AtomicBoolean anyFailed) {
         try {
             txTemplate.executeWithoutResult(status -> work.run());
         } catch (Exception e) {
+            anyFailed.set(true);
             log.error("Error syncing definition file {}: {}", path, e.getMessage(), e);
         }
     }
@@ -134,11 +136,30 @@ public class DefinitionSyncService implements CommandLineRunner {
     public void run(String... args) {
         log.info("Starting definition sync from filesystem... ---");
         try {
-            Set<Long> filesystemFilters = syncFilters();
-            Set<String> filesystemRules = syncRules();
+            AtomicBoolean filtersFailed = new AtomicBoolean(false);
+            AtomicBoolean rulesFailed = new AtomicBoolean(false);
 
-            cleanupOrphanedFilters(filesystemFilters);
-            cleanupOrphanedRules(filesystemRules);
+            Set<Long> filesystemFilters = syncFilters(filtersFailed);
+            Set<String> filesystemRules = syncRules(rulesFailed);
+
+            // Orphan cleanup is DESTRUCTIVE: it deletes any system row whose id/name is
+            // not in the just-synced set. It must therefore only run when the scan of
+            // that category is COMPLETE. If any file failed to process, the found set is
+            // partial and a live row could look orphaned and be deleted. Skip cleanup on
+            // a partial view (the safe direction: leave a stale row in place) and log it.
+            if (filtersFailed.get()) {
+                log.warn("Skipping filter orphan cleanup: at least one filter definition "
+                        + "file failed to sync, so the discovered-filter set is incomplete.");
+            } else {
+                cleanupOrphanedFilters(filesystemFilters);
+            }
+
+            if (rulesFailed.get()) {
+                log.warn("Skipping rule orphan cleanup: at least one rule definition "
+                        + "file failed to sync, so the discovered-rule set is incomplete.");
+            } else {
+                cleanupOrphanedRules(filesystemRules);
+            }
 
             log.info("Definition sync completed successfully. ---");
         } catch (Exception e) {
@@ -150,7 +171,7 @@ public class DefinitionSyncService implements CommandLineRunner {
         }
     }
 
-    private Set<Long> syncFilters() {
+    private Set<Long> syncFilters(AtomicBoolean anyFailed) {
         Set<Long> foundFilters = new HashSet<>();
         Path filtersPath = Paths.get(".", Constants.APP_FILTER_DEFINITIONS);
         if (!Files.exists(filtersPath) || !Files.isDirectory(filtersPath)) {
@@ -160,8 +181,9 @@ public class DefinitionSyncService implements CommandLineRunner {
 
         try (Stream<Path> paths = Files.walk(filtersPath)) {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path))
-                 .forEach(path -> syncUnit(path, () -> processFilterFile(path, foundFilters)));
+                 .forEach(path -> syncUnit(path, () -> processFilterFile(path, foundFilters), anyFailed));
         } catch (IOException e) {
+            anyFailed.set(true);
             log.error("Error listing filters directory: {}", e.getMessage());
         }
         return foundFilters;
@@ -243,7 +265,7 @@ public class DefinitionSyncService implements CommandLineRunner {
         }
     }
 
-    private Set<String> syncRules() {
+    private Set<String> syncRules(AtomicBoolean anyFailed) {
         Set<String> foundRules = new HashSet<>();
         Path rulesPath = Paths.get(".", Constants.APP_RULE_DEFINITIONS);
         if (!Files.exists(rulesPath) || !Files.isDirectory(rulesPath)) {
@@ -253,8 +275,9 @@ public class DefinitionSyncService implements CommandLineRunner {
 
         try (Stream<Path> paths = Files.walk(rulesPath)) {
             paths.filter(path -> Files.isRegularFile(path) && isYamlFile(path))
-                 .forEach(path -> syncUnit(path, () -> processRuleFile(path, foundRules)));
+                 .forEach(path -> syncUnit(path, () -> processRuleFile(path, foundRules), anyFailed));
         } catch (IOException e) {
+            anyFailed.set(true);
             log.error("Error listing rules directory: {}", e.getMessage());
         }
         return foundRules;
@@ -273,9 +296,22 @@ public class DefinitionSyncService implements CommandLineRunner {
         List<Map<String, Object>> rawRules = new ArrayList<>();
 
         if (yamlObj instanceof List) {
-            rawRules.addAll((List<Map<String, Object>>) yamlObj);
+            // Per-element type check: a list whose elements are not maps (e.g. a list of
+            // scalars) must not abort the file with a ClassCastException — skip those
+            // entries instead so the remaining valid rules still sync.
+            for (Object element : (List<?>) yamlObj) {
+                if (element instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> ruleMap = (Map<String, Object>) element;
+                    rawRules.add(ruleMap);
+                } else {
+                    log.warn("Skipping non-map rule entry in file: {}", path);
+                }
+            }
         } else if (yamlObj instanceof Map) {
-            rawRules.add((Map<String, Object>) yamlObj);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> ruleMap = (Map<String, Object>) yamlObj;
+            rawRules.add(ruleMap);
         }
 
         for (Map<String, Object> rawRule : rawRules) {
