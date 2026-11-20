@@ -14,6 +14,7 @@ type PhaseResult struct {
 type Score struct {
 	AlertID    string                 `json:"alertId"`
 	AlertName  string                 `json:"alertName"`
+	ParentID   string                 `json:"parentId,omitempty"`
 	FinalScore int                    `json:"finalScore"`
 	Decision   string                 `json:"decision"`
 	Weights    map[string]float64     `json:"weights"`
