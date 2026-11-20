@@ -1,6 +1,8 @@
 package upgrade
 
 import (
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -11,8 +13,10 @@ import (
 // database: tables only v11 created, sequences whose owning table was dropped,
 // and views still built over v11 tables. Run calls it only after every
 // converter succeeded in the same invocation, so it never deletes v11 source
-// tables that were not converted.
-func cleanupOrphans(db *gorm.DB) error {
+// tables that were not converted. It also removes the v11 YAML files the old
+// event processor left at the rules/filters roots; v12 only reads the
+// system/ and user/ subdirectories.
+func cleanupOrphans(db *gorm.DB, cnf Config) error {
 	tables, err := v11TableList(db)
 	if err != nil {
 		return err
@@ -57,8 +61,57 @@ func cleanupOrphans(db *gorm.DB) error {
 		return err
 	}
 
+	removed, err := removeV11Files(cnf.RulesDir, cnf.FiltersDir)
+	if err != nil {
+		return err
+	}
+
+	catcher.Info("v11 upgrade: rules and filters cleaned", map[string]any{"files": removed})
 	catcher.Info("v11 upgrade: orphans cleaned", map[string]any{"tables": len(tables), "sequences": len(seqs), "views": len(views)})
 	return nil
+}
+
+// removeV11Files deletes the numeric-named <id>.yaml files the v11 event
+// processor wrote at the rules and filters roots. v12 never creates a file at
+// those roots (the stores only write under system/ and user/), so the
+// numeric-name pattern uniquely identifies v11 leftovers; subdirectories are
+// never touched.
+func removeV11Files(dirs ...string) (int, error) {
+	removed := 0
+	for _, dir := range dirs {
+		if dir == "" {
+			continue
+		}
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return removed, fmt.Errorf("read %s: %w", dir, err)
+		}
+		for _, e := range entries {
+			if !e.Type().IsRegular() || !v11FileName(e.Name()) {
+				continue
+			}
+			if err := os.Remove(dir + string(os.PathSeparator) + e.Name()); err != nil {
+				return removed, fmt.Errorf("remove %s/%s: %w", dir, e.Name(), err)
+			}
+			removed++
+		}
+	}
+	return removed, nil
+}
+
+func v11FileName(name string) bool {
+	if len(name) <= 5 || !strings.HasSuffix(name, ".yaml") {
+		return false
+	}
+	for _, c := range name[:len(name)-len(".yaml")] {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 func v11TableList(db *gorm.DB) ([]string, error) {
