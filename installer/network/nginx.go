@@ -19,13 +19,13 @@ func InstallNginx(distro string) error {
 	case config.RequiredDistroUbuntu, config.RequiredDistroDebian:
 		env := []string{"DEBIAN_FRONTEND=noninteractive"}
 
-		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "nginx"); err != nil {
+		if err := utils.RunEnvCmd(env, "apt-get", "install", "-y", "nginx=1.24.0-*"); err != nil {
 			return err
 		}
 	case config.RequiredDistroRHEL:
 		env := []string{"DNF_YUM_AUTO_YES=1"}
 
-		if err := utils.RunEnvCmd(env, "dnf", "install", "-y", "nginx"); err != nil {
+		if err := utils.RunEnvCmd(env, "dnf", "install", "-y", "nginx-1.24.0*"); err != nil {
 			return err
 		}
 	}
