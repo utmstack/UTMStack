@@ -28,11 +28,16 @@ type RansomNoteSensor struct {
 }
 
 // strongNoteTokens are exact (or prefix) names that identify a ransom note
-// on their own, on any extension.
+// on their own, on any extension. "bitcoin" stays strong: it is not a common
+// legitimate filename token. "wallet" and "payment" are deliberately NOT
+// strong — they appear in browser wallet caches, e-commerce flows, and
+// crypto tools, so they fire only on text-like extensions via
+// weakNoteTokens below.
 var strongNoteTokens = []string{
 	"howto", "h0wt0", "readme", "read_me",
 	"recover", "recovery", "decrypt", "decryption",
-	"restore", "ransom", "payment",
+	"restore", "ransom", "bitcoin",
+	"we_have", "all_your", "your_files", "h2w",
 }
 
 // weakNoteTokens identify a note only when the file is text-like — these
@@ -40,6 +45,7 @@ var strongNoteTokens = []string{
 var weakNoteTokens = []string{
 	"instructions", "warning", "notice", "message", "info",
 	"please", "important", "urgent",
+	"wallet", "payment",
 }
 
 // defaultTextExts are extensions a note is plausibly written in.
