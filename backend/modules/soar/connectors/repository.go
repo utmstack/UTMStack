@@ -70,9 +70,20 @@ type ExecutionRepository interface {
 	// (their dispatcher worker died). Must run on an all-tenants context.
 	ListStuckExecuting(ctx context.Context, cutoff time.Time) ([]domain.SoarExecution, error)
 
+	// CountSettled returns how many terminal (EXECUTED/FAILED/DEAD) rows a node
+	// has in one flow run — the AND-join gate asks this for every wait-set parent.
+	CountSettled(ctx context.Context, flowRunID uuid.UUID, nodeID string) (int, error)
+
+	// ListFiredParents returns every parent that recorded a fired edge to the
+	// child — used to rebuild the child's context from ALL parents at
+	// promotion, not just the one that settled last.
 	ListFiredParents(ctx context.Context, childID uuid.UUID) ([]domain.SoarExecution, error)
 
-	TransitionReady(ctx context.Context, id uuid.UUID, ready ReadyUpdate) error
+	// PromoteIfReady flips a WAITING child to PENDING with its prepared payload
+	// and reports whether the write landed. The WAITING status guard makes it
+	// idempotent under concurrent settlement: only the last-settling parent
+	// wins the write.
+	PromoteIfReady(ctx context.Context, id uuid.UUID, ready ReadyUpdate) (bool, error)
 }
 
 type RecordEdgeRequest struct {

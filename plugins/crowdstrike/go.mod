@@ -3,11 +3,11 @@ module github.com/utmstack/UTMStack/plugins/crowdstrike
 go 1.26.0
 
 require (
-	github.com/crowdstrike/gofalcon v0.24.0
+	github.com/crowdstrike/gofalcon v0.25.0
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
-	github.com/utmstack/UTMStack/plugins/shared v0.0.0-20261111125819-65751db51384
+	github.com/utmstack/UTMStack/plugins/shared v0.0.0-20261119152541-08308eb28ca2
 	gopkg.in/yaml.v3 v3.0.1
 )
 
@@ -64,7 +64,7 @@ require (
 	github.com/mattn/go-isatty v0.0.22 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
-	github.com/nats-io/nats.go v1.55.0 // indirect
+	github.com/nats-io/nats.go v1.56.0 // indirect
 	github.com/nats-io/nkeys v0.4.16 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
@@ -72,7 +72,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.3.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect
-	github.com/sirupsen/logrus v1.10.2 // indirect
 	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

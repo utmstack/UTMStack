@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/threatwinds/go-sdk v1.1.40-0.20261113141239-c6b6629b28d5
 	golang.org/x/crypto v0.59.0
-	google.golang.org/api v0.315.0
+	google.golang.org/api v0.316.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

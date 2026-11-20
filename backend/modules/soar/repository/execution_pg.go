@@ -320,8 +320,27 @@ func (r *pgExecutionRepository) ListFiredParents(ctx context.Context, childID uu
 	return parents, err
 }
 
-func (r *pgExecutionRepository) TransitionReady(ctx context.Context, id uuid.UUID, ready connectors.ReadyUpdate) error {
-	updates := map[string]any{"status": ready.Status}
+func (r *pgExecutionRepository) CountSettled(ctx context.Context, flowRunID uuid.UUID, nodeID string) (int, error) {
+	var n int64
+	err := r.db.WithContext(ctx).
+		Model(&domain.SoarExecution{}).
+		Where("flow_run_id = ? AND node_id = ? AND status IN (?, ?, ?)",
+			flowRunID, nodeID,
+			domain.ExecutionStatusExecuted, domain.ExecutionStatusFailed, domain.ExecutionStatusDead).
+		Count(&n).Error
+	return int(n), err
+}
+
+// PromoteIfReady flips the WAITING child to PENDING with its prepared payload.
+// The status guard makes it idempotent: two parents settling in the same tick
+// both run the gate check, but only the first wins the write. (run, node, depth)
+// coalescing keeps exactly one WAITING row — nextSequence renumbers the rest.
+func (r *pgExecutionRepository) PromoteIfReady(ctx context.Context, id uuid.UUID, ready connectors.ReadyUpdate) (bool, error) {
+	return r.transitionTo(ctx, id, ready, domain.ExecutionStatusPending)
+}
+
+func (r *pgExecutionRepository) transitionTo(ctx context.Context, id uuid.UUID, ready connectors.ReadyUpdate, target domain.ExecutionStatus) (bool, error) {
+	updates := map[string]any{"status": target}
 	if len(ready.Context) > 0 {
 		updates["context"] = ready.Context
 	}
@@ -342,7 +361,7 @@ func (r *pgExecutionRepository) TransitionReady(ctx context.Context, id uuid.UUI
 		Where("id = ? AND status = ?", id, domain.ExecutionStatusWaiting).
 		Updates(updates)
 	if res.Error != nil {
-		return res.Error
+		return false, res.Error
 	}
-	return nil
+	return res.RowsAffected > 0, nil
 }
