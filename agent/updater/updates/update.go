@@ -33,7 +33,37 @@ func legacyServiceFile() string {
 	return "utmstack_agent_service"
 }
 
-var currentVersion = Version{}
+var (
+	currentVersion  = Version{}
+	svcIsActiveFunc = svc.IsActive
+	svcStartFunc    = svc.Start
+	fsExistsFunc    = fs.Exists
+)
+
+// ensureAgentRunning checks whether the agent service is active when the agent
+// binary is installed, and attempts to restart it if it stopped unexpectedly.
+func ensureAgentRunning(basePath string) {
+	agentBin := filepath.Join(basePath, config.ServiceFile(""))
+	if !fsExistsFunc(agentBin) {
+		return
+	}
+
+	active, err := svcIsActiveFunc(config.SERV_AGENT_NAME)
+	if err != nil {
+		logger.Error("error checking agent service status: %v", err)
+		return
+	}
+	if active {
+		return
+	}
+
+	logger.Info("Agent service %s is not running; attempting restart...", config.SERV_AGENT_NAME)
+	if err := svcStartFunc(config.SERV_AGENT_NAME); err != nil {
+		logger.Error("error restarting stopped agent service %s: %v", config.SERV_AGENT_NAME, err)
+		return
+	}
+	logger.Info("Agent service %s restarted successfully", config.SERV_AGENT_NAME)
+}
 
 func UpdateDependencies(cnf *config.Config) {
 	basePath := fs.GetExecutablePath()
@@ -49,12 +79,14 @@ func UpdateDependencies(cnf *config.Config) {
 
 		if err := http.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, "version.json"), nil, "version_new.json", basePath, cnf.SkipCertValidation); err != nil {
 			logger.Error("error downloading version.json: %v", err)
+			ensureAgentRunning(basePath)
 			continue
 		}
 
 		newVersion := Version{}
 		if err := fs.ReadJSON(filepath.Join(basePath, "version_new.json"), &newVersion); err != nil {
 			logger.Error("error reading version file: %v", err)
+			ensureAgentRunning(basePath)
 			continue
 		}
 
@@ -64,6 +96,7 @@ func UpdateDependencies(cnf *config.Config) {
 			agentBinary := config.ServiceFile("")
 			if err := http.DownloadFile(fmt.Sprintf(config.DependUrl, cnf.Server, config.DependenciesPort, agentBinary), nil, config.ServiceFile("_new"), basePath, cnf.SkipCertValidation); err != nil {
 				logger.Error("error downloading agent: %v", err)
+				ensureAgentRunning(basePath)
 				continue
 			}
 
@@ -78,6 +111,7 @@ func UpdateDependencies(cnf *config.Config) {
 				logger.Error("error updating service: %v", err)
 				os.Remove(filepath.Join(basePath, "version_new.json"))
 				os.Remove(filepath.Join(basePath, config.ServiceFile("_new")))
+				ensureAgentRunning(basePath)
 			} else {
 				logger.Info("Update completed successfully")
 				if fs.Exists(config.VersionPath) {
@@ -88,6 +122,7 @@ func UpdateDependencies(cnf *config.Config) {
 			}
 		} else {
 			os.Remove(filepath.Join(basePath, "version_new.json"))
+			ensureAgentRunning(basePath)
 		}
 	}
 }

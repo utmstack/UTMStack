@@ -15,7 +15,7 @@ const (
 	MinBufferSize         = 480
 	RecommendedBufferSize = 2048
 	MaxBufferSize         = 8192
-	UDPBufferSize         = 2048
+	UDPBufferSize         = 65535
 )
 
 // FramingMethod represents the syslog message framing method.

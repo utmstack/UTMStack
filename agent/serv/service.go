@@ -4,6 +4,8 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"runtime/debug"
 	"strconv"
 	"sync"
 	"syscall"
@@ -18,6 +20,7 @@ import (
 	"github.com/utmstack/UTMStack/agent/dependency"
 	"github.com/utmstack/UTMStack/agent/models"
 	"github.com/utmstack/UTMStack/agent/utils"
+	"github.com/utmstack/UTMStack/shared/svc"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -87,8 +90,31 @@ func (p *program) goSafe(name string, fn func()) {
 	}()
 }
 
+// setupCrashOutput redirects unrecovered Go runtime crash/panic traces to a
+// dedicated crash log next to ServiceLogFile so fatal exits under Windows SCM
+// (which discards stderr) leave actionable stack traces on disk.
+func setupCrashOutput(logFile string) error {
+	logDir := filepath.Dir(logFile)
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		return err
+	}
+	crashPath := filepath.Join(logDir, "utmstack_agent_crash.log")
+	f, err := os.OpenFile(crashPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return debug.SetCrashOutput(f, debug.CrashOptions{})
+}
+
 func (p *program) run() {
 	utils.InitLogger(config.ServiceLogFile)
+	if err := setupCrashOutput(config.ServiceLogFile); err != nil {
+		utils.Logger.ErrorF("warning setting up crash output log: %v", err)
+	}
+	if err := svc.EnsureRecovery(GetConfigServ().Name); err != nil {
+		utils.Logger.ErrorF("warning configuring service recovery: %v", err)
+	}
 	cnf, err := config.GetCurrentConfig()
 	if err != nil {
 		utils.Logger.Fatal("error getting config: %v", err)
