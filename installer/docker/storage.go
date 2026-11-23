@@ -54,6 +54,8 @@ type storageLayout struct {
 	DateFormat      string `yaml:"dateFormat"`
 }
 
+type FieldMap = map[string]map[string]any
+
 type storageSecond struct {
 	StorageEngine   `yaml:",inline"`
 	Cutover         string   `yaml:"cutover"`
@@ -61,6 +63,7 @@ type storageSecond struct {
 	Tenant          string   `yaml:"tenant"`
 	Datasets        []string `yaml:"datasets"`
 	TolerateFailure bool     `yaml:"tolerateFailure"`
+	FieldValueMaps  FieldMap `yaml:"fieldValueMaps"`
 }
 
 type osSecondaryInfo struct {
@@ -94,7 +97,7 @@ func buildStorageConfig(password string, secondary *osSecondaryInfo) storageYAML
 				Engine: "opensearch",
 				OpenSearch: &storageOS{
 					URLs:              []string{"https://" + secondary.URL},
-					KeywordFields:     []string{"dataType"},
+					KeywordFields:     []string{"dataType","id"},
 					Username:          secondary.Username,
 					Password:          secondary.Password,
 					TenantField:       "tenantId",
@@ -102,6 +105,14 @@ func buildStorageConfig(password string, secondary *osSecondaryInfo) storageYAML
 					RetentionPolicyID: "utmstack-logs-retention",
 					Layout:            map[string]storageLayout{"logs": {Prefix: "v11-log", IncludeDataType: true},"alerts": {Prefix: "v11-alert", IncludeDataType: true}},
 			},
+			},
+			FieldValueMaps:  FieldMap{
+				"satus": map[string]any{
+					 "Automatic review": "1",
+					 "Open": "2",
+					 "In review": "3",
+					 "Completed": "5",
+				},
 			},
 			Cutover:         now.Format(time.RFC3339),
 			Expires:         now.Add(90 * 24 * time.Hour).Format(time.RFC3339),
