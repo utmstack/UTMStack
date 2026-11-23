@@ -5,7 +5,6 @@ import com.park.utmstack.domain.reports.enums.ReportTypeEnum;
 import org.hibernate.annotations.GenericGenerator;
 
 import jakarta.persistence.*;
-import org.springframework.data.domain.Persistable;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.Instant;
@@ -15,29 +14,11 @@ import java.time.Instant;
  */
 @Entity
 @Table(name = "utm_report")
-public class UtmReport implements Serializable, Persistable<Long>{
+public class UtmReport implements Serializable{
 
     private static final long serialVersionUID = 1L;
 
-    // Hibernate 6.6 (Boot 3.4.5) changed merge() so that save() on an entity whose id is
-    // pre-assigned by the app (this app assigns ids from a sequence / fixed value before
-    // persisting) throws ObjectOptimisticLockingFailureException. Tracking whether the instance
-    // was loaded from the DB (via @PostLoad) makes Spring Data call persist() for new instances
-    // and merge() for existing ones - the pre-6.6 behavior.
-    private transient boolean isNew = true;
-
-    @jakarta.persistence.PostLoad
-    void utmstackOnLoad() {
-        this.isNew = false;
-    }
-
-    @Override
-    public boolean isNew() {
-        return this.isNew;
-    }
-
-
-    @Id
+@Id
     @GenericGenerator(name = "CustomIdentityGenerator", strategy = "com.park.utmstack.util.CustomIdentityGenerator")
     @GeneratedValue(generator = "CustomIdentityGenerator")
     private Long id;

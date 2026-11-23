@@ -55,7 +55,7 @@
         <tbody *ngIf="data && data.rows && data.rows.length>0 && !loadingOption">
         <tr *ngFor="let row of data.rows |slice:pageStart:pageEnd; let index = index">
           <td (click)="chartEvent(row)" *ngFor="let td of row"
-              [class]="{'text-center':td.metric}"
+              [class.text-center]="td.metric"
               [ngClass]="{'cursor-pointer':visualization.chartAction.active}">
             <span *ngIf="td.metric;else normal" class="text-nowrap">
               {{td.value | number}}

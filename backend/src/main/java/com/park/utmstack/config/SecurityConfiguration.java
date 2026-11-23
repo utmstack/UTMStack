@@ -107,8 +107,12 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED))
-                        .accessDeniedHandler((request, response, accessDeniedException) -> response.sendError(HttpServletResponse.SC_FORBIDDEN)))
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED))
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                response.setHeader("X-UtmStack-error", "Access Denied");
+                                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        }))
                 .headers(headers -> headers
                         // Same-origin only: the panel frames its own PDF/report views,
                         // nothing else needs to frame backend responses.
@@ -126,6 +130,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/account/reset-password/finish").permitAll()
                         .requestMatchers("/api/images/all").permitAll()
                         .requestMatchers("/api/info/version").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/enrollment/**").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER)
                         .requestMatchers("/api/tfa/verify-code").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)
                         .requestMatchers("/api/tfa/refresh").hasAnyAuthority(AuthoritiesConstants.PRE_VERIFICATION_USER, AuthoritiesConstants.USER, AuthoritiesConstants.ADMIN)

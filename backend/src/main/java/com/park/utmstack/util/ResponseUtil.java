@@ -7,8 +7,7 @@ import org.springframework.http.ResponseEntity;
 public class ResponseUtil {
     public static <T> ResponseEntity<T> buildErrorResponse(HttpStatus errorCode, String msg) {
         return ResponseEntity.status(errorCode)
-            .headers(HeaderUtil.createFailureAlert("", "",
-                msg.replaceAll("\n", " ").replaceAll("\r", "")))
+            .headers(HeaderUtil.createFailureAlert("", "", msg))
             .body(null);
     }
 

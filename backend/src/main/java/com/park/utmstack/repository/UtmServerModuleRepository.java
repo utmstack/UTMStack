@@ -17,7 +17,7 @@ import java.util.List;
 @Repository
 public interface UtmServerModuleRepository extends JpaRepository<UtmServerModule, Long>, JpaSpecificationExecutor<UtmServerModule> {
 
-    @Query(value = "select m from UtmServerModule m where m.id in (select i.moduleId from UtmIntegration i where i.moduleId is not null) and (:serverId is null or m.serverId = :serverId) and (:prettyName is null or m.prettyName like :prettyName) order by m.id")
+    @Query(value = "select m from UtmServerModule m where m.id in (select i.moduleId from UtmIntegration i where i.moduleId is not null) and (:serverId is null or m.serverId = :serverId) and (:prettyName is null or m.prettyName like cast(:prettyName as string)) order by m.id")
     List<UtmServerModule> getModulesWithIntegrations(@Param("serverId") Long serverId, @Param("prettyName") String prettyName);
 
     List<UtmServerModule> findAllByModuleName(String moduleName);

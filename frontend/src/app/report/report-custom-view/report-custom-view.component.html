@@ -53,7 +53,7 @@
         <tbody *ngIf="data && data.rows && data.rows.length>0 && !loading">
         <tr *ngFor="let row of data.rows; let index = index">
           <td *ngFor="let td of row"
-              [class]="{'text-center':td.metric}">
+              [class.text-center]="td.metric">
             <span *ngIf="td.metric;else normal" class="text-nowrap">
               {{td.value | number}}
             </span>
