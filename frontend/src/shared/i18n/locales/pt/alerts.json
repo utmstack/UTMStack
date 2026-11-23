@@ -49,6 +49,8 @@
         "CONTAIN": "contém",
         "IS": "é",
         "IS_NOT": "não é",
+        "IS_ONE_OF": "é um de",
+        "IS_NOT_ONE_OF": "não é nenhum de",
         "EXIST": "existe",
         "DOES_NOT_EXIST": "não existe"
     },

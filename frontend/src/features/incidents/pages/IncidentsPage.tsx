@@ -51,7 +51,8 @@ export function IncidentsPage() {
   const resolved = useMemo(() => resolveRange(range), [range.from, range.to, rangeTick])
   const dateFrom = resolved.from ?? ''
   const dateTo = resolved.from ? resolved.to : ''
-  const assignee = customFilters.find((f) => f.field === ASSIGNEE_FIELD)?.value ?? 'all'
+  const assigneeValue = customFilters.find((f) => f.field === ASSIGNEE_FIELD)?.value
+  const assignee = typeof assigneeValue === 'string' ? assigneeValue : assigneeValue?.[0] ?? 'all'
 
   const isBoard = layout === 'board'
   // The board is already grouped by status, so the status tabs don't apply to it.

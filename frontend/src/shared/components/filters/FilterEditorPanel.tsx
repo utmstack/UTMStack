@@ -34,7 +34,13 @@ export function FilterEditorPanel({
 }) {
   const [field, setField] = useState(initial?.field ?? fields[0]?.field ?? '')
   const [operator, setOperator] = useState(initial?.operator ?? operators[0]?.id ?? 'IS')
-  const [freeValue, setFreeValue] = useState(initial?.value ?? '')
+  const initialSelectedValues = Array.isArray(initial?.value)
+    ? initial.value
+    : initial?.value
+      ? [initial.value]
+      : []
+  const [freeValue, setFreeValue] = useState(typeof initial?.value === 'string' ? initial.value : '')
+  const [selectedValues, setSelectedValues] = useState<string[]>(initialSelectedValues)
   const [values, setValues] = useState<FilterValue[]>([])
   const [loadingValues, setLoadingValues] = useState(false)
   const [vq, setVq] = useState('')
@@ -46,7 +52,8 @@ export function FilterEditorPanel({
 
 
   const op = operators.find((o) => o.id === operator)
-  const needsValue = op?.needsValue ?? true
+  const needsValue = operator === 'NOT_EXIST' ? false : op?.needsValue ?? true
+  const multiple = op?.multiple ?? (operator === 'IS_ONE_OF' || operator === 'IS_NOT_ONE_OF')
 
   useEffect(() => {
     if (!needsValue || !fetchValues) return
@@ -58,10 +65,16 @@ export function FilterEditorPanel({
       .finally(() => setLoadingValues(false))
   }, [field, needsValue, fetchValues])
 
-  const submit = (value: string) => {
+  const submit = (value: string | string[]) => {
     const fdef = fields.find((f) => f.field === field)
     if (!fdef) return
     onSubmit({ field, label: fdef.label, operator, value })
+  }
+
+  const toggleValue = (value: string) => {
+    setSelectedValues((current) =>
+      current.includes(value) ? current.filter((item) => item !== value) : [...current, value],
+    )
   }
 
   const filtered = values.filter((v) => (vq ? v.value.toLowerCase().includes(vq.toLowerCase()) : true))
@@ -165,11 +178,11 @@ export function FilterEditorPanel({
                   <div className="px-3 py-3 text-xs text-muted-foreground">{t(labels.noValues)}</div>
                 ) : (
                   filtered.map((v) => {
-                    const selected = initial?.value === v.value
+                    const selected = multiple ? selectedValues.includes(v.value) : initial?.value === v.value
                     return (
                       <button
                         key={v.value}
-                        onClick={() => submit(v.value)}
+                        onClick={() => (multiple ? toggleValue(v.value) : submit(v.value))}
                         className={cn(
                           'flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-xs hover:bg-muted',
                           selected && 'bg-primary/10',
@@ -187,22 +200,32 @@ export function FilterEditorPanel({
                 )}
               </div>
               <p className="text-[10px] text-muted-foreground">{t(labels.pickValue)}</p>
+              {multiple && (
+                <div className="flex justify-end gap-2 pt-1">
+                  <Button variant="outline" size="sm" onClick={onCancel}>
+                    {t(labels.cancel)}
+                  </Button>
+                  <Button size="sm" disabled={!selectedValues.length} onClick={() => submit(selectedValues)}>
+                    {t(labels.addBtn)}
+                  </Button>
+                </div>
+              )}
             </>
           ) : (
             <>
               <Input
                 value={freeValue}
                 onChange={(e:any) => setFreeValue(e.target.value)}
-                placeholder={labels.filterValues}
+                placeholder={t(labels.filterValues)}
                 className="h-8 text-xs"
                 autoFocus
-                onKeyDown={(e:any) => e.key === 'Enter' && freeValue && submit(freeValue)}
+                onKeyDown={(e:any) => e.key === 'Enter' && freeValue && submit(multiple ? freeValue.split(',').map((v) => v.trim()).filter(Boolean) : freeValue)}
               />
               <div className="flex justify-end gap-2 pt-1">
                 <Button variant="outline" size="sm" onClick={onCancel}>
                   {t(labels.cancel)}
                 </Button>
-                <Button size="sm" disabled={!freeValue} onClick={() => submit(freeValue)}>
+                <Button size="sm" disabled={!freeValue} onClick={() => submit(multiple ? freeValue.split(',').map((v) => v.trim()).filter(Boolean) : freeValue)}>
                   {t(labels.addBtn)}
                 </Button>
               </div>
