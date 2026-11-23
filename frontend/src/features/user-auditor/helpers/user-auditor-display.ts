@@ -89,15 +89,15 @@ export function logExplorerHref(user: ADUser): string | null {
   const p: Record<string, string> = { tenantId: user.tenantId, '@timestamp': '30d' }
   if (isCloudSource(user.source)) {
     p.dataType = CLOUD_DATA_TYPE[user.source]
-    if (user.username) p['origin.user'] = user.username
+    if (user.username) p['target.user'] = user.username
   } else if (user.source === 'linux') {
     p.dataType = 'linux'
-    if (user.username) p['origin.user'] = user.username
-    if (user.hostname) p['origin.host'] = user.hostname
+    if (user.username) p['target.user'] = user.username
+    if (user.hostname) p['target.host'] = user.hostname
   } else {
     p.dataType = 'wineventlog'
     p['log.eventCode'] = '4720,4726,4624'
-    if (user.sid) p['log.eventDataTargetSid'] = user.sid
+    if (user.samAccountName) p['target.user'] = user.samAccountName
   }
   return `/log-explorer?${new URLSearchParams(p).toString()}`
 }

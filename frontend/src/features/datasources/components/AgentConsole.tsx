@@ -12,7 +12,8 @@ const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n
 
 /** Windows agents let the analyst choose between cmd/powershell; the rest use bash. */
 function isWindowsOs(osPlatform?: string): boolean {
-  return (osPlatform ?? '').toLowerCase().includes('win')
+  const compare = (osPlatform ?? '')
+  return compare.toLowerCase().includes('win') && compare.toLowerCase() != "darwin"
 }
 
 type WinShell = 'cmd' | 'powershell'
