@@ -44,6 +44,7 @@ type storageOS struct {
 	TenantField       string                   `yaml:"tenantField"`
 	TimestampField    string                   `yaml:"timestampField"`
 	RetentionPolicyID string                   `yaml:"retentionPolicyId"`
+	KeywordFields     []string                 `yaml:"keywordFields"`
 	Layout            map[string]storageLayout `yaml:"layout"`
 }
 
@@ -93,18 +94,19 @@ func buildStorageConfig(password string, secondary *osSecondaryInfo) storageYAML
 				Engine: "opensearch",
 				OpenSearch: &storageOS{
 					URLs:              []string{"https://" + secondary.URL},
+					KeywordFields:     []string{"dataType"},
 					Username:          secondary.Username,
 					Password:          secondary.Password,
 					TenantField:       "tenantId",
 					TimestampField:    "@timestamp",
 					RetentionPolicyID: "utmstack-logs-retention",
-					Layout:            map[string]storageLayout{"logs": {Prefix: "v11-log", IncludeDataType: true, DateFormat: "2006.01.02"}},
-				},
+					Layout:            map[string]storageLayout{"logs": {Prefix: "v11-log", IncludeDataType: true},"alerts": {Prefix: "v11-alert", IncludeDataType: true}},
+			},
 			},
 			Cutover:         now.Format(time.RFC3339),
 			Expires:         now.Add(90 * 24 * time.Hour).Format(time.RFC3339),
-			Tenant:          "00000000-0000-0000-0000-000000000000",
-			Datasets:        []string{"logs"},
+			Tenant:          "ce66672c-e36d-4761-a8c8-90058fee1a24",
+			Datasets:        []string{"logs","alerts"},
 			TolerateFailure: false,
 		}
 	}
