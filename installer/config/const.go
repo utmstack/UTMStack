@@ -43,6 +43,7 @@ var (
 	MemoryAllocationPath   = filepath.Join(GetConfig().UpdatesFolder, "memory-allocation.json")
 	LastAdminEmailPath     = filepath.Join(GetConfig().UpdatesFolder, "last-admin-email.txt")
 	EventProcessorLogsPath = filepath.Join(GetConfig().DataDir, "events-engine-workdir", "logs")
+	ComposeFilePath        = filepath.Join(GetConfig().DataDir, "compose.yml")
 	CheckUpdatesEvery      = 5 * time.Minute
 	SyncSystemLogsEvery    = 5 * time.Minute
 	ConnectedToInternet    = false

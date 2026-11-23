@@ -258,6 +258,24 @@ func migratePersistedMemoryAllocation(rsrcs map[string]*system.ServiceConfig) bo
 	return true
 }
 
+// writeComposeFile persists the rendered stack compose file at composePath
+// (owner-only 0600 because it embeds database, OpenSearch, and encryption
+// secrets) and removes any legacy compose.yml previously written next to the
+// installer binary in /usr/local/bin.
+func writeComposeFile(composePath string, data []byte, legacyPath string) error {
+	if err := utils.WriteSecretToFile(composePath, string(data)); err != nil {
+		return err
+	}
+
+	if legacyPath != "" && filepath.Clean(legacyPath) != filepath.Clean(composePath) {
+		if err := os.Remove(legacyPath); err != nil && !os.IsNotExist(err) {
+			fmt.Printf("warning: failed to remove legacy compose file %s: %v\n", legacyPath, err)
+		}
+	}
+
+	return nil
+}
+
 func StackUP(tag string) error {
 	var compose = new(Compose)
 	err := compose.Populate(config.GetConfig(), GetStackConfig())
@@ -270,8 +288,9 @@ func StackUP(tag string) error {
 		return err
 	}
 
-	err = os.WriteFile(filepath.Join(utils.GetMyPath(), "compose.yml"), d, 0644)
-	if err != nil {
+	composePath := config.ComposeFilePath
+	legacyComposePath := filepath.Join(filepath.Dir(config.InstallerBinPath), "compose.yml")
+	if err := writeComposeFile(composePath, d, legacyComposePath); err != nil {
 		return err
 	}
 
@@ -310,7 +329,7 @@ func StackUP(tag string) error {
 	}
 
 	env := []string{"UTMSTACK_TAG=" + tag}
-	if err := utils.RunEnvCmd(env, "docker", "stack", "deploy", "-c", filepath.Join(utils.GetMyPath(), "compose.yml"), "utmstack"); err != nil {
+	if err := utils.RunEnvCmd(env, "docker", "stack", "deploy", "-c", composePath, "utmstack"); err != nil {
 		return err
 	}
 
