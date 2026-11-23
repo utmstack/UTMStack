@@ -18,7 +18,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * REST controller for managing {@link UtmAuditorUsersDTO}.
@@ -26,6 +28,19 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class UtmAuditorUsersResource {
+
+    private static final Set<String> HOP_BY_HOP_HEADERS = Set.of(
+        "connection",
+        "keep-alive",
+        "proxy-authenticate",
+        "proxy-authorization",
+        "te",
+        "trailer",
+        "trailers",
+        "transfer-encoding",
+        "upgrade",
+        "content-length"
+    );
 
     private final Logger log = LoggerFactory.getLogger(UtmAuditorUsersResource.class);
 
@@ -78,7 +93,7 @@ public class UtmAuditorUsersResource {
 
             String uri = microServiceUrl.concat("/search?page={page}&size={size}&sid={sid}&from={from}&to={to}&indexPattern={indexPattern}&sort={sort}");
 
-            return restTemplate.exchange(
+            ResponseEntity<List<Map>> upstream = restTemplate.exchange(
                 uri,
                 HttpMethod.GET,
                 requestEntity,
@@ -86,6 +101,7 @@ public class UtmAuditorUsersResource {
                 },
                 urlParams
             );
+            return relayResponse(upstream);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
@@ -124,7 +140,7 @@ public class UtmAuditorUsersResource {
 
             HttpEntity<MicroserviceRequest> requestEntity = new HttpEntity<>(request, headers);
 
-            return restTemplate.exchange(
+            ResponseEntity<List<UtmAuditorUsersDTO>> upstream = restTemplate.exchange(
                 uri,
                 HttpMethod.GET,
                 requestEntity,
@@ -132,10 +148,27 @@ public class UtmAuditorUsersResource {
                 },
                 urlParams
             );
+            return relayResponse(upstream);
         } catch (Exception e) {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg);
             return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, msg);
         }
+    }
+
+    /**
+     * Strips RFC 9110 hop-by-hop headers (notably {@code Transfer-Encoding}) from the upstream
+     * microservice response before returning it from Tomcat, preventing duplicate
+     * {@code Transfer-Encoding: chunked} headers that strict reverse proxies (nginx) reject
+     * with 502 Bad Gateway. Preserves pagination headers such as {@code X-Total-Count} and {@code Link}.
+     */
+    static <T> ResponseEntity<T> relayResponse(ResponseEntity<T> upstream) {
+        HttpHeaders clean = new HttpHeaders();
+        upstream.getHeaders().forEach((name, values) -> {
+            if (name != null && !HOP_BY_HOP_HEADERS.contains(name.toLowerCase(Locale.ROOT))) {
+                clean.put(name, values);
+            }
+        });
+        return ResponseEntity.status(upstream.getStatusCode()).headers(clean).body(upstream.getBody());
     }
 }

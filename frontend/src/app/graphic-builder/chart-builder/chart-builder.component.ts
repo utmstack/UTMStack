@@ -122,6 +122,12 @@ export class ChartBuilderComponent implements OnInit, AfterViewChecked {
         this.defaultTime = defaultFilterTime ? defaultFilterTime : new ElasticFilterDefaultTime('now-24h', 'now');
         this.loading = false;
       });
+    } else if (!this.chart) {
+      this.loading = false;
+      this.router.navigate(['/creator/visualization/list'], {
+        queryParams: { onInitAction: 'showCreateModal' }
+      });
+      return;
     } else {
       this.visualization = {
         aggregationType: {metrics: [], bucket: null},

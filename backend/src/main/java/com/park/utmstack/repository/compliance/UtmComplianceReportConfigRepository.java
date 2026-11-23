@@ -35,9 +35,9 @@ public interface UtmComplianceReportConfigRepository extends JpaRepository<UtmCo
             "LEFT JOIN cfg.associatedDashboard d " +
             "LEFT JOIN d.visualizations v " +
             "WHERE (:standardId IS NULL OR sec.standardId = :standardId) " +
-            "AND (:solution IS NULL OR lower(cfg.configSolution) LIKE concat('%', :solution, '%')) " +
+            "AND (:solution IS NULL OR lower(cfg.configSolution) LIKE concat('%', cast(:solution as string), '%')) " +
             "AND (:sectionId IS NULL OR sec.id = :sectionId) " +
-            "AND (:search IS NULL OR lower(cfg.configReportName) LIKE concat('%', :search, '%') OR d.name LIKE concat('%', :search, '%')) " +
+            "AND (:search IS NULL OR lower(cfg.configReportName) LIKE concat('%', cast(:search as string), '%') OR d.name LIKE concat('%', cast(:search as string), '%')) " +
             "AND (v.pattern.isActive = true)")
     Page<UtmComplianceReportConfig> getReportsByFilters(
             @Param("standardId") Long standardId,

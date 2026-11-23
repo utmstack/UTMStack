@@ -16,10 +16,18 @@ public final class HeaderUtil {
     private HeaderUtil() {
     }
 
+    static String sanitizeHeaderValue(String value) {
+        if (value == null) {
+            return "";
+        }
+        // Tomcat 11 strictly rejects CR/LF and control characters in HTTP response headers.
+        return value.replaceAll("[\\r\\n\\u0000-\\u001F\\u007F]+", " ").trim();
+    }
+
     public static HttpHeaders createAlert(String message, String param) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-" + APPLICATION_NAME + "-alert", message);
-        headers.add("X-" + APPLICATION_NAME + "-params", param);
+        headers.add("X-" + APPLICATION_NAME + "-alert", sanitizeHeaderValue(message));
+        headers.add("X-" + APPLICATION_NAME + "-params", sanitizeHeaderValue(param));
         return headers;
     }
 
@@ -38,16 +46,16 @@ public final class HeaderUtil {
     public static HttpHeaders createFailureAlert(String entityName, String errorKey, String defaultMessage) {
        /* log.error("Entity processing failed, {}", defaultMessage);*/
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-" + APPLICATION_NAME + "-error", defaultMessage);
-        headers.add("X-" + APPLICATION_NAME + "-params", entityName);
+        headers.add("X-" + APPLICATION_NAME + "-error", sanitizeHeaderValue(defaultMessage));
+        headers.add("X-" + APPLICATION_NAME + "-params", sanitizeHeaderValue(entityName));
         return headers;
     }
 
     public static HttpHeaders createFailureAlertWithCode(String message, String params, String code) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-" + APPLICATION_NAME + "-error", message);
-        headers.add("X-" + APPLICATION_NAME + "-params", params);
-        headers.add("X-" + APPLICATION_NAME + "-code", code);
+        headers.add("X-" + APPLICATION_NAME + "-error", sanitizeHeaderValue(message));
+        headers.add("X-" + APPLICATION_NAME + "-params", sanitizeHeaderValue(params));
+        headers.add("X-" + APPLICATION_NAME + "-code", sanitizeHeaderValue(code));
         return headers;
     }
 }
