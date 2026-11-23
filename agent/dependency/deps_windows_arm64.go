@@ -29,6 +29,7 @@ func GetDependencies() []Dependency {
 			Critical:    false,
 			PreDownload: preDownloadUpdater,
 			Configure:   configureUpdater,
+			Update:      updateUpdater,
 			Uninstall:   uninstallUpdater,
 		},
 	}
@@ -37,6 +38,10 @@ func GetDependencies() []Dependency {
 func configureUpdater() error {
 	updaterPath := filepath.Join(fs.GetExecutablePath(), UpdaterFile(""))
 	return exec.Run(updaterPath, fs.GetExecutablePath(), "install")
+}
+
+func updateUpdater() error {
+	return startOrInstallUpdater(config.SERVICE_UPDATER_NAME, configureUpdater)
 }
 
 func uninstallUpdater() error {
@@ -48,6 +53,8 @@ func uninstallUpdater() error {
 }
 
 func preDownloadUpdater() (func(), error) {
+	waitForUpdaterHealthCheck(fs.GetExecutablePath())
+
 	// Stop the updater service before download
 	if err := svc.Stop(config.SERVICE_UPDATER_NAME); err != nil {
 		// Service might not be running or installed yet - that's OK

@@ -6,10 +6,12 @@ import (
 	"path/filepath"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/utmstack/UTMStack/agent/utils"
 	"github.com/utmstack/UTMStack/shared/fs"
 	"github.com/utmstack/UTMStack/shared/http"
+	"github.com/utmstack/UTMStack/shared/svc"
 )
 
 const (
@@ -353,4 +355,33 @@ func downloadDependency(dep Dependency, server string, skipCertValidation bool) 
 	}
 
 	return nil
+}
+
+// waitForUpdaterHealthCheck waits briefly if version.json.old is present, which
+// indicates the updater just upgraded this agent and is still inside its 30s
+// post-update health check. Waiting avoids stopping the updater mid-check.
+func waitForUpdaterHealthCheck(basePath string) {
+	backupPath := filepath.Join(basePath, "version.json.old")
+	if !fs.Exists(backupPath) {
+		return
+	}
+	utils.Logger.Info("Waiting for updater post-update health check to finish before updating updater...")
+	deadline := time.Now().Add(35 * time.Second)
+	for time.Now().Before(deadline) {
+		if !fs.Exists(backupPath) {
+			return
+		}
+		time.Sleep(2 * time.Second)
+	}
+}
+
+// startOrInstallUpdater starts an already-installed updater service after a
+// binary replacement, falling back to full install if the service is not yet
+// registered. Calling `install` directly on an existing service fails on
+// Windows ("service already exists") and leaves dependencies.json stale.
+func startOrInstallUpdater(serviceName string, installFn func() error) error {
+	if err := svc.Start(serviceName); err == nil {
+		return nil
+	}
+	return installFn()
 }

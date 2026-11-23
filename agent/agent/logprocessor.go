@@ -101,6 +101,12 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 }
 
 func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in handleAcknowledgements: %v", r)
+			cancel()
+		}
+	}()
 	for {
 		select {
 		case <-ctx.Done():
@@ -165,44 +171,53 @@ func (l *LogProcessor) CleanCountedLogs() {
 	ticker := time.NewTicker(timeCLeanLogs)
 	defer ticker.Stop()
 	for range ticker.C {
-		dataRetention, err := GetDataRetention()
-		if err != nil {
-			utils.Logger.ErrorF("error getting data retention: %s, creating default retention file", err)
-			if err := SetDataRetention(""); err != nil {
-				utils.Logger.ErrorF("error creating default data retention: %s", err)
-				continue
-			}
-			dataRetention, err = GetDataRetention()
-			if err != nil {
-				utils.Logger.ErrorF("error reading newly created data retention: %s", err)
-				continue
-			}
-		}
-		_, unprocessedDeleted, err := l.db.DeleteOld(&models.Log{}, dataRetention)
-		if err != nil {
-			utils.Logger.ErrorF("error deleting old logs: %s", err)
-		}
-		if unprocessedDeleted > 0 {
-			utils.Logger.ErrorF("dropped %d undelivered logs to stay under the hard disk cap (%dx retention of %d MB); backend has likely been unreachable for a long time",
-				unprocessedDeleted, database.HardCapMultiplier, dataRetention)
-		}
+		l.cleanCountedLogsOnce()
+	}
+}
 
-		unprocessed := make([]models.Log, 0, 10)
-		found, err := l.db.Find(&unprocessed, "processed", false)
-		if err != nil {
-			utils.Logger.ErrorF("error finding unprocessed logs: %s", err)
-			continue
+func (l *LogProcessor) cleanCountedLogsOnce() {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in CleanCountedLogs: %v", r)
 		}
+	}()
+	dataRetention, err := GetDataRetention()
+	if err != nil {
+		utils.Logger.ErrorF("error getting data retention: %s, creating default retention file", err)
+		if err := SetDataRetention(""); err != nil {
+			utils.Logger.ErrorF("error creating default data retention: %s", err)
+			return
+		}
+		dataRetention, err = GetDataRetention()
+		if err != nil {
+			utils.Logger.ErrorF("error reading newly created data retention: %s", err)
+			return
+		}
+	}
+	_, unprocessedDeleted, err := l.db.DeleteOld(&models.Log{}, dataRetention)
+	if err != nil {
+		utils.Logger.ErrorF("error deleting old logs: %s", err)
+	}
+	if unprocessedDeleted > 0 {
+		utils.Logger.ErrorF("dropped %d undelivered logs to stay under the hard disk cap (%dx retention of %d MB); backend has likely been unreachable for a long time",
+			unprocessedDeleted, database.HardCapMultiplier, dataRetention)
+	}
 
-		if found {
-			for _, log := range unprocessed {
-				LogQueue <- &plugins.Log{
-					Id:         log.ID,
-					Raw:        log.Log,
-					DataType:   log.Type,
-					DataSource: log.DataSource,
-					Timestamp:  log.CreatedAt.Format(time.RFC3339Nano),
-				}
+	unprocessed := make([]models.Log, 0, 10)
+	found, err := l.db.Find(&unprocessed, "processed", false)
+	if err != nil {
+		utils.Logger.ErrorF("error finding unprocessed logs: %s", err)
+		return
+	}
+
+	if found {
+		for _, log := range unprocessed {
+			LogQueue <- &plugins.Log{
+				Id:         log.ID,
+				Raw:        log.Log,
+				DataType:   log.Type,
+				DataSource: log.DataSource,
+				Timestamp:  log.CreatedAt.Format(time.RFC3339Nano),
 			}
 		}
 	}

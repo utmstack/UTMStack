@@ -143,6 +143,11 @@ var (
 )
 
 func dispatchEvent(action, userContext, event uintptr) uintptr {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in windows event callback: %v", r)
+		}
+	}()
 	registryMu.Lock()
 	evtSub := registry[userContext]
 	registryMu.Unlock()
@@ -493,33 +498,43 @@ func eventWorker(queue chan *plugins.Log) {
 	}
 
 	for xmlStr := range incomingEvents {
-		ev := new(Event)
-		if err := xml.Unmarshal([]byte(xmlStr), ev); err != nil {
-			utils.Logger.ErrorF("unmarshal error: %v", err)
-			continue
-		}
+		processWindowsEvent(xmlStr, host, queue)
+	}
+}
 
-		eventJSON, err := convertEventToJSON(ev)
-		if err != nil {
-			utils.Logger.ErrorF("toJSON error: %v", err)
-			continue
+func processWindowsEvent(xmlStr, host string, queue chan *plugins.Log) {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in windows eventWorker: %v", r)
 		}
+	}()
 
-		validatedLog, _, err := entities.ValidateString(eventJSON, false)
-		if err != nil {
-			utils.Logger.LogF(100, "validation error: %s: %v", eventJSON, err)
-			continue
-		}
+	ev := new(Event)
+	if err := xml.Unmarshal([]byte(xmlStr), ev); err != nil {
+		utils.Logger.ErrorF("unmarshal error: %v", err)
+		return
+	}
 
-		select {
-		case queue <- &plugins.Log{
-			DataSource: host,
-			DataType:   string(config.DataTypeWindowsAgent),
-			Raw:        validatedLog,
-		}:
-		default:
-			utils.Logger.LogF(100, "LogQueue full: event discarded")
-		}
+	eventJSON, err := convertEventToJSON(ev)
+	if err != nil {
+		utils.Logger.ErrorF("toJSON error: %v", err)
+		return
+	}
+
+	validatedLog, _, err := entities.ValidateString(eventJSON, false)
+	if err != nil {
+		utils.Logger.LogF(100, "validation error: %s: %v", eventJSON, err)
+		return
+	}
+
+	select {
+	case queue <- &plugins.Log{
+		DataSource: host,
+		DataType:   string(config.DataTypeWindowsAgent),
+		Raw:        validatedLog,
+	}:
+	default:
+		utils.Logger.LogF(100, "LogQueue full: event discarded")
 	}
 }
 

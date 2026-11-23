@@ -132,6 +132,11 @@ func (inst *syslogInstance) handleTLSConnection(conn net.Conn, queue chan *plugi
 
 // handleMessage processes messages from the channel and sends them to the queue.
 func (inst *syslogInstance) handleMessage(ctx context.Context, logsChannel chan models.MSGDS, queue chan *plugins.Log) {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in syslog handleMessage for %s: %v", inst.DataType, r)
+		}
+	}()
 	for {
 		select {
 		case <-ctx.Done():
