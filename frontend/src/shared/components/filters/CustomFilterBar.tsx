@@ -45,15 +45,17 @@ export function CustomFilterBar({
     return () => document.removeEventListener('mousedown', onDoc)
   }, [editing])
 
-  useEffect(()=>{
-    if(!!filters &&
-       filters.length > filterCount &&
-       filters!.length>0 && filters.at(-1)!.value==""
-      ){
+  useEffect(() => {
+    const last = filters.at(-1)
+    const emptyValue =
+      last?.value == null ||
+      (Array.isArray(last?.value) ? last.value.length === 0 : last?.value.trim() === '')
+
+    if (filters.length > filterCount && last && emptyValue) {
       setFilterCount(filters.length)
-      setEditing(filters.length-1)
+      setEditing(filters.length - 1)
     }
-  },[filters])
+  }, [filters, filterCount])
 
 
   const {t} = useTranslation()
@@ -75,7 +77,11 @@ export function CustomFilterBar({
               >
                 <span className="text-muted-foreground">{t(fields.find((x) => x.field === f.field)?.label ?? f.label)}</span>
                 <span className="text-[11px] text-muted-foreground/70">{t(op?.label ?? f.operator)}</span>
-                {op?.needsValue && <span className="max-w-[200px] truncate font-mono font-medium">{t(f.value)}</span>}
+                {op?.needsValue && (
+                  <span className="max-w-[200px] truncate font-mono font-medium">
+                    {Array.isArray(f.value) ? f.value.join(', ') : t(f.value)}
+                  </span>
+                )}
               </button>
               <button
                 onClick={() => {
