@@ -376,12 +376,20 @@ func waitForUpdaterHealthCheck(basePath string) {
 }
 
 // startOrInstallUpdater starts an already-installed updater service after a
-// binary replacement, falling back to full install if the service is not yet
-// registered. Calling `install` directly on an existing service fails on
+// binary replacement, falling back to full install only if the service is not
+// registered yet. Calling `install` directly on an existing service fails on
 // Windows ("service already exists") and leaves dependencies.json stale.
 func startOrInstallUpdater(serviceName string, installFn func() error) error {
-	if err := svc.Start(serviceName); err == nil {
+	startErr := svc.Start(serviceName)
+	if startErr == nil {
 		return nil
+	}
+	// On Windows, if the service already exists, surface the real start error
+	// instead of calling installFn (which would fail with "already exists").
+	if runtime.GOOS == "windows" {
+		if _, statusErr := svc.Status(serviceName); statusErr == nil {
+			return startErr
+		}
 	}
 	return installFn()
 }

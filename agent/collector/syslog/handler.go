@@ -132,11 +132,6 @@ func (inst *syslogInstance) handleTLSConnection(conn net.Conn, queue chan *plugi
 
 // handleMessage processes messages from the channel and sends them to the queue.
 func (inst *syslogInstance) handleMessage(ctx context.Context, logsChannel chan models.MSGDS, queue chan *plugins.Log) {
-	defer func() {
-		if r := recover(); r != nil {
-			utils.Logger.ErrorF("panic in syslog handleMessage for %s: %v", inst.DataType, r)
-		}
-	}()
 	for {
 		select {
 		case <-ctx.Done():
@@ -145,18 +140,28 @@ func (inst *syslogInstance) handleMessage(ctx context.Context, logsChannel chan 
 			if !ok {
 				return // channel closed
 			}
-			message := strings.TrimSuffix(msgDS.Message, "\n")
-			message, _, err := entities.ValidateString(message, false)
-			if err != nil {
-				utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
-				continue
-			}
-
-			queue <- &plugins.Log{
-				DataType:   inst.DataType,
-				DataSource: msgDS.DataSource,
-				Raw:        message,
-			}
+			inst.processSingleMessage(msgDS, queue)
 		}
+	}
+}
+
+func (inst *syslogInstance) processSingleMessage(msgDS models.MSGDS, queue chan *plugins.Log) {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in syslog handleMessage for %s: %v", inst.DataType, r)
+		}
+	}()
+
+	message := strings.TrimSuffix(msgDS.Message, "\n")
+	message, _, err := entities.ValidateString(message, false)
+	if err != nil {
+		utils.Logger.ErrorF("error validating string: %v: message: %s", err, message)
+		return
+	}
+
+	queue <- &plugins.Log{
+		DataType:   inst.DataType,
+		DataSource: msgDS.DataSource,
+		Raw:        message,
 	}
 }
