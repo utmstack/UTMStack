@@ -25,8 +25,8 @@ import {ChartSerieValueType} from '../../../../shared/types/chart-reponse/chart-
 import {ElasticFilterCommonType} from '../../../../shared/types/filter/elastic-filter-common.type';
 import {TimeFilterType} from '../../../../shared/types/time-filter.type';
 import {RefreshService, RefreshType} from "../../../../shared/services/util/refresh.service";
-import {Observable, Subject} from "rxjs";
-import {filter, map, switchMap, takeUntil, tap} from "rxjs/operators";
+import {EMPTY, Observable, Subject} from "rxjs";
+import {catchError, filter, map, switchMap, takeUntil, tap} from "rxjs/operators";
 import {TimeFilterBehavior} from "../../../../shared/behaviors/time-filter.behavior";
 
 @Component({
@@ -95,6 +95,7 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
   }
 
   getAlertByStatus(time: TimeFilterType) {
+    this.loadingStatusAlert = true;
     const req = {
       to: time.timeTo,
       from: time.timeFrom
@@ -105,7 +106,11 @@ export class ChartAlertByStatusComponent implements OnInit, OnDestroy {
           this.loaded.emit();
           this.loadingStatusAlert = false;
         }),
-        map( response => response.body)
+        map( response => response.body),
+        catchError(() => {
+          this.loadingStatusAlert = false;
+          return EMPTY;
+        })
       );
   }
 

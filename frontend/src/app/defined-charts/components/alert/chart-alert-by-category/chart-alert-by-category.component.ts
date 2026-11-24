@@ -1,8 +1,8 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Observable, Subject} from 'rxjs';
-import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {EMPTY, Observable, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {Legend} from '../../../../shared/chart/types/charts/chart-properties/legend/legend';
 import {Tooltip} from '../../../../shared/chart/types/charts/chart-properties/tooltip/tooltip';
 import {
@@ -35,7 +35,7 @@ export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
   interval: any;
   defaultTime: ElasticFilterCommonType = {time: ElasticTimeEnum.DAY, last: 7, label: 'last 7 days'};
   queryParams = {from: 'now-7d', to: 'now', top: 10};
-  loadingBarOption = false;
+  loadingBarOption = true;
   chartEnumType = ChartTypeEnum;
   barOption: any;
   noData = false;
@@ -46,7 +46,8 @@ export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
               private refreshService: RefreshService,
               private router: Router,
               private spinner: NgxSpinnerService,
-              private timeFilterBehavior: TimeFilterBehavior) {
+              private timeFilterBehavior: TimeFilterBehavior,
+              private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -85,6 +86,8 @@ export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
 
 
   getCategoryData() {
+   this.loadingBarOption = true;
+   this.cdr.markForCheck();
    return  this.overviewAlertDashboardService.getAlertByCategory(this.queryParams)
       .pipe(
         map(response => response.body),
@@ -97,6 +100,12 @@ export class ChartAlertByCategoryComponent implements OnInit, OnDestroy {
             this.noData = true;
           }
           this.loaded.emit();
+          this.cdr.markForCheck();
+        }),
+        catchError(() => {
+          this.loadingBarOption = false;
+          this.cdr.markForCheck();
+          return EMPTY;
         }),
       );
   }

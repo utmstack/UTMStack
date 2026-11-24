@@ -1,8 +1,8 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Observable, Subject} from 'rxjs';
-import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {EMPTY, Observable, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {Legend} from '../../../../shared/chart/types/charts/chart-properties/legend/legend';
 import {SeriesPie} from '../../../../shared/chart/types/charts/chart-properties/series/pie/series-pie';
 import {ItemStyle} from '../../../../shared/chart/types/charts/chart-properties/style/item-style';
@@ -51,7 +51,8 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
               private router: Router,
               private refreshService: RefreshService,
               private spinner: NgxSpinnerService,
-              private timeFilterBehavior: TimeFilterBehavior) {
+              private timeFilterBehavior: TimeFilterBehavior,
+              private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -89,6 +90,8 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
   }
 
   getPieData() {
+     this.loadingPieOption = true;
+     this.cdr.markForCheck();
      return this.overviewAlertDashboardService.getDataPie(this.endpoint, this.queryParams)
       .pipe(
         map(response => response.body),
@@ -101,6 +104,12 @@ export class ChartCommonPieComponent implements OnInit, OnDestroy {
             this.noData = true;
           }
           this.loaded.emit();
+          this.cdr.markForCheck();
+        }),
+        catchError(() => {
+          this.loadingPieOption = false;
+          this.cdr.markForCheck();
+          return EMPTY;
         }));
   }
 

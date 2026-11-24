@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Observable, Subject} from 'rxjs';
-import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {EMPTY, from, Observable, of, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {buildMultilineObject} from '../../../../shared/chart/util/build-multiline-option.util';
 import {ChartTypeEnum} from '../../../../shared/enums/chart-type.enum';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
@@ -114,20 +114,29 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
         }
       });*/
 
+    this.loadingPieOption = true;
     return this.overviewAlertDashboardService.getEventInTime(this.request)
       .pipe(
-        map( response => response.body),
-        tap(data => {
-          this.loadingPieOption = false;
-          if (data.categories.length > 0) {
-            buildMultilineObject(data).then(option => {
-              this.multilineOption = option;
-              this.noData = false;
-            });
-          } else {
-            this.noData = true;
+        map(response => response.body),
+        switchMap(data => {
+          if (data?.categories?.length > 0) {
+            return from(buildMultilineObject(data)).pipe(
+              tap(option => {
+                this.multilineOption = option;
+                this.noData = false;
+                this.loadingPieOption = false;
+                this.loaded.emit();
+              })
+            );
           }
+          this.noData = true;
+          this.loadingPieOption = false;
           this.loaded.emit();
+          return of(data || {});
+        }),
+        catchError(() => {
+          this.loadingPieOption = false;
+          return EMPTY;
         })
       );
   }

@@ -15,8 +15,9 @@
                        label="Loading chart">
       </app-utm-spinner>
     </div>
-    <div *ngIf="status$ | async as status"
-         class="d-flex justify-content-around align-items-center h-100 p-4">
+    <ng-container *ngIf="status$ | async as status">
+      <div *ngIf="!loadingStatusAlert"
+           class="d-flex justify-content-around align-items-center h-100 p-4">
       <app-kpi (click)="chartEvent(OPEN)"
                [color]="'#28a745'"
                [decimal]="0" [icon]="OPEN_ICON"
@@ -35,6 +36,7 @@
                [icon]="CLOSED_ICON"
                [label]="'Complete'"
                [value]="status[2]?.value" class="cursor-pointer"></app-kpi>
-    </div>
+      </div>
+    </ng-container>
   </div>
 </div>

@@ -1,8 +1,8 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, OnDestroy, OnInit, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Observable, Subject} from 'rxjs';
-import {filter, map, startWith, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {EMPTY, Observable, Subject} from 'rxjs';
+import {catchError, filter, map, startWith, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {ALERT_GLOBAL_FIELD, ALERT_TIMESTAMP_FIELD} from '../../../../shared/constants/alert/alert-field.constant';
 import {ElasticOperatorsEnum} from '../../../../shared/enums/elastic-operators.enum';
 import {
@@ -23,14 +23,15 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
   @Output() loaded = new EventEmitter<void>();
   interval: any;
   dailyAlert: ChartSerieValueType[] = [];
-  loadingChartDailyAlert = false;
+  loadingChartDailyAlert = true;
   destroy$ = new Subject<void>();
   dailyAlert$: Observable<ChartSerieValueType[]>;
 
   constructor(private overviewAlertDashboardService: OverviewAlertDashboardService,
               private refreshService: RefreshService,
               private router: Router,
-              private spinner: NgxSpinnerService) {
+              private spinner: NgxSpinnerService,
+              private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -40,7 +41,7 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
         filter((refreshType: string) => (
           refreshType === RefreshType.ALL)),
-        startWith(this.init()),
+        startWith(RefreshType.ALL),
         switchMap(() => {
           return this.getDailyAlert();
         })
@@ -53,6 +54,7 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
 
   getDailyAlert() {
     this.loadingChartDailyAlert = true;
+    this.cdr.markForCheck();
     return this.overviewAlertDashboardService
       .getCardAlertTodayWeek()
         .pipe(
@@ -62,6 +64,12 @@ export class ChartAlertDailyWeekComponent implements OnInit, OnDestroy {
           tap(() => {
             this.loaded.emit();
             this.loadingChartDailyAlert = false;
+            this.cdr.markForCheck();
+          }),
+          catchError(() => {
+            this.loadingChartDailyAlert = false;
+            this.cdr.markForCheck();
+            return EMPTY;
           }));
   }
 
