@@ -1480,6 +1480,12 @@ app-utm-items-per-page {
   }
 }
 
+// Defensive guard for ngx-spinner 22: a fading overlay must never trap clicks.
+.ngx-spinner-overlay.fade-out {
+  pointer-events: none !important;
+}
+
+
 
 
 

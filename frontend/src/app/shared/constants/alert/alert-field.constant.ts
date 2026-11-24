@@ -171,7 +171,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Severity',
     field: ALERT_SEVERITY_FIELD_LABEL,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: true,
   },
   {
@@ -227,7 +227,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Target Bytes Sent',
     field: ALERT_TARGET_BYTES_SENT_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
@@ -239,7 +239,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Target ASN',
     field: ALERT_TARGET_GEOLOCATION_ASN_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: true,
   },
   {
@@ -251,13 +251,13 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Target Latitude',
     field: ALERT_TARGET_GEOLOCATION_LATITUDE_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
     label: 'Target Longitude',
     field: ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
@@ -301,7 +301,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
  {
    label: 'Adversary Bytes Sent',
    field: ALERT_ADVERSARY_BYTES_SENT_FIELD,
-   type: ElasticDataTypesEnum.STRING,
+   type: ElasticDataTypesEnum.NUMBER,
    visible: false,
  },
  {
@@ -313,7 +313,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
  {
    label: 'Adversary ASN',
    field: ALERT_ADVERSARY_GEOLOCATION_ASN_FIELD,
-   type: ElasticDataTypesEnum.STRING,
+   type: ElasticDataTypesEnum.NUMBER,
    visible: true,
  },
  {
@@ -325,13 +325,13 @@ export const ALERT_FIELDS: UtmFieldType[] = [
  {
    label: 'Adversary Latitude',
    field: ALERT_ADVERSARY_GEOLOCATION_LATITUDE_FIELD,
-   type: ElasticDataTypesEnum.STRING,
+   type: ElasticDataTypesEnum.NUMBER,
    visible: false,
  },
  {
    label: 'Adversary Longitude',
    field: ALERT_ADVERSARY_GEOLOCATION_LONGITUDE_FIELD,
-   type: ElasticDataTypesEnum.STRING,
+   type: ElasticDataTypesEnum.NUMBER,
    visible: false,
  },
  {
@@ -363,25 +363,25 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Availability',
     field: ALERT_IMPACT_AVAILABILITY_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: true,
   },
   {
     label: 'Confidentiality',
     field: ALERT_IMPACT_CONFIDENTIALITY_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
     label: 'Integrity',
     field: ALERT_IMPACT_INTEGRITY_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
     label: 'ID',
     field: ALERT_CASE_ID_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   /*{
@@ -393,7 +393,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Technique',
     field: ALERT_TECHNIQUE_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {
@@ -429,7 +429,7 @@ export const ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Observation',
     field: ALERT_OBSERVATION_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {
@@ -497,13 +497,13 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'ID',
     field: ALERT_CASE_ID_FIELD,
-    type: ElasticDataTypesEnum.NUMBER,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {
     label: 'Severity',
     field: ALERT_SEVERITY_FIELD_LABEL,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: true,
   },
   {
@@ -521,19 +521,19 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Availability',
     field: ALERT_IMPACT_AVAILABILITY_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: true,
   },
   {
     label: 'Confidentiality',
     field: ALERT_IMPACT_CONFIDENTIALITY_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
     label: 'Integrity',
     field: ALERT_IMPACT_INTEGRITY_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
@@ -581,7 +581,7 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Adversary Bytes Sent',
     field: ALERT_ADVERSARY_BYTES_SENT_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
@@ -593,7 +593,7 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Adversary ASN',
     field: ALERT_ADVERSARY_GEOLOCATION_ASN_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: true,
   },
   {
@@ -605,13 +605,13 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Adversary Latitude',
     field: ALERT_ADVERSARY_GEOLOCATION_LATITUDE_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
     label: 'Adversary Longitude',
     field: ALERT_ADVERSARY_GEOLOCATION_LONGITUDE_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
@@ -629,7 +629,7 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Target Bytes Sent',
     field: ALERT_TARGET_BYTES_SENT_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
@@ -641,7 +641,7 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Target ASN',
     field: ALERT_TARGET_GEOLOCATION_ASN_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: true,
   },
   {
@@ -653,13 +653,13 @@ export const ALERT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Target Latitude',
     field: ALERT_TARGET_GEOLOCATION_LATITUDE_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   },
   {
     label: 'Target Longitude',
     field: ALERT_TARGET_GEOLOCATION_LONGITUDE_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.NUMBER,
     visible: false,
   }
 ];
@@ -800,7 +800,7 @@ export const EVENT_FIELDS: UtmFieldType[] = [
   {
     label: 'Observation',
     field: ALERT_OBSERVATION_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
 ];
@@ -815,13 +815,13 @@ export const EVENT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'ID',
     field: ALERT_CASE_ID_FIELD,
-    type: ElasticDataTypesEnum.NUMBER,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {
     label: 'Severity',
     field: ALERT_SEVERITY_FIELD_LABEL,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: true,
   },
   {
@@ -1079,7 +1079,7 @@ export const INCIDENT_FIELDS: UtmFieldType[] = [
   {
     label: 'Observation',
     field: ALERT_OBSERVATION_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {
@@ -1112,13 +1112,13 @@ export const INCIDENT_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'ID',
     field: ALERT_CASE_ID_FIELD,
-    type: ElasticDataTypesEnum.NUMBER,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {
     label: 'Severity',
     field: ALERT_SEVERITY_FIELD_LABEL,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: true,
   },
   {
@@ -1243,7 +1243,7 @@ export const INCIDENT_AUTOMATION_ALERT_FIELDS: UtmFieldType[] = [
   {
     label: 'Severity',
     field: ALERT_SEVERITY_FIELD_LABEL,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: true,
   },
   {
@@ -1613,7 +1613,7 @@ export const ALERTS_CHILDREN_FIELDS: UtmFieldType[] = [
   {
     label: 'Observation',
     field: ALERT_OBSERVATION_FIELD,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: false,
   },
   {
@@ -1653,7 +1653,7 @@ export const ADVERSARY_FILTERS_FIELDS: UtmFieldType[] = [
   {
     label: 'Severity',
     field: ALERT_SEVERITY_FIELD_LABEL,
-    type: ElasticDataTypesEnum.STRING,
+    type: ElasticDataTypesEnum.KEYWORD,
     visible: true,
   },
   {
