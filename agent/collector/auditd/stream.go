@@ -5,7 +5,7 @@ package auditd
 
 import (
 	"github.com/elastic/go-libaudit/v2/auparse"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 )

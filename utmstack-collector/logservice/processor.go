@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 
 	"github.com/utmstack/UTMStack/utmstack-collector/agent"
 	"github.com/utmstack/UTMStack/utmstack-collector/config"

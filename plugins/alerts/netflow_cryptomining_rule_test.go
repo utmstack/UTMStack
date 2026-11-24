@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"gopkg.in/yaml.v3"
 )
 

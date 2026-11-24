@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/threatwinds/go-sdk/plugins"
+import "github.com/utmstack/go-sdk/plugins"
 
 type Parser interface {
 	ProcessData(logMessage interface{}, datasource string, queue chan *plugins.Log) error

@@ -12,7 +12,7 @@ import (
 
 	libaudit "github.com/elastic/go-libaudit/v2"
 	"github.com/elastic/go-libaudit/v2/auparse"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 

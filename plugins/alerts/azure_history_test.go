@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	sdkos "github.com/threatwinds/go-sdk/os"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/tidwall/gjson"
 	"io"
 	"net/http"

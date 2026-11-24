@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"net"
 	"strings"
 	"sync"

@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/entities"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/as400/config"
 	"github.com/utmstack/UTMStack/as400/logservice"
 	"github.com/utmstack/UTMStack/as400/utils"

@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"sync"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/config"
 )
 

@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/plugins/compliance-orchestrator/models"
 )
 
@@ -22,7 +22,7 @@ type BackendClient struct {
 }
 
 func NewBackendClient() *BackendClient {
-	raw := plugins.PluginCfg("com.utmstack", false).Get("backend").String()
+	raw := plugins.PluginCfg("com.utmstack").Get("backend").String()
 
 	if !strings.HasPrefix(raw, "http://") && !strings.HasPrefix(raw, "https://") {
 		raw = "http://" + raw
@@ -30,7 +30,7 @@ func NewBackendClient() *BackendClient {
 
 	return &BackendClient{
 		baseURL:     raw,
-		internalKey: plugins.PluginCfg("com.utmstack", false).Get("internalKey").String(),
+		internalKey: plugins.PluginCfg("com.utmstack").Get("internalKey").String(),
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 
 	sdkos "github.com/threatwinds/go-sdk/os"
 	"github.com/tidwall/gjson"

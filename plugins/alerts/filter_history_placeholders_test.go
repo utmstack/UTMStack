@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/tidwall/gjson"
 	"google.golang.org/protobuf/types/known/structpb"
 )

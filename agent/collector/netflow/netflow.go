@@ -16,7 +16,7 @@ import (
 	"github.com/netsampler/goflow2/decoders/netflowlegacy"
 	tehmaze "github.com/tehmaze/netflow"
 	"github.com/tehmaze/netflow/session"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/collector/configwatcher"
 	"github.com/utmstack/UTMStack/agent/collector/schema"
 	"github.com/utmstack/UTMStack/agent/config"
