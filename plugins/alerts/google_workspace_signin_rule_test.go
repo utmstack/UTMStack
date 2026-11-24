@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
 	"google.golang.org/protobuf/encoding/protojson"
 )

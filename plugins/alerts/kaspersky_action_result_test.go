@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/tidwall/gjson"
 )
 

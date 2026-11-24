@@ -10,7 +10,7 @@ import (
 	"github.com/tehmaze/netflow/netflow6"
 	"github.com/tehmaze/netflow/netflow7"
 	"github.com/threatwinds/go-sdk/entities"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/config"
 	pnf "github.com/utmstack/UTMStack/agent/parser/netflow"
 	"github.com/utmstack/UTMStack/agent/utils"

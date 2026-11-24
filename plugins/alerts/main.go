@@ -7,7 +7,7 @@ import (
 
 	"github.com/threatwinds/go-sdk/catcher"
 	sdkos "github.com/threatwinds/go-sdk/os"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
 
 	"google.golang.org/protobuf/types/known/emptypb"

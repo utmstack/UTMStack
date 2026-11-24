@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/entities"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/models"
 	"github.com/utmstack/UTMStack/agent/utils"

@@ -19,7 +19,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
 	"github.com/tidwall/gjson"
 	"google.golang.org/protobuf/encoding/protojson"

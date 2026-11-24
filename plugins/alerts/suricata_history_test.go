@@ -14,7 +14,7 @@ import (
 	"time"
 
 	sdkos "github.com/threatwinds/go-sdk/os"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
 	"google.golang.org/protobuf/encoding/protojson"
 )

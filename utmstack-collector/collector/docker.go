@@ -12,7 +12,7 @@ import (
 	"github.com/docker/docker/api/types/events"
 	"github.com/docker/docker/client"
 	"github.com/google/uuid"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/utmstack-collector/config"
 	"github.com/utmstack/UTMStack/utmstack-collector/logservice"
 	"github.com/utmstack/UTMStack/utmstack-collector/models"

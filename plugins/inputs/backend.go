@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 )
 
 func createPanelRequest(method string, endpoint string) (*http.Request, error) {

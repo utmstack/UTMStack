@@ -7,7 +7,7 @@ import (
 	"sync"
 	"testing"
 
-	sdkplugins "github.com/threatwinds/go-sdk/plugins"
+	sdkplugins "github.com/utmstack/go-sdk/plugins"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"

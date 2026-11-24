@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 	"github.com/utmstack/UTMStack/agent/agent"
 	"github.com/utmstack/UTMStack/agent/collector/file"
 	"github.com/utmstack/UTMStack/agent/collector/netflow"

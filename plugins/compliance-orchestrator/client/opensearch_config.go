@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/plugins"
 )
 
 type OpenSearchConfig struct {
@@ -17,7 +17,7 @@ type OpenSearchConfig struct {
 }
 
 func LoadOpenSearchConfig() OpenSearchConfig {
-	cfg := plugins.PluginCfg("org.opensearch", false).Get("opensearch")
+	cfg := plugins.PluginCfg("org.opensearch").Get("opensearch")
 
 	host := cfg.Get("host").String()
 	port := cfg.Get("port").String()

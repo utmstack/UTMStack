@@ -1,6 +1,6 @@
 package schema
 
-import "github.com/threatwinds/go-sdk/plugins"
+import "github.com/utmstack/go-sdk/plugins"
 
 type IncidentDetail struct {
 	CreatedBy    string `json:"createdBy,omitempty"`
