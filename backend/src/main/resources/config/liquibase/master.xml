@@ -625,6 +625,7 @@
   <include file="/config/liquibase/changelog/20261113001_fix_netflow_menu_datatype.xml" relativeToChangelogFile="false"/>
   <include file="/config/liquibase/changelog/20261115001_create_utm_schedule_table.xml" relativeToChangelogFile="false"/>
   <include file="/config/liquibase/changelog/20261118001_sync_custom_identity_sequences.xml" relativeToChangelogFile="false"/>
+  <include file="/config/liquibase/changelog/20261124001_fix_alert_viz_bare_keyword.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>
 

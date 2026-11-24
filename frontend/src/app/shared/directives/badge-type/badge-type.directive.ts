@@ -13,16 +13,21 @@ export class BadgeTypeDirective {
   @Input() set appBadgeType(type: string) {
     this.removePreviousClasses();
     const classNames = this.getClassByType(type);
-    classNames.split(' ').forEach(cls => this.renderer.addClass(this.el.nativeElement, cls));
+    if (classNames) {
+      classNames.split(' ').forEach(cls => this.renderer.addClass(this.el.nativeElement, cls));
+    }
   }
-  getClassByType(type: string) {
-    switch (type) {
+  getClassByType(type: string): string {
+    switch ((type || '').toUpperCase()) {
       case AppLogTypeEnum.ERROR:
         return 'border-danger-600 text-danger-600';
       case AppLogTypeEnum.INFO:
         return 'border-info-600 text-info-600';
       case AppLogTypeEnum.WARNING:
+      case 'WARNING':
         return 'border-warning text-warning';
+      default:
+        return '';
     }
   }
   private removePreviousClasses() {

@@ -88,7 +88,9 @@ export function initTimezoneFormat(apiChecker: ApiServiceCheckerService,
     // extension imports (echarts-leaflet, effectScatter, macarons theme)
     // register on — so every extension is visible to the charts.
     NgxEchartsModule.forRoot({echarts: () => import('echarts')}),
-    NgxSpinnerModule,
+    // ngx-spinner 22: disable native Popover API top-layer promotion so overlays
+    // cannot trap pointer events above Bootstrap modals/dropdowns.
+    NgxSpinnerModule.forRoot({usePopover: false}),
     AlertManagementSharedModule,
   ],
   providers: [

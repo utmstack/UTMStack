@@ -69,14 +69,14 @@ public final class Constants {
     // ----------------------------------------------------------------------------------
     // - Alert index common fields
     // ----------------------------------------------------------------------------------
-    public static final String alertIdKeyword = "id.keyword";
-    public static final String alertParentIdKeyword = "parentId.keyword";
+    public static final String alertIdKeyword = "id";
+    public static final String alertParentIdKeyword = "parentId";
     public static final String alertStatus = "status";
     public static final String alertTags = "tags";
     public static final String alertIsIncident = "isIncident";
     public static final String alertNameKeyword = "name.keyword";
     public static final String alertSeverity = "severity";
-    public static final String alertSeverityLabel = "severityLabel.keyword";
+    public static final String alertSeverityLabel = "severityLabel";
     public static final String alertCategoryKeyword = "category.keyword";
     public static final String alertDataSourceKeyword = "dataSource.keyword";
     public static final int LOG_ANALYZER_TOTAL_RESULTS = 10000;

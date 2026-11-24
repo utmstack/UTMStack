@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20261124001_fix_alert_viz_bare_keyword" author="utmstack">
+        <comment>
+            Standardized v11-alert-* OpenSearch mappings (installer/services/search.go)
+            pin severityLabel, statusLabel, statusObservation, id, and parentId as bare
+            keyword fields without a .keyword multifield. Rewrite alert visualizations so
+            their filters, aggregations, and cached queries reference the bare keyword
+            paths, and align viz 500 (Close Windows Alert Count) with AlertStatus.COMPLETED ("Completed").
+        </comment>
+        <sql>UPDATE utm_visualization
+SET filters = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(filters,
+        '"severityLabel.keyword"', '"severityLabel"'),
+        '"statusLabel.keyword"', '"statusLabel"'),
+        '"statusObservation.keyword"', '"statusObservation"'),
+        '"id.keyword"', '"id"'),
+        '"parentId.keyword"', '"parentId"')
+WHERE (id_pattern = 2 OR event_type = 'alert-*')
+  AND filters IS NOT NULL
+  AND (filters LIKE '%severityLabel.keyword%'
+    OR filters LIKE '%statusLabel.keyword%'
+    OR filters LIKE '%statusObservation.keyword%'
+    OR filters LIKE '%id.keyword%'
+    OR filters LIKE '%parentId.keyword%');
+
+UPDATE utm_visualization
+SET aggregation = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(aggregation,
+        '"severityLabel.keyword"', '"severityLabel"'),
+        '"statusLabel.keyword"', '"statusLabel"'),
+        '"statusObservation.keyword"', '"statusObservation"'),
+        '"id.keyword"', '"id"'),
+        '"parentId.keyword"', '"parentId"')
+WHERE (id_pattern = 2 OR event_type = 'alert-*')
+  AND aggregation IS NOT NULL
+  AND (aggregation LIKE '%severityLabel.keyword%'
+    OR aggregation LIKE '%statusLabel.keyword%'
+    OR aggregation LIKE '%statusObservation.keyword%'
+    OR aggregation LIKE '%id.keyword%'
+    OR aggregation LIKE '%parentId.keyword%');
+
+UPDATE utm_visualization
+SET query = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(query,
+        '"severityLabel.keyword"', '"severityLabel"'),
+        '"statusLabel.keyword"', '"statusLabel"'),
+        '"statusObservation.keyword"', '"statusObservation"'),
+        '"id.keyword"', '"id"'),
+        '"parentId.keyword"', '"parentId"')
+WHERE (id_pattern = 2 OR event_type = 'alert-*')
+  AND query IS NOT NULL
+  AND (query LIKE '%severityLabel.keyword%'
+    OR query LIKE '%statusLabel.keyword%'
+    OR query LIKE '%statusObservation.keyword%'
+    OR query LIKE '%id.keyword%'
+    OR query LIKE '%parentId.keyword%');
+
+UPDATE utm_visualization
+SET filters = REPLACE(REPLACE(filters,
+        '"value":"Close"', '"value":"Completed"'),
+        '"value": "Close"', '"value": "Completed"')
+WHERE id = 500
+  AND filters IS NOT NULL
+  AND (filters LIKE '%"value":"Close"%' OR filters LIKE '%"value": "Close"%');</sql>
+        <rollback>
+UPDATE utm_visualization
+SET filters = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(filters,
+        '"severityLabel"', '"severityLabel.keyword"'),
+        '"statusLabel"', '"statusLabel.keyword"'),
+        '"statusObservation"', '"statusObservation.keyword"'),
+        '"id"', '"id.keyword"'),
+        '"parentId"', '"parentId.keyword"')
+WHERE (id_pattern = 2 OR event_type = 'alert-*')
+  AND filters IS NOT NULL;
+
+UPDATE utm_visualization
+SET aggregation = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(aggregation,
+        '"severityLabel"', '"severityLabel.keyword"'),
+        '"statusLabel"', '"statusLabel.keyword"'),
+        '"statusObservation"', '"statusObservation.keyword"'),
+        '"id"', '"id.keyword"'),
+        '"parentId"', '"parentId.keyword"')
+WHERE (id_pattern = 2 OR event_type = 'alert-*')
+  AND aggregation IS NOT NULL;
+
+UPDATE utm_visualization
+SET query = REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(query,
+        '"severityLabel"', '"severityLabel.keyword"'),
+        '"statusLabel"', '"statusLabel.keyword"'),
+        '"statusObservation"', '"statusObservation.keyword"'),
+        '"id"', '"id.keyword"'),
+        '"parentId"', '"parentId.keyword"')
+WHERE (id_pattern = 2 OR event_type = 'alert-*')
+  AND query IS NOT NULL;
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
