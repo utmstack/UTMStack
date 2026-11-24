@@ -13,8 +13,8 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.53.0
 	github.com/crowdstrike/gofalcon v0.25.0
 	github.com/gin-gonic/gin v1.12.0
-	github.com/threatwinds/go-sdk v1.1.43
-	github.com/utmstack/go-sdk v1.0.0
+	github.com/threatwinds/go-sdk v1.2.1
+	github.com/utmstack/go-sdk v1.1.0
 	golang.org/x/sync v0.25.0
 	google.golang.org/api v0.316.0
 	google.golang.org/grpc v1.85.0

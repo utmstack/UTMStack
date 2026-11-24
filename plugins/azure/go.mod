@@ -7,8 +7,8 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/messaging/azeventhubs/v2 v2.0.2
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.8.3
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.43
-	github.com/utmstack/go-sdk v1.0.0
+	github.com/threatwinds/go-sdk v1.2.1
+	github.com/utmstack/go-sdk v1.1.0
 	google.golang.org/grpc v1.85.0
 	google.golang.org/protobuf v1.36.12
 )

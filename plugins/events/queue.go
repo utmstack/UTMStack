@@ -12,19 +12,19 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-var logs = make(chan string, 100*runtime.NumCPU())
+const logsQueueCap = 10000
+
+var logs = make(chan string, logsQueueCap)
 
 func addToQueue(l string) {
-	if len(logs) >= 100*runtime.NumCPU() {
+	select {
+	case logs <- l:
+	default:
 		_ = catcher.Error("cannot enqueue log", fmt.Errorf("queue is full"), map[string]any{
 			"process": "plugin_com.utmstack.events",
 			"queue":   "logs",
 		})
-
-		return
 	}
-
-	logs <- l
 }
 
 func startQueue() {
@@ -63,9 +63,10 @@ func startQueue() {
 	}
 
 	queue := sdkos.NewBulkQueue("plugin_com.utmstack.events", sdkos.BulkQueueConfig{
-		FlushInterval:  10 * time.Second,
-		FlushThreshold: 50,
-		MaxRetries:     0,
+		FlushInterval:  2 * time.Second,
+		FlushThreshold: 1000,
+		MaxBatchBytes:  5 << 20, // 5 MB
+		MaxRetries:     2,
 		RetryDelay:     time.Second,
 	})
 
