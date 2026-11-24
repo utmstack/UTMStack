@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet id="20261124002" author="utmstack">
+        <sql>
+            SELECT setval(
+                'public.utm_configuration_parameter_id_seq',
+                GREATEST((SELECT COALESCE(MAX(id), 1) FROM public.utm_configuration_parameter), 42),
+                true
+            );
+
+            INSERT INTO public.utm_configuration_parameter (
+                section_id,
+                conf_param_short,
+                conf_param_large,
+                conf_param_description,
+                conf_param_value,
+                conf_param_required,
+                conf_param_datatype,
+                modification_time,
+                modification_user,
+                conf_param_option,
+                conf_param_regexp
+            )
+            SELECT
+                10,
+                'utmstack.tw.allowlist',
+                'Allowlist (IPs, CIDRs, Domains)',
+                'IP addresses, CIDR ranges, or domains/hostnames excluded from Threat Intelligence feed alerts.',
+                '',
+                false,
+                'allowlist',
+                NULL,
+                NULL,
+                NULL,
+                NULL
+            WHERE NOT EXISTS (
+                SELECT 1
+                FROM public.utm_configuration_parameter
+                WHERE conf_param_short = 'utmstack.tw.allowlist'
+            )
+              AND EXISTS (
+                SELECT 1
+                FROM public.utm_configuration_section
+                WHERE id = 10
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>

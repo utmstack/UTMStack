@@ -1,0 +1,29 @@
+.utm-allowlist-container {
+  background-color: #ffffff;
+}
+
+.allowlist-chip {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.allowlist-kind {
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+}
+
+.allowlist-value {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.allowlist-remove {
+  font-size: 1rem;
+  line-height: 1;
+  float: none;
+  opacity: 0.65;
+
+  &:hover {
+    opacity: 1;
+  }
+}

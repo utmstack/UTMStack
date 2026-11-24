@@ -116,6 +116,7 @@ import {
 } from './components/utm/config/app-config-delete-confirm/app-config-delete-confirm.component';
 import {AppConfigParamsComponent} from './components/utm/config/app-config-params/app-config-params.component';
 import {AppConfigSectionsComponent} from './components/utm/config/app-config-sections/app-config-sections.component';
+import {UtmAllowlistComponent} from './components/utm/config/utm-allowlist/utm-allowlist.component';
 import {
   FederationEmailConfigPageComponent
 } from '../federation/pages/email-config/federation-email-config.page.component';
@@ -352,6 +353,7 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     GenericFilerSortComponent,
     AppConfigParamsComponent,
     AppConfigSectionsComponent,
+    UtmAllowlistComponent,
     FederationEmailConfigPageComponent,
     AppModuleDisabledWarningComponent,
     AppConfigDeleteConfirmComponent,
@@ -487,6 +489,7 @@ import {ScheduleConfigComponent} from './components/schedule-config/schedule-con
     ThousandSuffPipe,
     AppConfigParamsComponent,
     AppConfigSectionsComponent,
+    UtmAllowlistComponent,
     AppModuleDisabledWarningComponent,
     UtmScrollTopComponent,
     TotpComponent,

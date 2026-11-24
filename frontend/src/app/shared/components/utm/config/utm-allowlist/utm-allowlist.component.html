@@ -1,0 +1,75 @@
+<div class="utm-allowlist-container border rounded p-3 bg-white">
+  <div class="input-group mb-2">
+    <input
+      type="text"
+      class="form-control"
+      [(ngModel)]="newEntry"
+      (keydown)="onKeydown($event)"
+      [disabled]="disabled"
+      placeholder="Add IP, CIDR, or domain (e.g. 57.135.227.31, 203.0.113.0/24, *.example.com)"
+      aria-label="Allowlist entry">
+    <div class="input-group-append">
+      <button
+        type="button"
+        class="btn utm-button utm-button-primary"
+        [disabled]="disabled || !newEntry?.trim()"
+        (click)="addEntries()">
+        <i class="icon-plus2 mr-1"></i>
+        Add
+      </button>
+    </div>
+  </div>
+
+  <small *ngIf="errorMessage" class="form-text text-danger mb-2">
+    {{ errorMessage }}
+  </small>
+
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <small class="text-muted">
+      Supports single IPs (IPv4/IPv6), CIDR ranges, exact domains, or wildcards (<code>*.example.com</code>).
+      Private and loopback IPs are excluded automatically.
+    </small>
+    <button
+      *ngIf="entries.length > 0 && !disabled"
+      type="button"
+      class="btn btn-link btn-sm text-danger p-0 ml-2 text-nowrap"
+      (click)="clearAll()">
+      Clear all ({{ entries.length }})
+    </button>
+  </div>
+
+  <div *ngIf="entries.length > 8" class="mb-2">
+    <input
+      type="text"
+      class="form-control form-control-sm"
+      [(ngModel)]="filterText"
+      placeholder="Filter allowlist entries...">
+  </div>
+
+  <div *ngIf="entries.length === 0" class="text-muted font-italic py-2 small">
+    No allowlisted entries configured.
+  </div>
+
+  <div *ngIf="entries.length > 0" class="d-flex flex-wrap allowlist-chips pt-1">
+    <span *ngFor="let entry of filteredEntries"
+          class="badge badge-light border d-inline-flex align-items-center allowlist-chip mr-2 mb-2 px-2 py-1">
+      <span class="badge mr-2 allowlist-kind"
+            [ngClass]="{
+              'badge-primary': entry.kind === 'IP',
+              'badge-info': entry.kind === 'CIDR',
+              'badge-secondary': entry.kind === 'Domain'
+            }">
+        {{ entry.kind }}
+      </span>
+      <span class="allowlist-value mr-2">{{ entry.value }}</span>
+      <button
+        *ngIf="!disabled"
+        type="button"
+        class="close allowlist-remove"
+        aria-label="Remove"
+        (click)="removeEntry(entry.value)">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </span>
+  </div>
+</div>

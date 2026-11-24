@@ -31,5 +31,6 @@ export enum ConfigDataTypeEnum {
   CountryList = 'country_list',
   DateFormatList = 'dateformat_list',
   Radio = 'radio',
-  Cron = 'cron'
+  Cron = 'cron',
+  Allowlist = 'allowlist'
 }
