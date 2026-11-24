@@ -200,6 +200,26 @@ if [[ -f "$TEMP_DIR/_check_errors" ]]; then
     exit 1
 fi
 
+# Guard against dual plugins.proto / store imports from threatwinds/go-sdk.
+# Importing both threatwinds/go-sdk/plugins and utmstack/go-sdk/plugins panics
+# at init() in protoregistry.GlobalFiles.
+echo "$PROJECTS" | while IFS= read -r project; do
+    [[ -z "$project" ]] && continue
+    forbidden=$(cd "$project" && go list -f '{{join .Deps "\n"}}' ./... 2>/dev/null | grep -E 'github\.com/threatwinds/go-sdk/(plugins|store)' | sort -u || true)
+    if [[ -n "$forbidden" ]]; then
+        {
+            echo "  📁 $project:"
+            echo "$forbidden" | sed 's/^/     - /'
+        } >> "$TEMP_DIR/_forbidden_deps"
+    fi
+done
+
+if [[ -f "$TEMP_DIR/_forbidden_deps" ]]; then
+    echo -e "${RED}❌ Forbidden threatwinds/go-sdk/{plugins,store} imports found (use github.com/utmstack/go-sdk):${NC}" >&2
+    cat "$TEMP_DIR/_forbidden_deps" >&2
+    exit 1
+fi
+
 # Check if any updates were found
 if [[ ! -f "$TEMP_DIR/_projects_with_updates" ]]; then
     echo -e "${GREEN}✅ All dependencies are up to date.${NC}"

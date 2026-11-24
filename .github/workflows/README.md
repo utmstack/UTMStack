@@ -434,8 +434,10 @@ It authenticates private `utmstack/*` Go module fetches with
 | Variable | Used in | Description | Format |
 |----------|---------|-------------|--------|
 | `SCHEDULE_INSTANCES` | v11 | Instance IDs for scheduling. Single variable interpreted per environment: the `publish_new_version` and `schedule` jobs read it as a JSON object keyed by product ID (values: instance ID arrays) in dev, and as a flat comma-separated instance list in production. | JSON object (dev) / comma-separated UUIDs (prod) |
-| `TW_EVENT_PROCESSOR_VERSION_PROD` | v11 | ThreatWinds Event Processor version (production) | Semver (`1.0.0`) |
-| `TW_EVENT_PROCESSOR_VERSION_DEV` | v11 | ThreatWinds Event Processor version (dev) | Semver (`1.0.0-beta`) |
+| `TW_EVENT_PROCESSOR_VERSION_PROD` | v11 | UTMStack EventProcessor `v1` base image tag (`ghcr.io/utmstack/eventprocessor/base`, production) | Semver (`1.x.y`) |
+| `TW_EVENT_PROCESSOR_VERSION_DEV` | v11 | UTMStack EventProcessor `v1` base image tag (`ghcr.io/utmstack/eventprocessor/base`, dev) | Semver (`1.x.y-beta`) |
+| `TW_EVENT_PROCESSOR_VERSION_V12_PROD` | v12 | UTMStack EventProcessor `v2` base image tag (`ghcr.io/utmstack/eventprocessor/base`, production) | Semver (`2.x.y`) |
+| `TW_EVENT_PROCESSOR_VERSION_V12_DEV` | v12 | UTMStack EventProcessor `v2` base image tag (`ghcr.io/utmstack/eventprocessor/base`, dev) | Semver (`2.x.y-beta`) |
 | `GCP_PROJECT_PROD` | v11 | GCP project for Windows agent signing (KMS) | Project ID |
 | `KMS_KEYRING_LOCATION` | v11 | KMS keyring location (default `global`) | Region |
 | `KMS_KEYRING_NAME` | v11 | KMS keyring name | Name |
