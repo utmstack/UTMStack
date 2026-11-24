@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
-	"github.com/threatwinds/go-sdk/store"
+	"github.com/utmstack/go-sdk/v2/store"
 
 	loganalyzer_usecase "github.com/utmstack/utmstack/backend/modules/loganalyzer/usecase"
 	"github.com/utmstack/utmstack/backend/pkg/authz"

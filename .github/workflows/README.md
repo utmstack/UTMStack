@@ -374,8 +374,10 @@ The installer is uploaded as a release asset.
 |----------|---------|-------------|--------|
 | `SCHEDULE_INSTANCES_PROD` | v11 | Instance IDs for prod/rc scheduling | Comma-separated UUIDs |
 | `SCHEDULE_INSTANCES_DEV` | v11 | Instance IDs for dev scheduling | Comma-separated UUIDs |
-| `TW_EVENT_PROCESSOR_VERSION_PROD` | v11 | ThreatWinds Event Processor version (prod/rc) | Semver (`1.0.0`) |
-| `TW_EVENT_PROCESSOR_VERSION_DEV` | v11 | ThreatWinds Event Processor version (dev) | Semver (`1.0.0-beta`) |
+| `TW_EVENT_PROCESSOR_VERSION_PROD` | v11 | UTMStack EventProcessor `v1` base image tag (`ghcr.io/utmstack/eventprocessor/base`, prod/rc) | Semver (`1.x.y`) |
+| `TW_EVENT_PROCESSOR_VERSION_DEV` | v11 | UTMStack EventProcessor `v1` base image tag (`ghcr.io/utmstack/eventprocessor/base`, dev) | Semver (`1.x.y-beta`) |
+| `TW_EVENT_PROCESSOR_VERSION_V12_PROD` | v12 | UTMStack EventProcessor `v2` base image tag (`ghcr.io/utmstack/eventprocessor/base`, prod/rc) | Semver (`2.x.y`) |
+| `TW_EVENT_PROCESSOR_VERSION_V12_DEV` | v12 | UTMStack EventProcessor `v2` base image tag (`ghcr.io/utmstack/eventprocessor/base`, dev) | Semver (`2.x.y-beta`) |
 
 ---
 

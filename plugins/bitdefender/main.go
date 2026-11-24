@@ -3,7 +3,7 @@ package main
 import (
 	"runtime"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 
 	"github.com/utmstack/UTMStack/plugins/bitdefender/config"
 	"github.com/utmstack/UTMStack/plugins/bitdefender/server"

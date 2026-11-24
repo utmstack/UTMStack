@@ -155,3 +155,8 @@ func Status(serviceName string) (string, error) {
 	}
 	return StatusStopped, nil
 }
+
+// EnsureRecovery is a no-op on macOS where launchd manages service restarts.
+func EnsureRecovery(_ string) error {
+	return nil
+}

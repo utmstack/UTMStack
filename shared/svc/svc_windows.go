@@ -97,3 +97,15 @@ func Status(serviceName string) (string, error) {
 		return StatusUnknown, nil
 	}
 }
+
+// EnsureRecovery configures Windows Service Control Manager failure actions so
+// the service automatically restarts after unexpected crashes or non-zero exits.
+func EnsureRecovery(serviceName string) error {
+	if out, err := exec.Command("sc", "failure", serviceName, "reset=", "86400", "actions=", "restart/5000/restart/15000/restart/60000").CombinedOutput(); err != nil {
+		return fmt.Errorf("failed to configure failure recovery for %s: %w (%s)", serviceName, err, strings.TrimSpace(string(out)))
+	}
+	if out, err := exec.Command("sc", "failureflag", serviceName, "1").CombinedOutput(); err != nil {
+		return fmt.Errorf("failed to configure failure flag for %s: %w (%s)", serviceName, err, strings.TrimSpace(string(out)))
+	}
+	return nil
+}

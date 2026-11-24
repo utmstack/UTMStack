@@ -62,3 +62,8 @@ func Status(serviceName string) (string, error) {
 		return StatusUnknown, nil
 	}
 }
+
+// EnsureRecovery is a no-op on Linux where systemd manages service restarts.
+func EnsureRecovery(_ string) error {
+	return nil
+}

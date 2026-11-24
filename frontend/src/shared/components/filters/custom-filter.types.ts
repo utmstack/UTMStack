@@ -2,7 +2,7 @@ export interface CustomFilter {
   field: string
   label: string
   operator: string
-  value: string
+  value: string | string[]
 }
 
 export interface FilterFieldDef {
@@ -16,6 +16,8 @@ export interface FilterOpDef {
   needsValue: boolean
   /** Text-based operators (e.g. CONTAINS) take free input even when fetchValues is available. */
   freeText?: boolean
+  /** Select multiple values from fetched autocomplete results (IS_ONE_OF / IS_NOT_ONE_OF). */
+  multiple?: boolean
 }
 
 export interface FilterValue {

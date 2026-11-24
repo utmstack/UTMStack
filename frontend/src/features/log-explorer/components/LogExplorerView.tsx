@@ -89,12 +89,19 @@ interface DashboardSearchSeed {
 const BUILDER_OPS: FilterOpDef[] = [
   { id: 'IS', label: 'is', needsValue: true },
   { id: 'IS_NOT', label: 'is not', needsValue: true },
+  { id: 'IS_ONE_OF', label: 'is one of', needsValue: true, multiple: true },
+  { id: 'IS_NOT_ONE_OF', label: 'is not one of', needsValue: true, multiple: true },
   { id: 'CONTAIN', label: 'contains', needsValue: true, freeText:true },
   { id: 'EXIST', label: 'exists', needsValue: false },
 ]
 
 function toCustom(f: FilterType): CustomFilter {
-  return { field: f.field, label: f.field, operator: f.operator, value: typeof f.value === 'string' ? f.value : '' }
+  return {
+    field: f.field,
+    label: f.field,
+    operator: f.operator,
+    value: Array.isArray(f.value) ? f.value.map(String) : typeof f.value === 'string' ? f.value : '',
+  }
 }
 
 function toFilter(cf: CustomFilter): FilterType {

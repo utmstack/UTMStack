@@ -30,6 +30,7 @@ func GetDependencies() []Dependency {
 			Critical:    false, // Agent can run without updater
 			PreDownload: preDownloadUpdater,
 			Configure:   configureUpdater,
+			Update:      updateUpdater,
 			Uninstall:   uninstallUpdater,
 		},
 
@@ -53,6 +54,10 @@ func configureUpdater() error {
 	return exec.Run(updaterPath, fs.GetExecutablePath(), "install")
 }
 
+func updateUpdater() error {
+	return startOrInstallUpdater(config.SERVICE_UPDATER_NAME, configureUpdater)
+}
+
 func uninstallUpdater() error {
 	updaterPath := filepath.Join(fs.GetExecutablePath(), UpdaterFile(""))
 	if !fs.Exists(updaterPath) {
@@ -70,6 +75,8 @@ func uninstallBeats() error {
 }
 
 func preDownloadUpdater() (func(), error) {
+	waitForUpdaterHealthCheck(fs.GetExecutablePath())
+
 	// Stop the updater service before download
 	if err := svc.Stop(config.SERVICE_UPDATER_NAME); err != nil {
 		// Service might not be running or installed yet - that's OK

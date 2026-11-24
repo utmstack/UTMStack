@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/store"
-	"github.com/threatwinds/go-sdk/store/factory"
+	"github.com/utmstack/go-sdk/v2/plugins"
+	"github.com/utmstack/go-sdk/v2/store"
+	"github.com/utmstack/go-sdk/v2/store/factory"
 	"github.com/utmstack/UTMStack/plugins/rule-flood-guard/internal/storecfg"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

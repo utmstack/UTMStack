@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/kardianos/service"
+	"github.com/utmstack/UTMStack/shared/svc"
 )
 
 func InstallService() {
@@ -19,6 +20,10 @@ func InstallService() {
 	if err != nil {
 		fmt.Println("\nError installing new service: ", err)
 		os.Exit(1)
+	}
+
+	if err := svc.EnsureRecovery(svcConfig.Name); err != nil {
+		fmt.Printf("\nWarning configuring service recovery: %v\n", err)
 	}
 
 	err = newService.Start()

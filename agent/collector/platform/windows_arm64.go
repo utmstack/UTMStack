@@ -18,7 +18,7 @@ import (
 	"unsafe"
 
 	"github.com/threatwinds/go-sdk/entities"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 	"golang.org/x/sys/windows"
@@ -420,36 +420,45 @@ func eventWorker(events chan windowsEventEnvelope, enqueue func(*plugins.Log) er
 	}
 
 	for envelope := range events {
-		ev := new(Event)
-		if err := xml.Unmarshal([]byte(envelope.xml), ev); err != nil {
-			utils.Logger.ErrorF("unmarshal error: %v", err)
-			continue
-		}
+		processWindowsEvent(envelope, host, enqueue, bookmarks)
+	}
+}
 
-		eventJSON, err := convertEventToJSON(ev)
-		if err != nil {
-			utils.Logger.ErrorF("toJSON error: %v", err)
-			continue
+func processWindowsEvent(envelope windowsEventEnvelope, host string, enqueue func(*plugins.Log) error, bookmarks *bookmarkStore) {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in windows eventWorker: %v", r)
 		}
+	}()
+	ev := new(Event)
+	if err := xml.Unmarshal([]byte(envelope.xml), ev); err != nil {
+		utils.Logger.ErrorF("unmarshal error: %v", err)
+		return
+	}
 
-		validatedLog, _, err := entities.ValidateString(eventJSON, false)
-		if err != nil {
-			utils.Logger.LogF(100, "validation error: %s: %v", eventJSON, err)
-			continue
-		}
+	eventJSON, err := convertEventToJSON(ev)
+	if err != nil {
+		utils.Logger.ErrorF("toJSON error: %v", err)
+		return
+	}
 
-		if err := enqueue(&plugins.Log{
-			DataSource: host,
-			DataType:   string(config.DataTypeWindowsAgent),
-			Raw:        validatedLog,
-		}); err != nil {
-			utils.Logger.ErrorF("failed to persist windows event from channel %s, not advancing bookmark: %v", envelope.channel, err)
-			continue
-		}
+	validatedLog, _, err := entities.ValidateString(eventJSON, false)
+	if err != nil {
+		utils.Logger.LogF(100, "validation error: %s: %v", eventJSON, err)
+		return
+	}
 
-		if envelope.bookmark != "" {
-			bookmarks.set(envelope.channel, envelope.bookmark)
-		}
+	if err := enqueue(&plugins.Log{
+		DataSource: host,
+		DataType:   string(config.DataTypeWindowsAgent),
+		Raw:        validatedLog,
+	}); err != nil {
+		utils.Logger.ErrorF("failed to persist windows event from channel %s, not advancing bookmark: %v", envelope.channel, err)
+		return
+	}
+
+	if envelope.bookmark != "" {
+		bookmarks.set(envelope.channel, envelope.bookmark)
 	}
 }
 

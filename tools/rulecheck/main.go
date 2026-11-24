@@ -21,8 +21,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	"google.golang.org/protobuf/encoding/protojson"
 	"gopkg.in/yaml.v3"
 )
@@ -82,7 +81,7 @@ func main() {
 		jsonStr := string(jsonBytes)
 
 		var rule plugins.Rule
-		if err := utils.StringToProtoMessage(&jsonStr, &rule); err != nil {
+		if err := plugins.StringToProtoMessage(&jsonStr, &rule); err != nil {
 			failures = append(failures, finding{rel, "proto", oneLine(err.Error())})
 			continue
 		}
