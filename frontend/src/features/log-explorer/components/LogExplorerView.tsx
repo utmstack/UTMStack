@@ -346,10 +346,13 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     [fieldsFor, dataset, fields],
   )
 
-  const buildFilters = useCallback((pinned?: { from: string | null; to: string }): FilterType[] => {
+  const buildFilters = useCallback((withTime: boolean): FilterType[] => {
     const out: FilterType[] = []
-    const abs = pinned ?? resolveRange(range)
-    if (abs.from) out.push({ field: TS, operator: 'IS_BETWEEN', value: [abs.from, abs.to] })
+    // Time scoping differs per endpoint: search/export take from/to as request
+    // scope, while chart-view/top-x have no such fields, so they still need the
+    // @timestamp filter. `withTime` selects which side of that this list feeds.
+    const abs = resolveRange(range)
+    if (withTime && abs.from) out.push({ field: TS, operator: 'IS_BETWEEN', value: [abs.from, abs.to] })
     if (appliedQuery.trim() && supportsTextSearch) {
       out.push({ field: 'raw', operator: 'IS_IN_FIELDS', value: appliedQuery.trim() })
     }
@@ -357,7 +360,10 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
     return out
   }, [range.from, range.to, appliedQuery, supportsTextSearch, filters])
 
-  const activeFilterList = useMemo(() => buildFilters(), [buildFilters])
+  // Chart endpoints have no from/to: their time window is a @timestamp filter.
+  const activeFilterList = useMemo(() => buildFilters(true), [buildFilters])
+  // Search/export scope: the time window goes on the request as from/to.
+  const searchFilters = useMemo(() => buildFilters(false), [buildFilters])
 
   // Auto-detected default columns: the important fields present in the current
   // results. Only used when the analyst hasn't picked their own columns.
@@ -395,6 +401,13 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
       },
     ]
   }, [columns, autoColumns])
+  // The time window as request scope for the search endpoint (resolveRange
+  // already emits ISO instants, which the endpoint takes verbatim).
+  const buildRange = (pinned?: { from: string | null; to: string }) => {
+    const abs = pinned ?? resolveRange(range)
+    return { from: abs.from ?? undefined, to: abs.to }
+  }
+
   /* Fetch one page. page 1 replaces the list (fresh query); later pages append
      (infinite scroll). The histogram fetches separately. */
   const fetchPage = useCallback(
@@ -429,10 +442,11 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
           const r = await svc.search({
             dataset,
             dataType: pattern,
-            filters: buildFilters(pinnedRangeRef.current ?? undefined),
+            filters: searchFilters,
             // The view counts pages from 1; the endpoint from 0.
             page: pageNum - 1,
             size: PAGE_SIZE_DEFAULT,
+            ...buildRange(pinnedRangeRef.current ?? undefined),
           })
           data = r.data ?? []
           totalCount = r.total
@@ -451,7 +465,7 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
         setLoadingMore(false)
       }
     },
-    [dataset, pattern, sqlMode, appliedSql, buildFilters]
+    [dataset, pattern, sqlMode, appliedSql, searchFilters, range.from, range.to]
   )
 
   // Fresh load whenever the query inputs change → reset to page 1 (replace).
@@ -619,11 +633,12 @@ export function LogExplorerView({ initial, onConfigChange }: LogExplorerViewProp
           onExport={() =>
             (sqlMode
               ? svc.exportSqlCsv(appliedSql.trim())
-              : svc.exportCsv({
+                : svc.exportCsv({
                   dataset,
                   dataType: pattern,
-                  filters: buildFilters(),
+                  filters: searchFilters,
                   columns: exportColumns,
+                  ...buildRange(),
                 })
             ).catch(() => toast.error(t('logExplorer.toast.exportFailed')))
           }

@@ -57,6 +57,7 @@ type storageLayout struct {
 type FieldMap = map[string]map[string]any
 
 type storageSecond struct {
+	TimeRemap       string `yaml:"timeRemap"`
 	StorageEngine   `yaml:",inline"`
 	Cutover         string   `yaml:"cutover"`
 	Expires         string   `yaml:"expires"`
@@ -93,6 +94,7 @@ func buildStorageConfig(password string, secondary *osSecondaryInfo) storageYAML
 	if secondary != nil {
 		now := time.Now().UTC()
 		cfg.Secondary = &storageSecond{
+			TimeRemap: "2006-01-02 15:04:05.000", // configured clickhouse schema
 			StorageEngine: StorageEngine{
 				Engine: "opensearch",
 				OpenSearch: &storageOS{
@@ -112,6 +114,11 @@ func buildStorageConfig(password string, secondary *osSecondaryInfo) storageYAML
 					 "Open": "2",
 					 "In review": "3",
 					 "Completed": "5",
+				},
+				"severity": map[string]any{
+					"high": "3",
+					"medium": "2",
+					"low": "1",
 				},
 			},
 			Cutover:         now.Format(time.RFC3339),

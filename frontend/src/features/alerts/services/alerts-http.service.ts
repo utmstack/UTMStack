@@ -17,6 +17,9 @@ const CSV_MAX = 10_000
 // silently truncated, which is the one thing an export must not do.
 const SEARCH_PAGE_MAX = 500
 
+// RFC3339 instant for the backend's *time.Time from/to (UTC "…Z", Go's default parse).
+const rfc3339 = (d: Date | null | undefined) => (d ? d.toISOString() : undefined)
+
 interface TopValues {
   total: number
   top: { value: string; count: number; percent: number }[]
@@ -30,14 +33,19 @@ export interface AlertListParams {
   page: number // 0-based, like the search endpoint
   size: number
   filters: FilterType[]
+  // @timestamp window as request scope (search endpoint's from/to), not a filter.
+  from?: Date | null
+  to?: Date | null
 }
 
 export const alertsHttpService = {
   // Flat, paginated alert list, newest first.
-  list: async ({ page, size, filters }: AlertListParams) => {
+  list: async ({ page, size, filters, from, to }: AlertListParams) => {
     const r = await api.post<{ data: Alert[]; total: number }>('/log-analyzer/search', {
       dataset: ALERT_DATASET,
       filters,
+      from: rfc3339(from),
+      to: rfc3339(to),
       page,
       size,
       sortBy: '@timestamp',
@@ -90,9 +98,9 @@ export const alertsHttpService = {
   getById: async (id: string): Promise<Alert | null> => {
     const r = await api.post<{ data: Alert[] }>('/log-analyzer/search', {
       dataset: ALERT_DATASET,
-      filters: [{ field: 'id', operator: 'IS', value: id }],
-      // The endpoint counts pages from 0. Asking for page 1 with size 1 skipped
-      // the only row there was, so this always answered "no such alert".
+      filters: [{ field: 'id', operator: 'CONTAIN', value: id }],
+      from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      to:new Date(),
       page: 0,
       size: 1,
     })
@@ -132,7 +140,7 @@ export const alertsHttpService = {
   // CSV of the current alert list. Built here rather than server-side: the
   // event store has no CSV endpoint, and the export is the page's own view of
   // the data — the same rows, the same columns, in the order shown.
-  exportCsv: async (filters: FilterType[]) => {
+  exportCsv: async (filters: FilterType[], from?: Date | null, to?: Date | null) => {
     const columns: { label: string; field: keyof Alert | 'tags' }[] = [
       { label: 'Timestamp', field: '@timestamp' },
       { label: 'Name', field: 'name' },
@@ -152,6 +160,8 @@ export const alertsHttpService = {
       const r = await api.post<{ data: Alert[] }>('/log-analyzer/search', {
         dataset: ALERT_DATASET,
         filters,
+        from: rfc3339(from),
+        to: rfc3339(to),
         page,
         size: Math.min(SEARCH_PAGE_MAX, CSV_MAX - rows.length),
         sortBy: '@timestamp',

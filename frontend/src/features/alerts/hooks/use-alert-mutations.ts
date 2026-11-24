@@ -17,7 +17,7 @@ export interface UseAlertMutationsResult {
   applyTags: (ids: string[], tags: string[]) => Promise<void>
   updateNotes: (alertId: string, notes: string) => Promise<void>
   updateAssignee: (alertId: string, assignee: string) => Promise<void>
-  exportCsv: (filters: FilterType[]) => Promise<void>
+  exportCsv: (filters: FilterType[], from?: Date | null, to?: Date | null) => Promise<void>
   /** Asks SOC-AI for a summary of the alert and waits until it is on the alert. */
   generateAiSummary: (alert: Alert) => Promise<void>
   /** Ids of the alerts whose summary is being generated. */
@@ -136,9 +136,9 @@ export function useAlertMutations({
   )
 
   const exportCsv = useCallback(
-    async (filters: FilterType[]) => {
+    async (filters: FilterType[], from?: Date | null, to?: Date | null) => {
       try {
-        await svc.exportCsv(filters)
+        await svc.exportCsv(filters, from, to)
       } catch (e) {
         toast.error(e instanceof AlertsHttpError ? e.message : t('alerts.toast.exportFailed'))
       }

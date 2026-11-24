@@ -14,8 +14,8 @@ export interface UseAlertsListResult {
 
 /** What the accumulated list belongs to. Two queries that ask the same thing
  *  share it, so a re-render alone never discards rows. */
-function queryKey(filters: FilterType[], pageSize: number): string {
-  return `${pageSize}|${JSON.stringify(filters)}`
+function queryKey(filters: FilterType[], pageSize: number, from?: Date | null, to?: Date | null): string {
+  return `${pageSize}|${from?.toISOString() ?? ''}|${to?.toISOString() ?? ''}|${JSON.stringify(filters)}`
 }
 
 /**
@@ -28,8 +28,14 @@ function queryKey(filters: FilterType[], pageSize: number): string {
  * first page landing, and the next response then appended one query's rows onto
  * another's — a filtered count above a list still showing everything.
  */
-export function useAlertsList(page: number, pageSize: number, filters: FilterType[]): UseAlertsListResult {
-  const key = useMemo(() => queryKey(filters, pageSize), [filters, pageSize])
+export function useAlertsList(
+  page: number,
+  pageSize: number,
+  filters: FilterType[],
+  from?: Date | null,
+  to?: Date | null,
+): UseAlertsListResult {
+  const key = useMemo(() => queryKey(filters, pageSize, from, to), [filters, pageSize, from, to])
   const [acc, setAcc] = useState<{ key: string | null; alerts: Alert[]; total: number }>({
     key: null,
     alerts: [],
@@ -49,7 +55,7 @@ export function useAlertsList(page: number, pageSize: number, filters: FilterTyp
       // otherwise a refresh while scrolled down appends onto the stale list
       // instead of replacing it.
       const fresh = forceFresh || page === 0 || acc.key !== key
-      const { data, total } = await svc.list({ page: fresh ? 0 : page, size: pageSize, filters })
+      const { data, total } = await svc.list({ page: fresh ? 0 : page, size: pageSize, filters, from, to })
       setAcc((prev) => ({
         key,
         alerts: fresh ? (data ?? []) : [...prev.alerts, ...(data ?? [])],
@@ -64,7 +70,7 @@ export function useAlertsList(page: number, pageSize: number, filters: FilterTyp
     // acc.key is read, not tracked: including it would re-run the load its own
     // result caused.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize, filters, key])
+  }, [page, pageSize, filters, from, to, key])
 
   useEffect(() => {
     void load()
