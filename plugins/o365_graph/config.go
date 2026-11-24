@@ -9,7 +9,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	"github.com/utmstack/UTMStack/plugins/shared/crypto"
 	"gopkg.in/yaml.v3"
 )

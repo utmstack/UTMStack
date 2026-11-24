@@ -6,7 +6,7 @@ package auditd
 import (
 	"context"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 

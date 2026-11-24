@@ -86,6 +86,7 @@ func (s *scorer) ScoreAlert(ctx context.Context, alertID string) (*domain.Score,
 	return &domain.Score{
 		AlertID:    alert.ID,
 		AlertName:  alert.Name,
+		ParentID:   alert.ParentID,
 		FinalScore: final,
 		Decision:   decision,
 		Weights: map[string]float64{

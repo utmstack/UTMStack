@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/internal/agent"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/internal/alert"
@@ -186,16 +186,6 @@ func (aq *AlertQueue) processAlert(workerID int, item *Item) {
 		return
 	}
 
-	if !item.IsManual && !consumeQuota(aq.ctx, cfg.Backend, cfg.InternalKey, item.TenantID) {
-		atomic.AddInt64(&aq.processedCount, 1)
-		catcher.Info("skipping automatic analysis: the tenant has used its AI allowance for today", map[string]any{
-			"process": "plugin_com.utmstack.soc-ai",
-			"tenant":  item.TenantID,
-			"alert":   alertFields.Id,
-		})
-		return
-	}
-
 	alertJSON, err := json.Marshal(&alertFields)
 	if err != nil {
 		atomic.AddInt64(&aq.errorCount, 1)
@@ -212,7 +202,33 @@ func (aq *AlertQueue) processAlert(workerID int, item *Item) {
 	// the same scoring tool directly here, same as the model would have.
 	scoreArgs, _ := json.Marshal(map[string]string{"alert_id": alertFields.Id})
 	scoreText, scoreIsErr, scoreErr := ag.Broker().Call(aq.ctx, "alerts.score", scoreArgs)
-	if scoreErr != nil || scoreIsErr {
+	scoreFailed := scoreErr != nil || scoreIsErr
+
+	// An alert with a parent is a recurrence already grouped under one the
+	// automatic pass has handled; re-triaging each one burns quota and floods
+	// the notes later read back as prior verdicts. Manual submissions are an
+	// explicit request, so they always run.
+	if !scoreFailed && !item.IsManual && hasParent(scoreText) {
+		atomic.AddInt64(&aq.processedCount, 1)
+		catcher.Info("skipping automatic analysis: the alert already has a parent alert", map[string]any{
+			"process": "plugin_com.utmstack.soc-ai",
+			"tenant":  item.TenantID,
+			"alert":   alertFields.Id,
+		})
+		return
+	}
+
+	if !item.IsManual && !consumeQuota(aq.ctx, cfg.Backend, cfg.InternalKey, item.TenantID) {
+		atomic.AddInt64(&aq.processedCount, 1)
+		catcher.Info("skipping automatic analysis: the tenant has used its AI allowance for today", map[string]any{
+			"process": "plugin_com.utmstack.soc-ai",
+			"tenant":  item.TenantID,
+			"alert":   alertFields.Id,
+		})
+		return
+	}
+
+	if scoreFailed {
 		_ = catcher.Error("alert scoring failed, escalating straight to full triage", scoreErr, map[string]any{
 			"process": "plugin_com.utmstack.soc-ai", "id": alertFields.Id,
 		})
@@ -292,4 +308,14 @@ func (aq *AlertQueue) metricsLogger() {
 			})
 		}
 	}
+}
+
+func hasParent(scoreJSON string) bool {
+	var s struct {
+		ParentID string `json:"parentId"`
+	}
+	if err := json.Unmarshal([]byte(scoreJSON), &s); err != nil {
+		return false
+	}
+	return s.ParentID != ""
 }

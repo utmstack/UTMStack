@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/threatwinds/go-sdk/store"
+	"github.com/utmstack/go-sdk/v2/store"
 	"gorm.io/gorm"
 
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"

@@ -1,9 +1,9 @@
 module github.com/utmstack/UTMStack/installer
 
-go 1.26.0
+go 1.26.11
 
 require (
-	github.com/cloudfoundry/gosigar v1.3.128
+	github.com/cloudfoundry/gosigar v1.3.133
 	github.com/kardianos/service v1.3.0
 	github.com/shirou/gopsutil/v3 v3.24.5
 	github.com/threatwinds/logger v1.2.3
@@ -39,7 +39,6 @@ require (
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.0 // indirect
-	github.com/rogpeppe/go-internal v1.14.1 // indirect
 	github.com/shoenig/go-m1cpu v0.1.7 // indirect
 	github.com/shoenig/test v1.12.2 // indirect
 	github.com/tklauser/go-sysconf v0.3.16 // indirect
@@ -49,10 +48,10 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
 	go.uber.org/mock v0.6.0 // indirect
 	golang.org/x/arch v0.23.0 // indirect
-	golang.org/x/crypto v0.51.0 // indirect
-	golang.org/x/net v0.55.0 // indirect
-	golang.org/x/sys v0.49.0 // indirect
-	golang.org/x/text v0.37.0 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
+	golang.org/x/crypto v0.58.0 // indirect
+	golang.org/x/net v0.62.0 // indirect
+	golang.org/x/sys v0.50.0 // indirect
+	golang.org/x/text v0.44.0 // indirect
+	google.golang.org/protobuf v1.36.12 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1 // indirect
 )

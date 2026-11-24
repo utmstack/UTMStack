@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 
 	"github.com/utmstack/UTMStack/collectors/as400/agent"
 	"github.com/utmstack/UTMStack/collectors/as400/config"

@@ -3,7 +3,7 @@ package storecfg
 import (
 	"fmt"
 
-	"github.com/threatwinds/go-sdk/store/factory"
+	"github.com/utmstack/go-sdk/v2/store/factory"
 	"github.com/tidwall/gjson"
 )
 

@@ -18,7 +18,7 @@ import (
 	"unsafe"
 
 	"github.com/threatwinds/go-sdk/entities"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
 	"golang.org/x/sys/windows"

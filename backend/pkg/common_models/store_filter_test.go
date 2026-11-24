@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/threatwinds/go-sdk/store"
+	"github.com/utmstack/go-sdk/v2/store"
 )
 
 func TestTheOperatorsThatMapDoMap(t *testing.T) {

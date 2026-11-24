@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/store"
-	"github.com/threatwinds/go-sdk/store/factory"
+	"github.com/utmstack/go-sdk/v2/store"
+	"github.com/utmstack/go-sdk/v2/store/factory"
 	"github.com/utmstack/UTMStack/plugins/feeds/config"
 	"github.com/utmstack/UTMStack/plugins/feeds/internal/models"
 )

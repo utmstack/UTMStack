@@ -3,7 +3,7 @@ package platform
 import (
 	"context"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 )
 
 // CollectorConfig holds paths for log collection.

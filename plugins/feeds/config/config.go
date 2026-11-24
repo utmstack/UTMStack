@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/store/factory"
+	"github.com/utmstack/go-sdk/v2/plugins"
+	"github.com/utmstack/go-sdk/v2/store/factory"
 	"github.com/utmstack/UTMStack/plugins/feeds/internal/storecfg"
 )
 
