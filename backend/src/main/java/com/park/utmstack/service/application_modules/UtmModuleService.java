@@ -63,7 +63,9 @@ public class UtmModuleService {
                     module = moduleRepository.save(module);
 
                     if (!activationStatus) {
-                        module.getModuleGroups().clear();
+                        if (module.getModuleGroups() != null && org.hibernate.Hibernate.isInitialized(module.getModuleGroups())) {
+                            module.getModuleGroups().clear();
+                        }
                         moduleGroupRepository.deleteAllByModuleId(module.getId());
                         moduleGroupRepository.flush();
                     }

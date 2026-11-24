@@ -111,7 +111,7 @@ public class UtmModuleGroupService {
         applicationEventService.createEvent(attemptMsg, ApplicationEventType.CONFIG_GROUP_DELETE_ATTEMPT, extra);
 
         UtmModule module = moduleGroup.getModule();
-        if (module != null && Hibernate.isInitialized(module.getModuleGroups())) {
+        if (module != null && module.getModuleGroups() != null && Hibernate.isInitialized(module.getModuleGroups())) {
             module.getModuleGroups().removeIf(g -> id.equals(g.getId()));
         }
         moduleGroupRepository.delete(moduleGroup);
@@ -163,7 +163,7 @@ public class UtmModuleGroupService {
         );
 
         applicationEventService.createEvent(attemptMsg, ApplicationEventType.CONFIG_GROUP_BULK_DELETE_ATTEMPT, extra);
-        if (Hibernate.isInitialized(module.getModuleGroups())) {
+        if (module.getModuleGroups() != null && Hibernate.isInitialized(module.getModuleGroups())) {
             module.getModuleGroups().clear();
         }
         moduleGroupRepository.deleteAllByModuleId(id);

@@ -28,8 +28,8 @@ class UtmModuleGroupCascadeTest {
             "Must not enable orphanRemoval because PUT /api/utm-configuration-groups can merge groups with an empty configuration set"
         );
         assertFalse(
-            cascades.contains(CascadeType.MERGE),
-            "Must not cascade MERGE so group metadata updates do not overwrite child configurations"
+            cascades.contains(CascadeType.MERGE) || cascades.contains(CascadeType.ALL),
+            "Must not cascade MERGE or ALL so group metadata updates do not overwrite child configurations"
         );
     }
 }
