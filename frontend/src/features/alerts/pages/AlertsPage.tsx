@@ -219,15 +219,28 @@ export function AlertsPage() {
     return f
   }, [range.from, range.to, debounced, tagFilter, customFilters, dashboardSeedFilters])
 
-  // List filters add the tab (status) + severity refinement.
+  // List filters add the tab (status) + severity refinement. @timestamp goes on
+  // the search request as from/to, not as a filter — strip it from the scope.
   const listFilters = useMemo<FilterType[]>(() => {
-    const f = [...scopeFilters]
+    const f = scopeFilters.filter((filter) => filter.field !== TS)
     if (statusTab !== 'all') f.push({ field: 'status', operator: 'IS', value: STATUS_VALUE[statusTab as StatusKey] })
     if (severity !== 'all') f.push({ field: 'severity', operator: 'IS', value: SEVERITY_VALUE[severity] })
     return f
   }, [scopeFilters, statusTab, severity])
 
-  const { alerts, total, hasMore, loading, error, refresh: refreshList } = useAlertsList(page, pageSize, listFilters)
+  // Time picker window as request scope (the search endpoint's from/to), resolved once.
+  const rangeScope = useMemo(() => {
+    const abs = resolveRange(range)
+    return { from: abs.from ? new Date(abs.from) : null, to: new Date(abs.to) }
+  }, [range.from, range.to])
+
+  const { alerts, total, hasMore, loading, error, refresh: refreshList } = useAlertsList(
+    page,
+    pageSize,
+    listFilters,
+    rangeScope.from,
+    rangeScope.to,
+  )
 
   useEffect(() => {
     const name = pendingOpenNameRef.current
@@ -365,7 +378,7 @@ export function AlertsPage() {
           onDeleteTag={(id, name) => void deleteTag(id, name)}
           onCreateRule={(tg) => void openRuleForTag(tg)}
           onRefresh={refresh}
-          onExport={() => void exportCsv(listFilters)}
+          onExport={() => void exportCsv(listFilters, rangeScope.from, rangeScope.to)}
           loading={loading}
           showSeverity={view === 'alerts'}
         />

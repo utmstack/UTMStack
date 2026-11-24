@@ -20,14 +20,13 @@ export function useLiveOpsAlerts(): LiveOpsData {
 
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
-  const filters = [
-    { field: 'parentId', operator: 'IS', value: '' },
-    { field: '@timestamp', operator: 'IS_BETWEEN', value: [new Date(Date.now() - WINDOW_MS[win]).toISOString(), new Date(Date.now()).toISOString()] },
-  ]
+  const filters = [{ field: 'parentId', operator: 'IS', value: '' }]
+  const from = new Date(Date.now() - WINDOW_MS[win])
+  const to = new Date()
 
 
   const fetchAll = useCallback((silent: boolean) =>
-    alertsHttpService.list({ page, size: PAGE_SIZE, filters })
+    alertsHttpService.list({ page, size: PAGE_SIZE, filters, from, to })
       .then((r) => {
         setAlerts(r.data)
         setTotal(r.total)
