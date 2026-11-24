@@ -6,7 +6,7 @@
       [(ngModel)]="newEntry"
       (keydown)="onKeydown($event)"
       [disabled]="disabled"
-      placeholder="Add IP, CIDR, or domain (e.g. 57.135.227.31, 203.0.113.0/24, *.example.com)"
+      placeholder="Add IP, CIDR, or domain (e.g. 198.51.100.10, 203.0.113.0/24, *.example.com)"
       aria-label="Allowlist entry">
     <div class="input-group-append">
       <button
@@ -27,7 +27,7 @@
   <div class="d-flex justify-content-between align-items-center mb-2">
     <small class="text-muted">
       Supports single IPs (IPv4/IPv6), CIDR ranges, exact domains, or wildcards (<code>*.example.com</code>).
-      Private and loopback IPs are excluded automatically.
+      Private and loopback IPs are already excluded from Threat Intelligence alerts automatically.
     </small>
     <button
       *ngIf="entries.length > 0 && !disabled"

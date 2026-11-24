@@ -105,13 +105,16 @@ export class UtmAllowlistComponent implements OnChanges {
     const seen = new Set<string>();
     const result: AllowlistEntry[] = [];
     for (const token of tokens) {
-      const key = token.toLowerCase();
+      const classified = this.validateAndClassify(token);
+      if (!classified) {
+        continue;
+      }
+      const key = classified.value.toLowerCase();
       if (seen.has(key)) {
         continue;
       }
       seen.add(key);
-      const classified = this.validateAndClassify(token);
-      result.push(classified || {value: token, kind: 'Domain'});
+      result.push(classified);
     }
     return result;
   }

@@ -8,9 +8,9 @@ class ThreatIntelAllowlistValidatorTest {
 
     @Test
     void acceptsValidIpsCidrsAndDomainsAndDeduplicates() {
-        String raw = " 57.135.227.31, 203.0.113.0/24\n2001:db8::/32, Example.COM., *.BlueStreamFiber.net, 57.135.227.31 ";
+        String raw = " 198.51.100.10, 203.0.113.0/24\n2001:db8::/32, Example.COM., *.Example.net, 198.51.100.10 ";
         String normalized = ThreatIntelAllowlistValidator.validateAndNormalize(raw);
-        assertEquals("57.135.227.31,203.0.113.0/24,2001:db8:0:0:0:0:0:0/32,example.com,*.bluestreamfiber.net", normalized);
+        assertEquals("198.51.100.10,203.0.113.0/24,2001:db8:0:0:0:0:0:0/32,example.com,*.example.net", normalized);
     }
 
     @Test
@@ -22,7 +22,7 @@ class ThreatIntelAllowlistValidatorTest {
     @Test
     void rejectsMalformedEntries() {
         assertThrows(IllegalArgumentException.class, () -> ThreatIntelAllowlistValidator.validateAndNormalize("999.1.1.1"));
-        assertThrows(IllegalArgumentException.class, () -> ThreatIntelAllowlistValidator.validateAndNormalize("57.135.227.31/33"));
+        assertThrows(IllegalArgumentException.class, () -> ThreatIntelAllowlistValidator.validateAndNormalize("198.51.100.10/33"));
         assertThrows(IllegalArgumentException.class, () -> ThreatIntelAllowlistValidator.validateAndNormalize("*.com"));
         assertThrows(IllegalArgumentException.class, () -> ThreatIntelAllowlistValidator.validateAndNormalize("bad host name"));
         assertThrows(IllegalArgumentException.class, () -> ThreatIntelAllowlistValidator.validateAndNormalize("https://example.com"));

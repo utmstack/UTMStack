@@ -85,8 +85,10 @@ type ConfigState struct {
 	FiltersCount       int
 	PatternsLastUpdate time.Time
 	PatternsCount      int
-	TwEnableLastUpdate time.Time
-	TwEnableCount      int
+	TwEnableLastUpdate    time.Time
+	TwEnableCount         int
+	TwAllowlistLastUpdate time.Time
+	TwAllowlistCount      int
 }
 
 func (b *ExpressionBackend) ToExpression() Expression {
@@ -472,7 +474,8 @@ func hasChanges(db *sql.DB, state *ConfigState) (bool, ConfigState, error) {
 		{"SELECT MAX(rule_last_update) FROM utm_correlation_rules", "SELECT COUNT(*) FROM utm_correlation_rules WHERE rule_active = true", &newState.RulesLastUpdate, &newState.RulesCount, state.RulesLastUpdate, state.RulesCount},
 		{"SELECT MAX(updated_at) FROM utm_logstash_filter", "SELECT COUNT(*) FROM utm_logstash_filter WHERE is_active = true", &newState.FiltersLastUpdate, &newState.FiltersCount, state.FiltersLastUpdate, state.FiltersCount},
 		{"SELECT MAX(last_update) FROM utm_regex_pattern", "SELECT COUNT(*) FROM utm_regex_pattern", &newState.PatternsLastUpdate, &newState.PatternsCount, state.PatternsLastUpdate, state.PatternsCount},
-		{"SELECT MAX(modification_time) FROM utm_configuration_parameter WHERE conf_param_short IN ('utmstack.tw.enable', 'utmstack.tw.allowlist')", "SELECT COUNT(*) FROM utm_configuration_parameter WHERE conf_param_short IN ('utmstack.tw.enable', 'utmstack.tw.allowlist')", &newState.TwEnableLastUpdate, &newState.TwEnableCount, state.TwEnableLastUpdate, state.TwEnableCount},
+		{"SELECT MAX(modification_time) FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.enable'", "SELECT COUNT(*) FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.enable'", &newState.TwEnableLastUpdate, &newState.TwEnableCount, state.TwEnableLastUpdate, state.TwEnableCount},
+		{"SELECT MAX(modification_time) FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.allowlist'", "SELECT COUNT(*) FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.allowlist'", &newState.TwAllowlistLastUpdate, &newState.TwAllowlistCount, state.TwAllowlistLastUpdate, state.TwAllowlistCount},
 	}
 
 	for _, q := range queries {
