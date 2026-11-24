@@ -62,8 +62,13 @@ public class UtmModuleService {
                     module.setModuleActive(activationStatus);
                     module = moduleRepository.save(module);
 
-                    if (!activationStatus)
+                    if (!activationStatus) {
+                        if (module.getModuleGroups() != null && org.hibernate.Hibernate.isInitialized(module.getModuleGroups())) {
+                            module.getModuleGroups().clear();
+                        }
                         moduleGroupRepository.deleteAllByModuleId(module.getId());
+                        moduleGroupRepository.flush();
+                    }
 
                     enableDisableModuleMenus(nameShort, activationStatus);
                     enableDisableModuleIndexPatterns(nameShort, activationStatus);

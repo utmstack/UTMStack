@@ -27,6 +27,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.hibernate.Hibernate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -109,7 +110,12 @@ public class UtmModuleGroupService {
         );
         applicationEventService.createEvent(attemptMsg, ApplicationEventType.CONFIG_GROUP_DELETE_ATTEMPT, extra);
 
-        moduleGroupRepository.deleteById(id);
+        UtmModule module = moduleGroup.getModule();
+        if (module != null && module.getModuleGroups() != null && Hibernate.isInitialized(module.getModuleGroups())) {
+            module.getModuleGroups().removeIf(g -> id.equals(g.getId()));
+        }
+        moduleGroupRepository.delete(moduleGroup);
+        moduleGroupRepository.flush();
 
         String successMsg = String.format(
                 "Configuration group (ID: %d) for module '%s' deleted successfully",
@@ -157,7 +163,11 @@ public class UtmModuleGroupService {
         );
 
         applicationEventService.createEvent(attemptMsg, ApplicationEventType.CONFIG_GROUP_BULK_DELETE_ATTEMPT, extra);
+        if (module.getModuleGroups() != null && Hibernate.isInitialized(module.getModuleGroups())) {
+            module.getModuleGroups().clear();
+        }
         moduleGroupRepository.deleteAllByModuleId(id);
+        moduleGroupRepository.flush();
 
         String successMsg = String.format("Configuration keys for module '%s' deleted successfully", module.getModuleName());
         applicationEventService.createEvent(successMsg, ApplicationEventType.CONFIG_GROUP_BULK_DELETE_SUCCESS, extra);
