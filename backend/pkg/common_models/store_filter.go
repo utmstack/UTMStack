@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/threatwinds/go-sdk/store"
+	"github.com/utmstack/go-sdk/v2/store"
 )
 
 const timeColumn = "@timestamp"

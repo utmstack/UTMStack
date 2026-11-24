@@ -10,11 +10,12 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/kardianos/service v1.3.0
 	github.com/spf13/cobra v1.10.2
-	github.com/threatwinds/go-sdk v1.1.40
+	github.com/threatwinds/go-sdk v1.1.43
 	github.com/threatwinds/logger v1.2.3
 	github.com/tidwall/gjson v1.20.5
 	github.com/tidwall/sjson v1.2.11
 	github.com/utmstack/UTMStack/shared v0.0.0
+	github.com/utmstack/go-sdk/v2 v2.0.0
 	golang.org/x/sys v0.50.0
 	google.golang.org/grpc v1.85.0
 	google.golang.org/protobuf v1.36.12

@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	collectorpkg "github.com/utmstack/UTMStack/collectors/forwarder/collector"
 	"github.com/utmstack/UTMStack/collectors/forwarder/config"
 	"github.com/utmstack/UTMStack/collectors/forwarder/utils"

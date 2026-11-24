@@ -11,7 +11,7 @@ import (
 	"time"
 
 	libaudit "github.com/elastic/go-libaudit/v2"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	"github.com/utmstack/UTMStack/agent/utils"
 )
 

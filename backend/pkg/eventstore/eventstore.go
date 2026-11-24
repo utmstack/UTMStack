@@ -9,9 +9,9 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/store"
-	"github.com/threatwinds/go-sdk/store/clickhouse"
-	"github.com/threatwinds/go-sdk/store/factory"
+	"github.com/utmstack/go-sdk/v2/store"
+	"github.com/utmstack/go-sdk/v2/store/clickhouse"
+	"github.com/utmstack/go-sdk/v2/store/factory"
 	"github.com/utmstack/utmstack/backend/pkg/env"
 )
 

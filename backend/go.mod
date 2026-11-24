@@ -26,9 +26,10 @@ require (
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
-	github.com/threatwinds/go-sdk v1.1.40
+	github.com/threatwinds/go-sdk v1.1.43
 	github.com/tidwall/gjson v1.20.5
 	github.com/utmstack/UTMStack/upgrade v0.0.0
+	github.com/utmstack/go-sdk/v2 v2.0.0
 	github.com/utmstack/license-manager-sdk v0.1.0
 	golang.org/x/crypto v0.59.0
 	golang.org/x/sys v0.50.0

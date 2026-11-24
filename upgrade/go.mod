@@ -4,7 +4,7 @@ go 1.26.10
 
 require (
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.40
+	github.com/threatwinds/go-sdk v1.1.43
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/postgres v1.6.3
 	gorm.io/gorm v1.31.2

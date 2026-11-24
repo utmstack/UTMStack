@@ -3,8 +3,7 @@ package schema
 import (
 	"encoding/json"
 
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
+	"github.com/utmstack/go-sdk/v2/plugins"
 )
 
 type IncidentDetail struct {
@@ -40,7 +39,7 @@ func (a AlertFields) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	if a.LastEvent != nil {
-		event, err := utils.ProtoMessageToBytes(a.LastEvent)
+		event, err := plugins.ProtoMessageToBytes(a.LastEvent)
 		if err != nil {
 			return nil, err
 		}
@@ -53,7 +52,7 @@ func (a AlertFields) MarshalJSON() ([]byte, error) {
 				events = append(events, json.RawMessage("null"))
 				continue
 			}
-			data, err := utils.ProtoMessageToBytes(event)
+			data, err := plugins.ProtoMessageToBytes(event)
 			if err != nil {
 				return nil, err
 			}
@@ -83,7 +82,7 @@ func (a *AlertFields) UnmarshalJSON(data []byte) error {
 	if len(doc.LastEvent) > 0 && string(doc.LastEvent) != "null" {
 		var event plugins.Event
 		raw := string(doc.LastEvent)
-		if err := utils.StringToProtoMessage(&raw, &event); err != nil {
+		if err := plugins.StringToProtoMessage(&raw, &event); err != nil {
 			return err
 		}
 		decoded.LastEvent = &event
@@ -96,7 +95,7 @@ func (a *AlertFields) UnmarshalJSON(data []byte) error {
 			}
 			var event plugins.Event
 			raw := string(data)
-			if err := utils.StringToProtoMessage(&raw, &event); err != nil {
+			if err := plugins.StringToProtoMessage(&raw, &event); err != nil {
 				return err
 			}
 			decoded.Events[i] = &event

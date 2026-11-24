@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 )
 
 var (

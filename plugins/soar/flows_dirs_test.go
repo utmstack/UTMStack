@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 )
 
 // The backend seeds the shipped flows and writes each tenant's enabled.yaml

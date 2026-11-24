@@ -4,8 +4,9 @@ go 1.26.0
 
 require (
 	github.com/alicebob/miniredis/v2 v2.40.0
-	github.com/threatwinds/go-sdk v1.1.40
+	github.com/threatwinds/go-sdk v1.1.43
 	github.com/tidwall/gjson v1.20.5
+	github.com/utmstack/go-sdk/v2 v2.0.0
 	google.golang.org/protobuf v1.36.12
 )
 

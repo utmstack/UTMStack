@@ -9,8 +9,7 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
+	"github.com/utmstack/go-sdk/v2/plugins"
 )
 
 func main() {
@@ -37,7 +36,7 @@ func analyze(event *plugins.Event, _ plugins.Analysis_AnalyzeServer) error {
 	if event == nil {
 		return catcher.Error("cannot convert event to json", nil, map[string]any{"process": "plugin_com.utmstack.events"})
 	}
-	jLog, err := utils.ProtoMessageToString(event)
+	jLog, err := plugins.ProtoMessageToString(event)
 	if err != nil {
 		return catcher.Error("cannot convert event to json", err, map[string]any{"process": "plugin_com.utmstack.events"})
 	}

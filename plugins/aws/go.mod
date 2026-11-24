@@ -8,8 +8,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.21.3
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.40
+	github.com/threatwinds/go-sdk v1.1.43
 	github.com/utmstack/UTMStack/plugins/shared v0.0.0-20261111125819-65751db51384
+	github.com/utmstack/go-sdk/v2 v2.0.0
 )
 
 replace github.com/utmstack/UTMStack/plugins/shared => ../shared
