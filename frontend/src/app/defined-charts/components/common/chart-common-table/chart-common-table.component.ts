@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -11,8 +12,8 @@ import {
 } from '@angular/core';
 import {Router} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
-import {Observable, Subject} from 'rxjs';
-import {filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {EMPTY, Observable, Subject} from 'rxjs';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {TableBuilderResponseType} from '../../../../shared/chart/types/response/table-builder-response.type';
 import {SortableDirective} from '../../../../shared/directives/sortable/sortable.directive';
 import {SortDirection} from '../../../../shared/directives/sortable/type/sort-direction.type';
@@ -53,7 +54,7 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
   data: TableBuilderResponseType;
   data$: Observable<TableBuilderResponseType>;
   direction: SortDirection = '';
-  loadingOption = false;
+  loadingOption = true;
   responseRows: Array<{ value: any; metric: boolean }[]>;
   queryParams = {from: 'now-7d', to: 'now', top: 20};
   destroy$: Subject<void> = new Subject<void>();
@@ -62,7 +63,8 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
               private refreshService: RefreshService,
               private router: Router,
               private spinner: NgxSpinnerService,
-              private timeFilterBehavior: TimeFilterBehavior) {
+              private timeFilterBehavior: TimeFilterBehavior,
+              private cdr: ChangeDetectorRef) {
   }
 
   ngOnInit() {
@@ -103,6 +105,8 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
         this.responseRows = this.data.rows;
         this.totalItems = this.data.rows.length;
       });*/
+    this.loadingOption = true;
+    this.cdr.markForCheck();
     return this.overviewAlertDashboardService.getDataTable(this.endpoint, this.queryParams)
       .pipe(
         map(response => response.body),
@@ -113,8 +117,14 @@ export class ChartCommonTableComponent implements OnInit, OnDestroy {
           this.responseRows = data.rows;
           this.totalItems = data.rows.length;
           this.loaded.emit();
-        }
-      ));
+          this.cdr.markForCheck();
+        }),
+        catchError(() => {
+          this.loadingOption = false;
+          this.cdr.markForCheck();
+          return EMPTY;
+        })
+      );
   }
 
   loadPage(page: number) {

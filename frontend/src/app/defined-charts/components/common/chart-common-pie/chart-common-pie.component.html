@@ -9,7 +9,7 @@
                              [timeDefault]="defaultTime">
     </app-elastic-filter-time>
   </div>
-  <div *ngIf="data$ | async" class="card-body p-2">
+  <div class="card-body p-2">
     <div *ngIf="loadingPieOption"
          class="loading-chart w-100 h-100
                  chart chart-fixed-height
@@ -19,14 +19,16 @@
                        label="Loading chart">
       </app-utm-spinner>
     </div>
-    <div *ngIf="!loadingPieOption && noData"
-         class="chart chart-fixed-height">
-      <app-no-data-chart [typeChart]="chartEnumType.PIE_CHART"></app-no-data-chart>
-    </div>
-    <div (chartClick)="chartClick($event)"
-         *ngIf="!loadingPieOption && !noData"
-         [autoResize]="true"
-         [options]="pieOption"
-         class="chart-fixed-height" echarts></div>
+    <ng-container *ngIf="data$ | async">
+      <div *ngIf="!loadingPieOption && noData"
+           class="chart chart-fixed-height">
+        <app-no-data-chart [typeChart]="chartEnumType.PIE_CHART"></app-no-data-chart>
+      </div>
+      <div (chartClick)="chartClick($event)"
+           *ngIf="!loadingPieOption && !noData"
+           [autoResize]="true"
+           [options]="pieOption"
+           class="chart-fixed-height" echarts></div>
+    </ng-container>
   </div>
 </div>

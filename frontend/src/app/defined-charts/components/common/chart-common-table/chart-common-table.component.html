@@ -20,7 +20,8 @@
                        label="Loading chart">
       </app-utm-spinner>
     </div>
-    <div *ngIf="data$ | async as data" class="table-responsive w-100 chart-fixed-height">
+    <ng-container *ngIf="data$ | async as data">
+    <div *ngIf="!loadingOption" class="table-responsive w-100 chart-fixed-height">
       <table class="table text-nowrap">
         <thead *ngIf="data && data.columns.length > 0">
         <tr>
@@ -62,6 +63,7 @@
           [size]="'sm'"></ngb-pagination>
       </div>
     </div>
+    </ng-container>
   </div>
 </div>
 
