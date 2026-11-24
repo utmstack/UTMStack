@@ -28,6 +28,7 @@ public class AppInfoService {
 
     private final String cmHealthUrl;
     private final HttpClient httpClient;
+    private final Object probeLock = new Object();
     private final AtomicLong lastCheckedAtMillis = new AtomicLong(0L);
     private volatile boolean lastOnline = false;
 
@@ -52,7 +53,8 @@ public class AppInfoService {
 
     /**
      * Checks whether the SIEM server can reach Customer Manager's health endpoint,
-     * caching the result for 60 seconds so open UI tabs do not hammer Customer Manager.
+     * caching the result for 60 seconds with single-flight locking so concurrent
+     * UI requests never stampede Customer Manager.
      */
     public boolean isCustomerManagerReachable() {
         long now = System.currentTimeMillis();
@@ -60,13 +62,23 @@ public class AppInfoService {
         if (last > 0 && (now - last) < CONNECTIVITY_CACHE_TTL_MS) {
             return lastOnline;
         }
-        boolean reachable = probeCustomerManager();
-        lastOnline = reachable;
-        lastCheckedAtMillis.set(now);
-        return reachable;
+        synchronized (probeLock) {
+            now = System.currentTimeMillis();
+            last = lastCheckedAtMillis.get();
+            if (last > 0 && (now - last) < CONNECTIVITY_CACHE_TTL_MS) {
+                return lastOnline;
+            }
+            Boolean reachable = probeCustomerManager();
+            if (reachable == null) {
+                return false;
+            }
+            lastOnline = reachable;
+            lastCheckedAtMillis.set(System.currentTimeMillis());
+            return reachable;
+        }
     }
 
-    private boolean probeCustomerManager() {
+    private Boolean probeCustomerManager() {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(cmHealthUrl))
@@ -79,7 +91,7 @@ public class AppInfoService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.debug("{}.probeCustomerManager: interrupted probing {}: {}", CLASSNAME, cmHealthUrl, e.getMessage());
-            return false;
+            return null;
         } catch (Exception e) {
             log.debug("{}.probeCustomerManager: Customer Manager unreachable at {}: {}", CLASSNAME, cmHealthUrl, e.getMessage());
             return false;
