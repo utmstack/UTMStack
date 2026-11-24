@@ -132,7 +132,7 @@ export class ChartEventInTimeComponent implements OnInit, OnDestroy {
           this.noData = true;
           this.loadingPieOption = false;
           this.loaded.emit();
-          return of(data);
+          return of(data || {});
         }),
         catchError(() => {
           this.loadingPieOption = false;
