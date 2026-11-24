@@ -8,9 +8,9 @@ require (
 	github.com/aws/aws-sdk-go-v2/credentials v1.21.3
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.43
+	github.com/threatwinds/go-sdk v1.2.1
 	github.com/utmstack/UTMStack/plugins/shared v0.0.0-20261111125819-65751db51384
-	github.com/utmstack/go-sdk/v2 v2.0.0
+	github.com/utmstack/go-sdk/v2 v2.1.0
 )
 
 replace github.com/utmstack/UTMStack/plugins/shared => ../shared
@@ -29,6 +29,7 @@ require (
 	github.com/opensearch-project/opensearch-go/v4 v4.8.1 // indirect
 	github.com/quic-go/qpack v0.6.0 // indirect
 	github.com/quic-go/quic-go v0.59.1 // indirect
+	github.com/tidwall/sjson v1.2.11 // indirect
 	go.mongodb.org/mongo-driver/v2 v2.6.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
