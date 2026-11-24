@@ -16,7 +16,7 @@ export class CanDeactivateConfigGuard implements CanDeactivate<AppConfigSections
     state: RouterStateSnapshot
   ): Observable<boolean> | boolean {
     const url: string = state.url;
-    if (component.configToSave.length > 0) {
+    if (component.hasUnsavedChanges) {
       return this.dialogService.confirm('Discard changes for this configuration?');
     }
     return true;
