@@ -76,8 +76,8 @@ func loadGeolocationFromDir(dir string) *geoSnapshot {
 	cityV6Path := dir + sep + "blocks-v6.csv"
 
 	// Load locations-en.csv first so city blocks can resolve geoname_id -> compact uint32 index directly.
-	locations, geoIDToIdx := loadCityLocationsWithRetry(locPath)
-	if len(locations) <= 1 {
+	locations, geoIDToIdx, err := loadCityLocationsWithRetry(locPath)
+	if err != nil || len(locations) <= 1 {
 		return nil
 	}
 
@@ -87,13 +87,21 @@ func loadGeolocationFromDir(dir string) *geoSnapshot {
 
 	asnV4 := make([]asnBlockV4, 0, estimateCSVRows(asnV4Path, 34))
 	asnV6 := make([]asnBlockV6, 0, estimateCSVRows(asnV6Path, 48))
-	loadASNBlocksWithRetry(asnV4Path, &asnV4, &asnV6, &asos, asoToIdx)
-	loadASNBlocksWithRetry(asnV6Path, &asnV4, &asnV6, &asos, asoToIdx)
+	if err := loadASNBlocksWithRetry(asnV4Path, &asnV4, &asnV6, &asos, asoToIdx); err != nil {
+		return nil
+	}
+	if err := loadASNBlocksWithRetry(asnV6Path, &asnV4, &asnV6, &asos, asoToIdx); err != nil {
+		return nil
+	}
 
 	cityV4 := make([]cityBlockV4, 0, estimateCSVRows(cityV4Path, 52))
 	cityV6 := make([]cityBlockV6, 0, estimateCSVRows(cityV6Path, 68))
-	loadCityBlocksWithRetry(cityV4Path, &cityV4, &cityV6, geoIDToIdx)
-	loadCityBlocksWithRetry(cityV6Path, &cityV4, &cityV6, geoIDToIdx)
+	if err := loadCityBlocksWithRetry(cityV4Path, &cityV4, &cityV6, geoIDToIdx); err != nil {
+		return nil
+	}
+	if err := loadCityBlocksWithRetry(cityV6Path, &cityV4, &cityV6, geoIDToIdx); err != nil {
+		return nil
+	}
 
 	// Only publish if ASN, city blocks, and locations were populated (matches original contract).
 	if (len(asnV4) == 0 && len(asnV6) == 0) || (len(cityV4) == 0 && len(cityV6) == 0) {
@@ -122,14 +130,17 @@ func loadGeolocationFromDir(dir string) *geoSnapshot {
 	}
 }
 
-func streamCSVWithRetry(filePath string, handleRow func(line []string)) {
+func streamCSVWithRetry(filePath string, reset func(), handleRow func(line []string)) error {
 	const maxRetries = 3
 	var lastErr error
 
 	for retry := 0; retry < maxRetries; retry++ {
+		if reset != nil {
+			reset()
+		}
 		lastErr = streamCSVFile(filePath, handleRow)
 		if lastErr == nil {
-			return
+			return nil
 		}
 
 		_ = catcher.Error("could not read geolocation file, retrying", lastErr, map[string]any{
@@ -148,6 +159,7 @@ func streamCSVWithRetry(filePath string, handleRow func(line []string)) {
 		"process": geoProcessID,
 		"file":    filePath,
 	})
+	return lastErr
 }
 
 func streamCSVFile(filePath string, handleRow func(line []string)) error {
@@ -181,7 +193,7 @@ func streamCSVFile(filePath string, handleRow func(line []string)) error {
 	}
 }
 
-func loadCityLocationsWithRetry(filePath string) ([]cityLocation, map[uint64]uint32) {
+func loadCityLocationsWithRetry(filePath string) ([]cityLocation, map[uint64]uint32, error) {
 	est := estimateCSVRows(filePath, 80) + 1
 	// Index 0 is reserved as the "no location" sentinel.
 	locations := make([]cityLocation, 1, est)
@@ -201,7 +213,12 @@ func loadCityLocationsWithRetry(filePath string) ([]cityLocation, map[uint64]uin
 		return cp
 	}
 
-	streamCSVWithRetry(filePath, func(line []string) {
+	reset := func() {
+		locations = locations[:1]
+		clear(geoIDToIdx)
+	}
+
+	err := streamCSVWithRetry(filePath, reset, func(line []string) {
 		if len(line) < 11 {
 			return
 		}
@@ -229,7 +246,7 @@ func loadCityLocationsWithRetry(filePath string) ([]cityLocation, map[uint64]uin
 		geoIDToIdx[geonameID] = idx
 	})
 
-	return locations, geoIDToIdx
+	return locations, geoIDToIdx, err
 }
 
 func loadASNBlocksWithRetry(
@@ -238,8 +255,15 @@ func loadASNBlocksWithRetry(
 	outV6 *[]asnBlockV6,
 	asos *[]string,
 	asoToIdx map[string]uint32,
-) {
-	streamCSVWithRetry(filePath, func(line []string) {
+) error {
+	startV4 := len(*outV4)
+	startV6 := len(*outV6)
+	reset := func() {
+		*outV4 = (*outV4)[:startV4]
+		*outV6 = (*outV6)[:startV6]
+	}
+
+	return streamCSVWithRetry(filePath, reset, func(line []string) {
 		if len(line) < 3 {
 			return
 		}
@@ -305,8 +329,15 @@ func loadCityBlocksWithRetry(
 	outV4 *[]cityBlockV4,
 	outV6 *[]cityBlockV6,
 	geoIDToIdx map[uint64]uint32,
-) {
-	streamCSVWithRetry(filePath, func(line []string) {
+) error {
+	startV4 := len(*outV4)
+	startV6 := len(*outV6)
+	reset := func() {
+		*outV4 = (*outV4)[:startV4]
+		*outV6 = (*outV6)[:startV6]
+	}
+
+	return streamCSVWithRetry(filePath, reset, func(line []string) {
 		if len(line) < 10 {
 			return
 		}
