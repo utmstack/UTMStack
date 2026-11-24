@@ -38,6 +38,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
   configs: SectionConfigParamType[] = [];
   saving: any;
   configToSave: SectionConfigParamType[] = [];
+  hasUnsavedChanges = false;
   loading = true;
   timer: any;
   typing: any;
@@ -114,7 +115,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     if (countryList) {
       this.loadSelectOptions(this.getName(countryList.confParamShort));
     }
-    this.configToSave = this.configs;
+    this.configToSave = [...this.configs];
+    this.hasUnsavedChanges = false;
     this.validConfigSection.emit(this.checkConfigValid());
   }
 
@@ -122,10 +124,10 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     this.checkedEmailConfig(false);
     this.saving = true;
     if (this.checkConfigValid()) {
-      const config = this.configToSave.map(conf => {
-        conf.confParamValue = this.serializeConfigValue(conf);
-        return conf;
-      });
+      const config = this.configToSave.map(conf => ({
+        ...conf,
+        confParamValue: this.serializeConfigValue(conf)
+      }));
       this.utmConfigParamsService.update(config).subscribe(response => {
 
           if (this.detectRequiredRestart()) {
@@ -138,7 +140,8 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
 
           this.toastService.showSuccessBottom('Configuration saved successfully');
           this.refreshTimeSettings();
-          this.configToSave = [];
+          this.configToSave = [...this.configs];
+          this.hasUnsavedChanges = false;
         },
         error => {
           this.saving = false;
@@ -154,10 +157,15 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
     }
   }
 
+  get needsCheckBeforeSave(): boolean {
+    return this.hasUnsavedChanges && (
+      (this.section.shortName === this.sectionType[this.sectionType.EMAIL] && !this.isCheckedEmailConfig)
+      || (this.section.shortName === this.sectionType[this.sectionType.TFA] && !this.isCheckedTFAConfig)
+    );
+  }
+
   get saveDisabled(): boolean {
-    return !this.checkConfigValid() || this.saving || this.configToSave.length === 0
-      || (this.section.shortName === this.sectionType[this.sectionType.EMAIL] && !this.isCheckedEmailConfig)
-      || (this.section.shortName === this.sectionType[this.sectionType.TFA] && !this.isCheckedTFAConfig);
+    return !this.checkConfigValid() || this.saving || !this.hasUnsavedChanges || this.needsCheckBeforeSave;
   }
 
   detectRequiredRestart(): boolean {
@@ -166,6 +174,7 @@ export class AppConfigSectionsComponent implements OnInit, OnDestroy {
 
   saveSectionConfig(value: any, conf: SectionConfigParamType) {
     conf.confParamValue = value;
+    this.hasUnsavedChanges = true;
     this.isCheckedEmailConfig = false;
     this.isCheckedTFAConfig = false;
     const indexConfig = this.configToSave.findIndex(val => val.id === conf.id);

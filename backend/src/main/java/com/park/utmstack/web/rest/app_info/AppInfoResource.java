@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/info")
 @RequiredArgsConstructor
@@ -18,5 +20,10 @@ public class AppInfoResource {
     @GetMapping("/version")
     public ResponseEntity<AppInfoDto> getInfo() throws Exception {
         return ResponseEntity.ok(appInfoService.loadVersionInfo());
+    }
+
+    @GetMapping("/connectivity")
+    public ResponseEntity<Map<String, Boolean>> getConnectivity() {
+        return ResponseEntity.ok(Map.of("online", appInfoService.isCustomerManagerReachable()));
     }
 }

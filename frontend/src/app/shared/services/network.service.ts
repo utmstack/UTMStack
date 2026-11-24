@@ -9,8 +9,8 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 export class NetworkService {
   private isOnlineSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(navigator.onLine);
   isOnline$: Observable<boolean> = this.isOnlineSubject.asObservable();
-  private connectivityCheckInterval = 5000;
-  private connectivityCheckUrl = 'https://ipv4.icanhazip.com/';
+  private connectivityCheckInterval = 60000;
+  private connectivityCheckUrl = '/api/info/connectivity';
   private connectivityCheckSubscription: Subscription | undefined;
 
   constructor(private http: HttpClient) {
@@ -48,8 +48,8 @@ export class NetworkService {
   }
 
   private checkInternetConnectivity(): Observable<boolean> {
-    return this.http.head(this.connectivityCheckUrl, { observe: 'response', responseType: 'text' }).pipe(
-      map(response => response.status >= 200 && response.status < 300),
+    return this.http.get<{ online: boolean }>(this.connectivityCheckUrl).pipe(
+      map(response => Boolean(response?.online)),
       catchError(() => of(false))
     );
   }
@@ -64,11 +64,13 @@ export class NetworkService {
 
   setConnectivityCheckUrl(url: string): void {
     this.connectivityCheckUrl = url;
-    this.startConnectivityCheck(); // Reiniciar la comprobación con la nueva URL
+    this.stopConnectivityCheck();
+    this.startConnectivityCheck();
   }
 
   setConnectivityCheckInterval(interval: number): void {
     this.connectivityCheckInterval = interval;
-    this.startConnectivityCheck(); // Reiniciar la comprobación con el nuevo intervalo
+    this.stopConnectivityCheck();
+    this.startConnectivityCheck();
   }
 }
