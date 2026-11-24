@@ -98,9 +98,9 @@ export const alertsHttpService = {
   getById: async (id: string): Promise<Alert | null> => {
     const r = await api.post<{ data: Alert[] }>('/log-analyzer/search', {
       dataset: ALERT_DATASET,
-      filters: [{ field: 'id', operator: 'IS', value: id }],
-      // The endpoint counts pages from 0. Asking for page 1 with size 1 skipped
-      // the only row there was, so this always answered "no such alert".
+      filters: [{ field: 'id', operator: 'CONTAIN', value: id }],
+      from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      to:new Date(),
       page: 0,
       size: 1,
     })
