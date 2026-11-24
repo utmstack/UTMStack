@@ -49,7 +49,7 @@
   <p *ngIf="section.description" class="mb-3 mt-3">{{section.description}}</p>
   <div *ngIf="configs.length >0 && !loading" class="d-flex gap-3 flex-wrap w-100">
     <ng-container *ngFor="let conf of getConfigs()">
-      <div [ngClass]="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList || conf.confParamDatatype === ConfigDataTypeEnum.Cron ? 'w-100 order-8':'w-30'"
+      <div [ngClass]="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList || conf.confParamDatatype === ConfigDataTypeEnum.Cron || conf.confParamDatatype === configDataTypeEnum.Allowlist ? 'w-100 order-8':'w-30'"
            class="form-group mb-4">
         <label [for]="'sectionParam'+conf.id"
                class="pb-1 span-small-icon d-flex justify-content-between align-items-center">
@@ -104,6 +104,12 @@
                         [active]="conf.confParamValue ==='true'"
                         [label]="'Enable/Disable param configuration'">
         </app-utm-toggle>
+
+        <app-utm-allowlist *ngIf="conf.confParamDatatype === configDataTypeEnum.Allowlist"
+                           [value]="conf.confParamValue || ''"
+                           [disabled]="checkDisable(conf)"
+                           (valueChange)="saveSectionConfig($event, conf)">
+        </app-utm-allowlist>
 
         <textarea (input)="save(conf.confParamValue,conf)"
                   *ngIf="conf.confParamDatatype === configDataTypeEnum.List || conf.confParamDatatype === configDataTypeEnum.EmailList"

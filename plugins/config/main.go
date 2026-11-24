@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -84,8 +85,10 @@ type ConfigState struct {
 	FiltersCount       int
 	PatternsLastUpdate time.Time
 	PatternsCount      int
-	TwEnableLastUpdate time.Time
-	TwEnableCount      int
+	TwEnableLastUpdate    time.Time
+	TwEnableCount         int
+	TwAllowlistLastUpdate time.Time
+	TwAllowlistCount      int
 }
 
 func (b *ExpressionBackend) ToExpression() Expression {
@@ -434,7 +437,14 @@ func main() {
 				return
 			}
 
-			err = writeFeedsConfig(enabled)
+			allowlist, err := getTwAllowlistConfig(db)
+			if err != nil {
+				_ = catcher.Error("failed to get feeds allowlist", err, map[string]any{"process": "plugin_com.utmstack.config"})
+				time.Sleep(30 * time.Second)
+				return
+			}
+
+			err = writeFeedsConfig(enabled, allowlist)
 			if err != nil {
 				_ = catcher.Error("failed to write feeds config", err, map[string]any{"process": "plugin_com.utmstack.config"})
 				time.Sleep(30 * time.Second)
@@ -465,6 +475,7 @@ func hasChanges(db *sql.DB, state *ConfigState) (bool, ConfigState, error) {
 		{"SELECT MAX(updated_at) FROM utm_logstash_filter", "SELECT COUNT(*) FROM utm_logstash_filter WHERE is_active = true", &newState.FiltersLastUpdate, &newState.FiltersCount, state.FiltersLastUpdate, state.FiltersCount},
 		{"SELECT MAX(last_update) FROM utm_regex_pattern", "SELECT COUNT(*) FROM utm_regex_pattern", &newState.PatternsLastUpdate, &newState.PatternsCount, state.PatternsLastUpdate, state.PatternsCount},
 		{"SELECT MAX(modification_time) FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.enable'", "SELECT COUNT(*) FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.enable'", &newState.TwEnableLastUpdate, &newState.TwEnableCount, state.TwEnableLastUpdate, state.TwEnableCount},
+		{"SELECT MAX(modification_time) FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.allowlist'", "SELECT COUNT(*) FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.allowlist'", &newState.TwAllowlistLastUpdate, &newState.TwAllowlistCount, state.TwAllowlistLastUpdate, state.TwAllowlistCount},
 	}
 
 	for _, q := range queries {
@@ -956,26 +967,57 @@ func getTwEnableConfig(db *sql.DB) (bool, error) {
 	return enabled, nil
 }
 
-func writeFeedsConfig(enabled bool) error {
-	filePath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline")
+func getTwAllowlistConfig(db *sql.DB) ([]string, error) {
+	var value sql.NullString
+	err := db.QueryRow(`SELECT conf_param_value FROM utm_configuration_parameter WHERE conf_param_short = 'utmstack.tw.allowlist' LIMIT 1`).Scan(&value)
 	if err != nil {
-		return catcher.Error("cannot create pipeline directory", err, nil)
-	}
-
-	file, err := os.Create(filePath.FileJoin("system_plugins_feeds.yaml"))
-	if err != nil {
-		return catcher.Error("failed to create file", err, map[string]any{"process": "plugin_com.utmstack.config"})
-	}
-
-	defer func() {
-		if err := file.Close(); err != nil {
-			_ = catcher.Error("failed to close file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
 		}
-	}()
+		return nil, catcher.Error("failed to fetch utmstack.tw.allowlist", err, map[string]any{"process": "plugin_com.utmstack.config"})
+	}
+	if !value.Valid {
+		return nil, nil
+	}
+	return parseAllowlistValue(value.String), nil
+}
 
-	feedsStruct, err := structpb.NewStruct(map[string]any{"enabled": enabled})
+func parseAllowlistValue(raw string) []string {
+	if strings.TrimSpace(raw) == "" {
+		return nil
+	}
+	parts := strings.FieldsFunc(raw, func(r rune) bool {
+		return r == ',' || r == '\n' || r == '\r'
+	})
+	seen := make(map[string]struct{}, len(parts))
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		trimmed := strings.TrimSpace(p)
+		if trimmed == "" {
+			continue
+		}
+		key := strings.ToLower(trimmed)
+		if _, exists := seen[key]; exists {
+			continue
+		}
+		seen[key] = struct{}{}
+		out = append(out, trimmed)
+	}
+	return out
+}
+
+func buildFeedsConfigYAML(enabled bool, allowlist []string) ([]byte, error) {
+	allowlistAny := make([]any, 0, len(allowlist))
+	for _, entry := range allowlist {
+		allowlistAny = append(allowlistAny, entry)
+	}
+
+	feedsStruct, err := structpb.NewStruct(map[string]any{
+		"enabled":   enabled,
+		"allowlist": allowlistAny,
+	})
 	if err != nil {
-		return catcher.Error("failed to build feeds struct", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		return nil, catcher.Error("failed to build feeds struct", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	config := plugins.Config{
@@ -984,13 +1026,31 @@ func writeFeedsConfig(enabled bool) error {
 		},
 	}
 
-	bytes, err := k8syaml.Marshal(config)
+	bytes, err := k8syaml.Marshal(&config)
 	if err != nil {
-		return catcher.Error("failed to marshal feeds config", err, map[string]any{"process": "plugin_com.utmstack.config"})
+		return nil, catcher.Error("failed to marshal feeds config", err, map[string]any{"process": "plugin_com.utmstack.config"})
+	}
+	return bytes, nil
+}
+
+func writeFeedsConfig(enabled bool, allowlist []string) error {
+	filePath, err := utils.MkdirJoin(plugins.WorkDir, "pipeline")
+	if err != nil {
+		return catcher.Error("cannot create pipeline directory", err, nil)
 	}
 
-	if _, err := file.Write(bytes); err != nil {
-		return catcher.Error("failed to write to file", err, map[string]any{"process": "plugin_com.utmstack.config"})
+	bytes, err := buildFeedsConfigYAML(enabled, allowlist)
+	if err != nil {
+		return err
+	}
+
+	targetPath := filePath.FileJoin("system_plugins_feeds.yaml")
+	tmpPath := targetPath + ".tmp"
+	if err := os.WriteFile(tmpPath, bytes, 0644); err != nil {
+		return catcher.Error("failed to write temp feeds config", err, map[string]any{"process": "plugin_com.utmstack.config"})
+	}
+	if err := os.Rename(tmpPath, targetPath); err != nil {
+		return catcher.Error("failed to rename feeds config", err, map[string]any{"process": "plugin_com.utmstack.config"})
 	}
 
 	return nil

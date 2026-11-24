@@ -9,6 +9,7 @@ import com.park.utmstack.service.UtmStackService;
 import com.park.utmstack.service.application_events.ApplicationEventService;
 import com.park.utmstack.service.dto.UtmConfigurationParameterCriteria;
 import com.park.utmstack.service.mail_config.MailConfigService;
+import com.park.utmstack.service.validators.allowlist.ThreatIntelAllowlistValidator;
 import com.park.utmstack.service.validators.email.EmailValidatorService;
 import com.park.utmstack.util.ResponseUtil;
 import com.park.utmstack.util.exceptions.UtmMailException;
@@ -66,6 +67,13 @@ public class UtmConfigurationParameterResource {
         try {
             Assert.notEmpty(parameters, "There isn't any parameter to update");
             for (UtmConfigurationParameter parameter : parameters) {
+                if ("utmstack.tw.allowlist".equals(parameter.getConfParamShort())
+                        || "allowlist".equalsIgnoreCase(parameter.getConfParamDatatype())) {
+                    parameter.setConfParamValue(
+                        ThreatIntelAllowlistValidator.validateAndNormalize(parameter.getConfParamValue())
+                    );
+                }
+
                 Errors errors = new BeanPropertyBindingResult(parameter, "utmConfigurationParameter");
 
                 if(StringUtils.hasText(parameter.getConfParamRegexp())){
