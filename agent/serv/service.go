@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/kardianos/service"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 
 	pb "github.com/utmstack/UTMStack/agent/agent"
 	"github.com/utmstack/UTMStack/agent/collector/platform"

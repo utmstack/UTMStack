@@ -1,8 +1,7 @@
 package alert
 
 import (
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/config"
 	"github.com/utmstack/UTMStack/plugins/soc-ai/schema"
 
@@ -65,7 +64,7 @@ func Clean(alert schema.AlertFields) schema.AlertFields {
 					}
 					if cleaned != original {
 						alert.LastEvent.Event[key] = structpb.NewStringValue(cleaned)
-						anonymized = append(anonymized, "lastEvent."+utils.EventKey()+"."+key)
+						anonymized = append(anonymized, "lastEvent."+plugins.EventKey()+"."+key)
 					}
 				default:
 					continue

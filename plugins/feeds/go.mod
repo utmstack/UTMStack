@@ -45,7 +45,7 @@ require (
 	github.com/quic-go/quic-go v0.59.1 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	github.com/shopspring/decimal v1.6.0 // indirect
-	github.com/threatwinds/go-sdk v1.1.40
+	github.com/threatwinds/go-sdk v1.1.43
 	github.com/tidwall/gjson v1.20.5
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.3.0 // indirect
@@ -70,7 +70,10 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
-require github.com/fsnotify/fsnotify v1.10.1
+require (
+	github.com/fsnotify/fsnotify v1.10.1
+	github.com/utmstack/go-sdk/v2 v2.0.0
+)
 
 require (
 	cel.dev/cel-go v0.33.4 // indirect

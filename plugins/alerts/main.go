@@ -13,11 +13,11 @@ import (
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/store"
-	"github.com/threatwinds/go-sdk/store/cache"
-	ch "github.com/threatwinds/go-sdk/store/clickhouse"
-	"github.com/threatwinds/go-sdk/store/factory"
+	"github.com/utmstack/go-sdk/v2/plugins"
+	"github.com/utmstack/go-sdk/v2/store"
+	"github.com/utmstack/go-sdk/v2/store/cache"
+	ch "github.com/utmstack/go-sdk/v2/store/clickhouse"
+	"github.com/utmstack/go-sdk/v2/store/factory"
 	"github.com/threatwinds/go-sdk/utils"
 	"github.com/tidwall/gjson"
 	"github.com/utmstack/UTMStack/plugins/alerts/internal/storecfg"
@@ -79,7 +79,7 @@ type AlertFields struct {
 }
 
 func (a *AlertFields) MarshalJSON() ([]byte, error) {
-	raw, err := utils.ProtoMessageToString(&a.Alert)
+	raw, err := plugins.ProtoMessageToString(&a.Alert)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func correlate(ctx context.Context,
 		alert.LastEvent = alert.Events[len(alert.Events)-1]
 	}
 
-	raw, err := utils.ProtoMessageToString(alert)
+	raw, err := plugins.ProtoMessageToString(alert)
 	if err != nil {
 		_ = catcher.Error("cannot convert alert to string", err, map[string]any{"alert": alert.Name, "process": processName})
 		return nil, nil

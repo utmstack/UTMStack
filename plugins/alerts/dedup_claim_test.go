@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/store/cache"
+	"github.com/utmstack/go-sdk/v2/plugins"
+	"github.com/utmstack/go-sdk/v2/store/cache"
 )
 
 func newTestKV(t *testing.T) *cache.Client {

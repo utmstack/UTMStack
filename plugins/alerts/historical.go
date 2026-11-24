@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/threatwinds/go-sdk/store"
-	"github.com/threatwinds/go-sdk/store/composite"
-	"github.com/threatwinds/go-sdk/store/factory"
+	"github.com/utmstack/go-sdk/v2/store"
+	"github.com/utmstack/go-sdk/v2/store/composite"
+	"github.com/utmstack/go-sdk/v2/store/factory"
 )
 
 type alertStores struct {

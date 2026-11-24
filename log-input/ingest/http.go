@@ -12,7 +12,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/threatwinds/go-sdk/catcher"
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 
 	"github.com/utmstack/UTMStack/log-input/config"
 )

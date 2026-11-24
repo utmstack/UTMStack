@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	"github.com/utmstack/UTMStack/collectors/forwarder/collector/configwatcher"
 	"github.com/utmstack/UTMStack/collectors/forwarder/collector/schema"
 	"github.com/utmstack/UTMStack/collectors/forwarder/config"

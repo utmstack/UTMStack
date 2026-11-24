@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/threatwinds/go-sdk/plugins"
+	"github.com/utmstack/go-sdk/v2/plugins"
 	"github.com/utmstack/UTMStack/collectors/forwarder/collector/file"
 	"github.com/utmstack/UTMStack/collectors/forwarder/collector/http"
 	"github.com/utmstack/UTMStack/collectors/forwarder/collector/netflow"

@@ -8,8 +8,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/nats.go/jetstream"
-	"github.com/threatwinds/go-sdk/plugins"
-	"github.com/threatwinds/go-sdk/utils"
+	"github.com/utmstack/go-sdk/v2/plugins"
 )
 
 // Declared the same way on both sides so neither has to start first.
@@ -63,7 +62,7 @@ func (p *Publisher) Close() {
 
 // Publish waits for the server to acknowledge the message.
 func (p *Publisher) Publish(ctx context.Context, l *plugins.Log) error {
-	payload, err := utils.ProtoMessageToString(l)
+	payload, err := plugins.ProtoMessageToString(l)
 	if err != nil {
 		return fmt.Errorf("serialising the log: %w", err)
 	}

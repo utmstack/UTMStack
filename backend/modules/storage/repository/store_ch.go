@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/threatwinds/go-sdk/store"
-	"github.com/threatwinds/go-sdk/store/clickhouse"
+	"github.com/utmstack/go-sdk/v2/store"
+	"github.com/utmstack/go-sdk/v2/store/clickhouse"
 
 	"github.com/utmstack/utmstack/backend/modules/storage/connectors"
 	"github.com/utmstack/utmstack/backend/modules/storage/domain"
