@@ -8,8 +8,8 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.8.3
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/google/uuid v1.6.0
-	github.com/threatwinds/go-sdk v1.1.43
-	github.com/utmstack/go-sdk/v2 v2.0.0
+	github.com/threatwinds/go-sdk v1.2.1
+	github.com/utmstack/go-sdk/v2 v2.1.0
 	golang.org/x/crypto v0.59.0
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -51,6 +51,7 @@ require (
 	github.com/tidwall/gjson v1.20.5 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.3.0 // indirect
+	github.com/tidwall/sjson v1.2.11 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.1 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect

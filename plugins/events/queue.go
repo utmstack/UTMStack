@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"runtime"
 	"time"
 
 	"github.com/threatwinds/go-sdk/catcher"
@@ -20,21 +19,20 @@ const (
 	flushInterval    = 5 * time.Second
 	flushThreshold   = 1000
 	defaultLogsTable = "logs"
+	logsQueueCap     = 10000
 )
 
-var logs = make(chan string, 100*runtime.NumCPU())
+var logs = make(chan string, logsQueueCap)
 
 func addToQueue(l string) {
-	if len(logs) >= 100*runtime.NumCPU() {
+	select {
+	case logs <- l:
+	default:
 		_ = catcher.Error("cannot enqueue log", fmt.Errorf("queue is full"), map[string]any{
 			"process": processName,
 			"queue":   "logs",
 		})
-
-		return
 	}
-
-	logs <- l
 }
 
 func startQueue(ctx context.Context) <-chan struct{} {
