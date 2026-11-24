@@ -245,8 +245,6 @@ func TestGeolocate_ConcurrentReloadRace(t *testing.T) {
 }
 
 func BenchmarkGeolocateV4Hit(b *testing.B) {
-	dir := b.TempDir()
-	writeGeoFixtures(&testing.T{}, dir, standardFixtures())
 	// Build a 100k-entry synthetic table for realistic binary search timing
 	snap := &geoSnapshot{
 		asnV4:     make([]asnBlockV4, 100000),
@@ -301,4 +299,15 @@ func TestPrefixRangeV4AndV6(t *testing.T) {
 		t.Fatalf("expected /128 hit Frankfurt, got %+v", g)
 	}
 	_ = fmt.Sprintf("loaded %d v4 city blocks", len(snap.cityV4))
+}
+
+func TestLoadGeolocationFromDir_RejectsPartialFailure(t *testing.T) {
+	dir := t.TempDir()
+	files := standardFixtures()
+	delete(files, "blocks-v6.csv") // simulate missing/unreadable required file
+	writeGeoFixtures(t, dir, files)
+
+	if snap := loadGeolocationFromDir(dir); snap != nil {
+		t.Fatalf("expected nil snapshot when required CSV fails to load, got %+v", snap)
+	}
 }
