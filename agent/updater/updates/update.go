@@ -54,7 +54,37 @@ func legacyServiceFile() string {
 	return "utmstack_agent_service"
 }
 
-var currentVersion = Version{}
+var (
+	currentVersion  = Version{}
+	svcIsActiveFunc = svc.IsActive
+	svcStartFunc    = svc.Start
+	fsExistsFunc    = fs.Exists
+)
+
+// ensureAgentRunning checks whether the agent service is active when the agent
+// binary is installed, and attempts to restart it if it stopped unexpectedly.
+func ensureAgentRunning(basePath string) {
+	agentBin := filepath.Join(basePath, config.ServiceFile(""))
+	if !fsExistsFunc(agentBin) {
+		return
+	}
+
+	active, err := svcIsActiveFunc(config.SERV_AGENT_NAME)
+	if err != nil {
+		logger.Error("error checking agent service status: %v", err)
+		return
+	}
+	if active {
+		return
+	}
+
+	logger.Info("Agent service %s is not running; attempting restart...", config.SERV_AGENT_NAME)
+	if err := svcStartFunc(config.SERV_AGENT_NAME); err != nil {
+		logger.Error("error restarting stopped agent service %s: %v", config.SERV_AGENT_NAME, err)
+		return
+	}
+	logger.Info("Agent service %s restarted successfully", config.SERV_AGENT_NAME)
+}
 
 func UpdateDependencies(cnf *config.Config) {
 	basePath := fs.GetExecutablePath()
@@ -70,6 +100,8 @@ func UpdateDependencies(cnf *config.Config) {
 
 	for {
 		time.Sleep(checkEvery)
+
+		ensureAgentRunning(basePath)
 
 		if cnf.PauseAutoUpdate {
 			if !autoUpdatePausedLogged {

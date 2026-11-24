@@ -146,6 +146,12 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 }
 
 func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_ProcessLogClient, ctx context.Context, cancel context.CancelFunc) {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in handleAcknowledgements: %v", r)
+			cancel()
+		}
+	}()
 	for {
 		select {
 		case <-ctx.Done():
@@ -223,6 +229,11 @@ func (l *LogProcessor) processLogs(plClient plugins.Integration_ProcessLogClient
 }
 
 func (l *LogProcessor) CleanCountedLogs() {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in CleanCountedLogs: %v", r)
+		}
+	}()
 	go l.replayUnprocessedLoop()
 
 	ticker := time.NewTicker(timeCLeanLogs)
@@ -257,6 +268,11 @@ func (l *LogProcessor) cleanupRetention() {
 }
 
 func (l *LogProcessor) replayUnprocessedLoop() {
+	defer func() {
+		if r := recover(); r != nil {
+			utils.Logger.ErrorF("panic in replayUnprocessedLoop: %v", r)
+		}
+	}()
 	ticker := time.NewTicker(timeReplayLogs)
 	defer ticker.Stop()
 	for range ticker.C {
