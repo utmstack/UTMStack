@@ -3,8 +3,8 @@ module github.com/utmstack/UTMStack/plugins/compliance-orchestrator
 go 1.26.0
 
 require (
-	github.com/threatwinds/go-sdk v1.1.43
-	github.com/utmstack/go-sdk v1.0.0
+	github.com/threatwinds/go-sdk v1.2.1
+	github.com/utmstack/go-sdk v1.1.0
 )
 
 require (

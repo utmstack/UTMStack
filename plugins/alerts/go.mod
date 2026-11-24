@@ -3,9 +3,9 @@ module github.com/utmstack/UTMStack/plugins/alerts
 go 1.26.0
 
 require (
-	github.com/threatwinds/go-sdk v1.1.43
+	github.com/threatwinds/go-sdk v1.2.1
 	github.com/tidwall/gjson v1.20.5
-	github.com/utmstack/go-sdk v1.0.0
+	github.com/utmstack/go-sdk v1.1.0
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/yaml.v3 v3.0.1
 )

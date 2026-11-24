@@ -3,7 +3,7 @@ module github.com/utmstack/UTMStack/plugins/soc-ai
 go 1.26.0
 
 require (
-	github.com/utmstack/go-sdk v1.0.0
+	github.com/utmstack/go-sdk v1.1.0
 	google.golang.org/grpc v1.84.0
 )
 
@@ -42,7 +42,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.3.1 // indirect
-	github.com/threatwinds/go-sdk v1.1.43
+	github.com/threatwinds/go-sdk v1.2.1
 	github.com/tidwall/gjson v1.19.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
 	github.com/tidwall/pretty v1.2.2 // indirect
