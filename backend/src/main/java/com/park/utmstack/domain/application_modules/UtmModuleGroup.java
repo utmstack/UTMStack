@@ -40,7 +40,7 @@ public class UtmModuleGroup implements Serializable {
     private UtmModule module;
 
     @OrderBy
-    @OneToMany(mappedBy = "moduleGroup", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "moduleGroup", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private Set<UtmModuleGroupConfiguration> moduleGroupConfigurations = new HashSet<>();
 
     @Column(name = "collector_id")

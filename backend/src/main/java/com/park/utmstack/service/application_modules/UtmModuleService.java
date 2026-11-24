@@ -62,8 +62,11 @@ public class UtmModuleService {
                     module.setModuleActive(activationStatus);
                     module = moduleRepository.save(module);
 
-                    if (!activationStatus)
+                    if (!activationStatus) {
+                        module.getModuleGroups().clear();
                         moduleGroupRepository.deleteAllByModuleId(module.getId());
+                        moduleGroupRepository.flush();
+                    }
 
                     enableDisableModuleMenus(nameShort, activationStatus);
                     enableDisableModuleIndexPatterns(nameShort, activationStatus);
