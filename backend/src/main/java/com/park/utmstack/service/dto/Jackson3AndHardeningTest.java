@@ -65,6 +65,12 @@ class Jackson3AndHardeningTest {
         String scanJson = "{\"assetName\":\"host-2\",\"assetIp\":\"203.0.113.5\"}";
         assertEquals("host-2", jackson3.readValue(scanJson, UtmNetworkScan.class).getAssetName());
 
+        NetworkScanDTO customDto = new NetworkScanDTO();
+        customDto.setAssetName("custom-host");
+        customDto.setAssetIp("198.51.100.20");
+        assertEquals(Boolean.FALSE, new UtmNetworkScan(customDto).getIsAgent(),
+            "Custom asset constructor must initialize isAgent to false instead of null");
+
         String pipeDtoJson = "{\"pipelineName\":\"pipe-2\"}";
         assertEquals("pipe-2", jackson3.readValue(pipeDtoJson, UtmLogstashPipelineDTO.class).getPipelineName());
 

@@ -163,7 +163,7 @@ public class AgentService {
 
             for (UtmNetworkScan asset : existingAssets) {
 
-                if (!asset.getIsAgent()) continue;
+                if (!Boolean.TRUE.equals(asset.getIsAgent())) continue;
 
                 if (!agentNames.contains(asset.getAssetName())) {
                     asset.assetAlive(false)

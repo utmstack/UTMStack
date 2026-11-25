@@ -352,7 +352,7 @@ public class UtmNetworkScanService {
             if (asset.isPresent()) {
                 src = StringUtils.hasText(asset.get().getAssetName()) ? asset.get().getAssetName() : asset.get().getAssetIp();
 
-                if (asset.get().getIsAgent())
+                if (Boolean.TRUE.equals(asset.get().getIsAgent()))
                     agentGrpcService.deleteAgent(src);
                 utmDataInputStatusRepository.deleteAllBySource(src);
                 networkScanRepository.deleteById(id);
@@ -389,7 +389,7 @@ public class UtmNetworkScanService {
             if (assetOpt.isEmpty())
                 return false;
             UtmNetworkScan asset = assetOpt.get();
-            return asset.getIsAgent() && !asset.getAssetStatus().equals(AssetStatus.MISSING) && asset.getAssetAlive();
+            return Boolean.TRUE.equals(asset.getIsAgent()) && !AssetStatus.MISSING.equals(asset.getAssetStatus()) && Boolean.TRUE.equals(asset.getAssetAlive());
         } catch (Exception e) {
             throw new Exception(ctx + ": " + e.getMessage());
         }
