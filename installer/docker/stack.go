@@ -85,6 +85,11 @@ func GetStackConfig() *StackConfig {
 			{Name: "postgres", Priority: 2, MinMemory: 500, MaxMemory: 2 * 1024},
 			{Name: "agentmanager", Priority: 3, MinMemory: 200, MaxMemory: 1024},
 			{Name: "frontend", Priority: 3, MinMemory: 80, MaxMemory: 1024},
+			{Name: "soc-ai", Priority: 3, MinMemory: 256, MaxMemory: 1024},
+		}
+
+		for _, name := range Integrations {
+			Services = append(Services, system.ServiceConfig{Name: integrationServiceName(name), Priority: 3, MinMemory: 128, MaxMemory: 1024})
 		}
 
 		if rsrcs, ok := loadPersistedMemoryAllocation(); ok {
@@ -244,3 +249,17 @@ func StackUP(tag string) error {
 
 	return nil
 }
+
+// Integrations are the pullers, one container each, built from integrations/<name>.
+var Integrations = []string{
+	"aws",
+	"azure",
+	"bitdefender",
+	"crowdstrike",
+	"gcp",
+	"o365",
+	"o365_graph",
+	"sophos",
+}
+
+func integrationServiceName(name string) string { return "integration-" + name }

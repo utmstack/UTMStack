@@ -22,14 +22,16 @@ require (
 	github.com/jackc/pgx/v5 v5.13.0
 	github.com/joho/godotenv v1.5.1
 	github.com/modelcontextprotocol/go-sdk v1.8.0
+	github.com/nats-io/nats-server/v2 v2.14.3
+	github.com/nats-io/nats.go v1.56.0
 	github.com/pquerna/otp v1.5.0
 	github.com/swaggo/files v1.0.1
 	github.com/swaggo/gin-swagger v1.6.1
 	github.com/swaggo/swag v1.16.6
-	github.com/threatwinds/go-sdk v1.1.43
+	github.com/threatwinds/go-sdk v1.2.1
 	github.com/tidwall/gjson v1.20.5
 	github.com/utmstack/UTMStack/upgrade v0.0.0
-	github.com/utmstack/go-sdk/v2 v2.0.0
+	github.com/utmstack/go-sdk/v2 v2.1.1
 	github.com/utmstack/license-manager-sdk v0.1.0
 	golang.org/x/crypto v0.59.0
 	golang.org/x/sys v0.50.0
@@ -46,15 +48,23 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/storage/internal v0.1.0 // indirect
 	github.com/Azure/go-ntlmssp v0.1.1 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.51.0 // indirect
+	github.com/antithesishq/antithesis-sdk-go v0.7.0-default-no-op // indirect
 	github.com/apache/arrow-go/v18 v18.7.0 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.27 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.8 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.4 // indirect
 	github.com/google/flatbuffers v25.12.19+incompatible // indirect
+	github.com/google/go-tpm v0.9.8 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
+	github.com/minio/highwayhash v1.0.4 // indirect
+	github.com/nats-io/jwt/v2 v2.8.2 // indirect
+	github.com/nats-io/nkeys v0.4.16 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/opensearch-project/opensearch-go/v4 v4.8.1 // indirect
+	github.com/redis/go-redis/v9 v9.23.0 // indirect
 	github.com/zeebo/xxh3 v1.1.0 // indirect
 	go.opentelemetry.io/otel/log v1.47.0 // indirect
+	go.uber.org/atomic v1.12.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	golang.org/x/exp v0.0.0-20260813180055-c1d0aacb2297 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect

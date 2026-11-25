@@ -1,6 +1,8 @@
 package alerts
 
 import (
+	"context"
+
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/handler"
 	"github.com/utmstack/utmstack/backend/modules/alerts/repository"
@@ -18,6 +20,9 @@ type Module struct {
 	alertTagRuleUsecase connectors.AlertTagRuleUsecase
 	adversaryHandler    *handler.AdversaryHandler
 	adversaryUsecase    connectors.AdversaryUsecase
+
+	events     *eventstore.Store
+	floodGuard *usecase.FloodGuard
 }
 
 func NewModule(db *gorm.DB, events *eventstore.Store, mailer connectors.AlertMailer) *Module {
@@ -46,12 +51,16 @@ func NewModule(db *gorm.DB, events *eventstore.Store, mailer connectors.AlertMai
 		alertTagRuleUsecase: alertTagRuleUC,
 		adversaryHandler:    adversaryH,
 		adversaryUsecase:    adversaryUC,
+		events:              events,
 	}
 }
 
 func (m *Module) GetAlertHandler() *handler.AlertHandler { return m.alertHandler }
 
 func (m *Module) GetAlertUsecase() connectors.AlertUsecase { return m.alertUsecase }
+
+// AddRaisedHook registers something to run for each new alert.
+func (m *Module) AddRaisedHook(h connectors.RaisedHook) { m.alertUsecase.AddRaisedHook(h) }
 
 func (m *Module) SetCorrelationResolver(r connectors.CorrelationResolver) {
 	m.alertUsecase.SetCorrelationResolver(r)
@@ -72,3 +81,16 @@ func (m *Module) GetAlertTagRuleUsecase() connectors.AlertTagRuleUsecase {
 func (m *Module) GetAdversaryHandler() *handler.AdversaryHandler { return m.adversaryHandler }
 
 func (m *Module) GetAdversaryUsecase() connectors.AdversaryUsecase { return m.adversaryUsecase }
+
+// EnableFloodGuard sets up the guard that disables a rule that floods a tenant's alerts. It needs what
+// other modules own, the rules and the notification bell, so the caller passes them in.
+func (m *Module) EnableFloodGuard(rules connectors.FloodRuleSwitch, notifier connectors.FloodNotifier, config func() usecase.FloodConfig) {
+	m.floodGuard = usecase.NewFloodGuard(repository.NewFloodRepository(m.events), rules, notifier, config)
+}
+
+// Start begins the module's periodic work.
+func (m *Module) Start(ctx context.Context) {
+	if m.floodGuard != nil {
+		go m.floodGuard.Start(ctx)
+	}
+}

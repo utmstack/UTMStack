@@ -213,8 +213,12 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 		"GRPC_AGENT_MANAGER_PORT=9000",
 		"EVENT_PROCESSOR_HOST=event-processor-manager",
 		"EVENT_PROCESSOR_PORT=9002",
-		"SOC_AI_BASE_URL=http://event-processor-manager:8090",
+		"SOC_AI_BASE_URL=http://soc-ai:8090",
 		"PLAYGROUND_BASE_URL=http://event-processor-manager:8091",
+		"VALKEY_ADDR=valkey:6379",
+		"VALKEY_PASSWORD=" + conf.Password,
+		// Where the module configuration of the integrations is kept, encrypted.
+		"NATS_URL=nats://nats:4222",
 		"UPLOAD_DIR=/uploads",
 		"CLICKHOUSE_CONFIG_DIR=/clickhouse-conf",
 		"UTMSTACK_ADMIN_PASSWORD=" + conf.Password,
@@ -235,6 +239,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"postgres",
 			"clickhouse",
 			"agentmanager",
+			"nats",
 		},
 		Environment: backendEnv,
 		Volumes: []string{
@@ -454,6 +459,77 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 				},
 			},
 		},
+	}
+
+	// The SOC agent runs on its own. New alerts reach it through NATS, with their dossier already worked
+	// out by the backend; the model it uses is the tenant's, from the configuration the backend keeps in
+	// NATS (decrypted with the same key); and it works on the SIEM through the backend's MCP tools.
+	socAIMem := stack.ServiceResources["soc-ai"].AssignedMemory
+	c.Services["soc-ai"] = Service{
+		Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/soc-ai:${UTMSTACK_TAG}"),
+		DependsOn: []string{
+			"nats",
+			"backend",
+		},
+		Environment: []string{
+			"BACKEND_URL=http://backend:8080",
+			"INTERNAL_KEY=" + conf.InternalKey,
+			"ENCRYPTION_KEY=" + conf.InternalKey,
+			"NATS_URL=nats://nats:4222",
+			"HTTP_PORT=8090",
+		},
+		Logging: &dLogging,
+		Deploy: &Deploy{
+			Placement: &pManager,
+			Resources: &Resources{
+				Limits: &Res{
+					Memory: utils.PointerOf[string](fmt.Sprintf("%vM", socAIMem)),
+				},
+			},
+		},
+	}
+
+	// The pullers run on their own, outside the event processor, and nothing is shared with them
+	// from disk: they publish logs to NATS, read their module configuration from NATS (decrypted
+	// with the same key the backend encrypts it with) and take their leases and cursors from NATS,
+	// so more than one of them can run without ingesting the same unit twice.
+	for _, name := range Integrations {
+		svc := integrationServiceName(name)
+		mem := stack.ServiceResources[svc].AssignedMemory
+
+		env := []string{
+			"NATS_URL=nats://nats:4222",
+			"ENCRYPTION_KEY=" + conf.InternalKey,
+			"LOG_LEVEL=200",
+		}
+
+		var volumes []string
+
+		if name == "bitdefender" {
+			// GravityZone pushes over HTTPS on 8000 with this certificate. The port is not
+			// published here: nothing else is open but 443.
+			volumes = append(volumes, stack.Cert+":/cert")
+			env = append(env, "CERTS_FOLDER=/cert")
+		}
+
+		c.Services[svc] = Service{
+			Image: utils.PointerOf[string]("ghcr.io/utmstack/utmstack/" + name + ":${UTMSTACK_TAG}"),
+			DependsOn: []string{
+				"nats",
+				"backend",
+			},
+			Volumes:     volumes,
+			Environment: env,
+			Logging:     &dLogging,
+			Deploy: &Deploy{
+				Placement: &pManager,
+				Resources: &Resources{
+					Limits: &Res{
+						Memory: utils.PointerOf[string](fmt.Sprintf("%vM", mem)),
+					},
+				},
+			},
+		}
 	}
 
 	c.Volumes["postgres_data"] = Volume{

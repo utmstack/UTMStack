@@ -59,6 +59,10 @@ type Module struct {
 	deps      *Deps
 	server    *mcp.Server
 	toolCount int
+
+	// agent holds only the tools in agentTools; the internal caller (the SOC agent) talks to it.
+	agent      *mcp.Server
+	agentCount int
 }
 
 // NewModule constructs the module and registers every tool, prompt, and
@@ -76,6 +80,12 @@ func NewModule(deps *Deps) *Module {
 // Server returns the wrapped *mcp.Server. Exposed mainly for tests that want
 // to drive the server in-process without going through HTTP.
 func (m *Module) Server() *mcp.Server { return m.server }
+
+// AgentServer returns the server with the curated tools the SOC agent sees.
+func (m *Module) AgentServer() *mcp.Server { return m.agent }
+
+// AgentToolCount returns how many tools the SOC agent sees.
+func (m *Module) AgentToolCount() int { return m.agentCount }
 
 // ToolCount returns the number of tools registered. The SDK doesn't expose a
 // public reader, so we maintain a running tally inside addTool.

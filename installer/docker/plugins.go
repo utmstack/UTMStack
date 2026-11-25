@@ -76,7 +76,7 @@ func SetPluginsConfigs(conf *config.Config, stack *StackConfig) error {
 	correlationPipeline := PluginsConfig{}
 	correlationPipeline.Plugins = make(map[string]PluginConfig)
 	correlationPipeline.Plugins["correlation"] = PluginConfig{
-		Order: []string{"com.utmstack.alerts", "com.utmstack.soc-ai", "com.utmstack.soar"},
+		Order: []string{"com.utmstack.alerts", "com.utmstack.soar"},
 	}
 
 	notificationPipeline := PluginsConfig{}

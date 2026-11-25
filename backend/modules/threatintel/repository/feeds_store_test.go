@@ -6,19 +6,20 @@ import (
 	"strings"
 	"sync"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 )
 
-// The plugin reads this file and the backend writes it. Its shape is the
-// contract between them: plugins.feeds.*, the same wrapper every other plugin
-// config uses.
-func TestTheFileIsShapedTheWayThePluginReadsIt(t *testing.T) {
+// The event processor's feed matcher and the backend's contribution task read this file and the
+// backend writes it. Its shape is the contract: plugins.<key>.enabled, the same wrapper every other
+// plugin config uses, with one key for each of the two.
+func TestTheFileIsShapedTheWayItIsRead(t *testing.T) {
 	dir := t.TempDir()
 	s := NewConfigStore(dir)
 
 	if err := s.Update(func(c *FeedsConfig) {
-		c.Enabled = true
-		c.APIKey = "encrypted-key"
-		c.APISecret = "encrypted-secret"
+		c.FeedsEnabled.Enabled = true
+		c.FeedsContributionEnabled.Enabled = true
 	}); err != nil {
 		t.Fatalf("Update: %v", err)
 	}
@@ -27,26 +28,41 @@ func TestTheFileIsShapedTheWayThePluginReadsIt(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read: %v", err)
 	}
-	for _, want := range []string{"plugins:", "feeds:", "enabled: true", "api_key: encrypted-key", "api_secret: encrypted-secret"} {
-		if !strings.Contains(string(data), want) {
-			t.Errorf("missing %q in:\n%s", want, data)
+
+	var parsed struct {
+		Plugins map[string]struct {
+			Enabled bool `yaml:"enabled"`
+		} `yaml:"plugins"`
+	}
+
+	if err := yaml.Unmarshal(data, &parsed); err != nil {
+		t.Fatalf("the file is not yaml: %v\n%s", err, data)
+	}
+
+	for _, key := range []string{"feeds", "feeds_contribution"} {
+		if got, ok := parsed.Plugins[key]; !ok || !got.Enabled {
+			t.Errorf("plugins.%s.enabled must be true in:\n%s", key, data)
 		}
+	}
+
+	if strings.Contains(string(data), "api_key") || strings.Contains(string(data), "api_secret") {
+		t.Errorf("the file no longer carries credentials:\n%s", data)
 	}
 }
 
-// Turning the contribution off must not throw away the credentials, or turning
-// it back on would mean registering with ThreatWinds all over again.
-func TestSwitchingItOffKeepsTheCredentials(t *testing.T) {
+// Each switch is its own: turning the contribution off must not turn the feed matcher off, and the
+// other way round. An update re-reads what is on disk instead of writing a config it did not see.
+func TestSwitchingOneOffLeavesTheOtherAlone(t *testing.T) {
 	s := NewConfigStore(t.TempDir())
 
 	if err := s.Update(func(c *FeedsConfig) {
-		c.Enabled = true
-		c.APIKey = "k"
-		c.APISecret = "s"
+		c.FeedsEnabled.Enabled = true
+		c.FeedsContributionEnabled.Enabled = true
 	}); err != nil {
 		t.Fatal(err)
 	}
-	if err := s.Update(func(c *FeedsConfig) { c.Enabled = false }); err != nil {
+
+	if err := s.Update(func(c *FeedsConfig) { c.FeedsContributionEnabled.Enabled = false }); err != nil {
 		t.Fatal(err)
 	}
 
@@ -54,11 +70,22 @@ func TestSwitchingItOffKeepsTheCredentials(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got.Enabled {
-		t.Error("it stayed on")
+
+	if got.FeedsContributionEnabled.Enabled {
+		t.Error("the contribution stayed on")
 	}
-	if got.APIKey != "k" || got.APISecret != "s" {
-		t.Errorf("credentials = %q/%q, want them kept", got.APIKey, got.APISecret)
+
+	if !got.FeedsEnabled.Enabled {
+		t.Error("turning the contribution off turned the feed matcher off too")
+	}
+
+	if err := s.Update(func(c *FeedsConfig) { c.FeedsEnabled.Enabled = false }); err != nil {
+		t.Fatal(err)
+	}
+
+	got, _ = s.Load()
+	if got.FeedsEnabled.Enabled || got.FeedsContributionEnabled.Enabled {
+		t.Errorf("got %+v, want both off", got)
 	}
 }
 
@@ -68,38 +95,56 @@ func TestNoFileYetReadsAsOff(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
-	if got.Enabled || got.APIKey != "" {
+
+	if got.FeedsEnabled.Enabled || got.FeedsContributionEnabled.Enabled {
 		t.Errorf("got %+v, want the zero config", got)
 	}
 }
 
-// The config directory is a shared volume and every replica writes to it. Two
-// saves at once must leave one whole file, not halves of both.
+// A file that is not valid yaml is reported, not read as "off": the task must not quietly stop
+// because someone edited the file badly.
+func TestABrokenFileIsAnError(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "system_plugins_feeds.yaml"), []byte("plugins: [not a map"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := NewConfigStore(dir).Load(); err == nil {
+		t.Error("a file that cannot be parsed must be an error")
+	}
+}
+
+// The config directory is a shared volume and every replica writes to it. Two saves at once must
+// leave one whole file, not halves of both: every writer sets the two switches to the same value, so
+// a mixed result means two writers were interleaved.
 func TestConcurrentWritesLeaveOneWholeFile(t *testing.T) {
 	dir := t.TempDir()
 	s := NewConfigStore(dir)
 
 	var wg sync.WaitGroup
+
 	for i := 0; i < 8; i++ {
 		wg.Add(1)
+
 		go func(n int) {
 			defer wg.Done()
+
+			on := n%2 == 0
 			_ = s.Update(func(c *FeedsConfig) {
-				c.Enabled = true
-				c.APIKey = strings.Repeat(string(rune('a'+n)), 512)
+				c.FeedsEnabled.Enabled = on
+				c.FeedsContributionEnabled.Enabled = on
 			})
 		}(i)
 	}
+
 	wg.Wait()
 
 	got, err := s.Load()
 	if err != nil {
 		t.Fatalf("Load: %v", err)
 	}
-	if len(got.APIKey) != 512 {
-		t.Fatalf("api_key is %d chars, want one writer's whole value", len(got.APIKey))
-	}
-	if strings.Trim(got.APIKey, string(got.APIKey[0])) != "" {
-		t.Error("two writers' values were mixed")
+
+	if got.FeedsEnabled.Enabled != got.FeedsContributionEnabled.Enabled {
+		t.Errorf("two writers' values were mixed: %+v", got)
 	}
 }

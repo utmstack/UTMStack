@@ -12,6 +12,8 @@ type Module struct {
 	client *SocAIClient
 	config *usecase.ConfigService
 	quota  *AIQuota
+	store  *repository.ConfigStore
+	cipher *secret.Cipher
 }
 
 func NewModule(
@@ -20,7 +22,8 @@ func NewModule(
 ) *Module {
 	instanceconfig.Init(updatesDir)
 
-	config := usecase.NewConfigService(repository.NewConfigStore(pipelineDir), cipher, verifier.New()).
+	store := repository.NewConfigStore(pipelineDir)
+	config := usecase.NewConfigService(store, cipher, verifier.New()).
 		WithLeases(leases)
 	config.StartEnsureDefaultLoop()
 
@@ -28,8 +31,16 @@ func NewModule(
 		client: NewSocAIClient(baseURL, internalKey),
 		config: config,
 		quota:  quota,
+		store:  store,
+		cipher: cipher,
 	}
 }
+
+// ConfigStore is where the module's configuration is kept.
+func (m *Module) ConfigStore() *repository.ConfigStore { return m.store }
+
+// Cipher is what encrypts the secrets in that configuration, and the copy of it that the SOC AI service reads.
+func (m *Module) Cipher() *secret.Cipher { return m.cipher }
 
 func (m *Module) Client() *SocAIClient { return m.client }
 

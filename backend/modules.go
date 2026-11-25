@@ -17,6 +17,7 @@ import (
 	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/utmstack/backend/internal/mail"
 	"github.com/utmstack/utmstack/backend/modules/adaudit"
+	"github.com/utmstack/go-sdk/v2/store/cache"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/alertscoring"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
@@ -215,6 +216,11 @@ func initModules(db *gorm.DB, events *eventstore.Store, cfg *config) *modules {
 	eventProcessingMod := eventprocessing.NewModule(db, events, auditMod.Logger(), cfg.playgroundBaseURL, cfg.internalKey)
 
 	alertsMod.SetCorrelationResolver(eventProcessingMod)
+	alertsMod.EnableFloodGuard(
+		floodRuleSwitch{rules: eventProcessingMod.GetCorrelationRuleUsecase()},
+		floodNotifier{producer: notificationsMod.Producer()},
+		floodConfig(cfg.integrationsDir),
+	)
 
 	dsRepo := ns_repository.NewDatasourceRepository(db)
 	dsUC := ns_usecase.NewDatasourceUsecase(dsRepo, eventProcessingMod.GetAssetProjectionUsecase())
@@ -281,19 +287,35 @@ func initModules(db *gorm.DB, events *eventstore.Store, cfg *config) *modules {
 		cipher,
 		db,
 	)
+	// Valkey is optional: with no address the client is nil and every call on it is a miss, so the
+	// contribution to ThreatWinds sends everything on every cycle, as it did before.
+	valkey := cache.New(cache.Config{
+		Addr:     env.String("VALKEY_ADDR", "", false),
+		Password: env.String("VALKEY_PASSWORD", "", false),
+	})
+	threatintelMod.EnableContribution(
+		incidentsMod.GetIncidentUsecase(),
+		incidentsMod.GetIncidentAlertUsecase(),
+		events,
+		joblease.New(db),
+		valkey,
+	)
 
 	integrationsMod := integrations.NewModule(db, cipher,
-		env.String("INTEGRATIONS_CONFIG_DIR", "/workdir/pipeline", false),
+		integrationsConfigStore(cipher),
 		dsUC,
 		agentClient,
 	)
+
+	alertScoringMod := alertscoring.NewModule(events, agentClient, datasourcesMod.GetDatasourceUsecase())
+	enableAITriage(alertsMod, socAIMod, aiQuota, alertScoringMod, events)
 
 	var mcpModule *mcpmod.Module
 	if cfg.mcpEnabled {
 		mcpModule = mcpmod.NewModule(&mcpmod.Deps{
 			IAM:             iamMod,
 			Alerts:          alertsMod,
-			AlertScoring:    alertscoring.NewModule(events, agentClient, datasourcesMod.GetDatasourceUsecase()),
+			AlertScoring:    alertScoringMod,
 			Incidents:       incidentsMod,
 			SOAR:            soarMod,
 			Compliance:      complianceMod,

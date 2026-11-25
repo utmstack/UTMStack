@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 	"time"
 
@@ -15,14 +16,19 @@ type alertUsecase struct {
 	repo     connectors.AlertRepository
 	mailer   connectors.AlertMailer
 	resolver connectors.CorrelationResolver // injected post-construction; may be nil
+	hooks    []connectors.RaisedHook        // registered at start, before any alert is notified
 }
 
 func NewAlertUsecase(repo connectors.AlertRepository, mailer connectors.AlertMailer) connectors.AlertUsecase {
 	return &alertUsecase{repo: repo, mailer: mailer}
 }
 
+func (u *alertUsecase) AddRaisedHook(h connectors.RaisedHook) {
+	u.hooks = append(u.hooks, h)
+}
+
 func (u *alertUsecase) NotifyRaised(ctx context.Context, alertID string) error {
-	if u.mailer == nil || alertID == "" {
+	if alertID == "" || (u.mailer == nil && len(u.hooks) == 0) {
 		return nil
 	}
 	alerts, err := u.repo.SearchByIDs(ctx, []string{alertID})
@@ -37,7 +43,20 @@ func (u *alertUsecase) NotifyRaised(ctx context.Context, alertID string) error {
 	if alert.ParentID != "" {
 		return nil
 	}
-	return u.mailer.SendAlertRaised(ctx, alert)
+
+	// Each one is independent: a failing e-mail must not keep the AI triage from being asked, nor the other way round.
+	var errs []error
+	if u.mailer != nil {
+		if err := u.mailer.SendAlertRaised(ctx, alert); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	for _, h := range u.hooks {
+		if err := h(ctx, alert.TenantID, alert.ID); err != nil {
+			errs = append(errs, err)
+		}
+	}
+	return errors.Join(errs...)
 }
 
 func (u *alertUsecase) SetCorrelationResolver(r connectors.CorrelationResolver) {
@@ -66,7 +85,6 @@ func (u *alertUsecase) UpdateStatus(ctx context.Context, userEmail string, req d
 	oldAlerts, _ := u.repo.SearchByIDs(ctx, req.AlertIDs)
 
 	tagFalsePositive := req.Status == domain.AlertStatusCompleted && req.AddFalsePositiveTag
-
 
 	return u.repo.UpdateStatus(ctx, req.AlertIDs, req.Status, req.StatusObservation,
 		tagFalsePositive, buildStatusEntries(oldAlerts, user, req))
@@ -172,10 +190,10 @@ func buildStatusEntries(oldAlerts []domain.UtmAlert, user string, req dto.Update
 			"status":            string(req.Status),
 			"statusObservation": req.StatusObservation,
 		}
-        old, ok := oldByID[id]
+		old, ok := oldByID[id]
 		if ok {
 			newVal["previousStatus"] = string(old.Status)
-		}else{
+		} else {
 			continue
 		}
 

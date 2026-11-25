@@ -84,6 +84,8 @@ func main() {
 
 	modules.billing.Start(appCtx)
 	modules.eventProcessing.Start(appCtx)
+	modules.alerts.Start(appCtx)
+	modules.threatIntel.Start(appCtx)
 	modules.compliance.Start(appCtx)
 	modules.integrations.Start(appCtx)
 	modules.datasources.Start(appCtx)

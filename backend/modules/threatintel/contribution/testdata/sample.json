@@ -1,0 +1,111 @@
+{
+ "incident": {
+  "id": "11111111-1111-4111-8111-111111111111",
+  "incidentName": "Suspicious admin activity",
+  "incidentDescription": "Lateral movement after a phishing mail",
+  "incidentStatus": "Open",
+  "incidentSeverity": "high",
+  "incidentCreatedDate": "2026-11-20T10:00:00Z",
+  "alertCount": 3
+ },
+ "alerts": [
+  {
+   "id": "a1",
+   "name": "Known Malicious IP Detected",
+   "dataType": "firewall",
+   "events": [
+    {
+     "id": "e1",
+     "origin": {
+      "ip": "203.0.113.42",
+      "port": 51544,
+      "host": "attacker.example.net",
+      "domain": "example.net",
+      "geolocation": {
+       "country": "Russia",
+       "city": "Moscow",
+       "asn": 12389,
+       "aso": "Rostelecom"
+      }
+     },
+     "target": {
+      "ip": "10.0.0.7",
+      "port": 443,
+      "host": "srv-web-01",
+      "mac": "00:1a:2b:3c:4d:5e",
+      "user": "svc-web"
+     }
+    },
+    {
+     "id": "e2",
+     "origin": {
+      "ip": "203.0.113.42",
+      "port": 51545,
+      "url": "http://203.0.113.42/payload.exe"
+     },
+     "target": {
+      "ip": "10.0.0.7",
+      "port": 80,
+      "host": "srv-web-01"
+     }
+    }
+   ]
+  },
+  {
+   "id": "a2",
+   "name": "Malware Detected",
+   "dataType": "antivirus",
+   "events": [
+    {
+     "id": "e3",
+     "origin": {
+      "host": "ws-017",
+      "process": "powershell.exe",
+      "file": "invoice.exe",
+      "path": "C:\\Users\\bob\\Downloads\\invoice.exe",
+      "md5": "d41d8cd98f00b204e9800998ecf8427e",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "malware": "Emotet",
+      "malwareFamily": "emotet",
+      "user": "bob"
+     },
+     "target": {
+      "host": "ws-017",
+      "ip": "10.0.0.21"
+     }
+    }
+   ]
+  },
+  {
+   "id": "a3",
+   "name": "Phishing Email",
+   "dataType": "o365",
+   "events": [
+    {
+     "id": "e4",
+     "origin": {
+      "emailAddress": "billing@evil.example.org",
+      "emailSubject": "Invoice overdue",
+      "domain": "evil.example.org",
+      "ip": "198.51.100.9"
+     },
+     "target": {
+      "emailAddress": "bob@corp.example.com",
+      "user": "bob"
+     }
+    },
+    {
+     "id": "e5",
+     "origin": {
+      "cve": "CVE-2024-3094",
+      "ip": "198.51.100.9"
+     },
+     "target": {
+      "ip": "10.0.0.7",
+      "port": 22
+     }
+    }
+   ]
+  }
+ ]
+}

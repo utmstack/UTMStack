@@ -26,20 +26,19 @@ func RegisterRoutes(group *gin.RouterGroup, m *Module, userAuth gin.HandlerFunc)
 		return
 	}
 
-	mcpGroup := group.Group("/mcp", userAuth, liftActorMiddleware())
+	mcpGroup := group.Group("/mcp", userAuth, liftActorMiddleware(), liftAgentGroups())
 
 	mcpGroup.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"enabled":          true,
 			"tools_registered": m.ToolCount(),
+			"agent_tools":      m.AgentToolCount(),
 			"server_version":   m.deps.ServerVersion,
 			"server_name":      m.deps.ServerName,
 		})
 	})
 
-	handler := mcp.NewStreamableHTTPHandler(func(_ *http.Request) *mcp.Server {
-		return m.server
-	}, &mcp.StreamableHTTPOptions{
+	handler := mcp.NewStreamableHTTPHandler(m.serverFor, &mcp.StreamableHTTPOptions{
 		// Backend may be reached behind reverse proxies whose forwarded
 		// Host headers don't match the loopback addresses the SDK rebinds
 		// against by default. We disable that protection because the

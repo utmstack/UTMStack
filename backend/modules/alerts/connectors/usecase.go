@@ -22,7 +22,13 @@ type AlertMailer interface {
 	SendAlertRaised(ctx context.Context, alert domain.UtmAlert) error
 }
 
+// RaisedHook is told when an alert has just been raised (not an echo of a grouped one), with the
+// tenant it belongs to. Whatever it does must not hold the notification back.
+type RaisedHook func(ctx context.Context, tenantID, alertID string) error
+
 type AlertUsecase interface {
+	// AddRaisedHook registers something to run for each new alert, besides the e-mail.
+	AddRaisedHook(h RaisedHook)
 	UpdateStatus(ctx context.Context, userEmail string, req dto.UpdateAlertStatusRequest) error
 	NotifyRaised(ctx context.Context, alertID string) error
 	UpdateNotes(ctx context.Context, userEmail string, alertID string, notes string) error

@@ -22,6 +22,11 @@ on:
         type: string
         default: ""
         description: "Path to the Dockerfile (defaults to ./<image_name>/Dockerfile)"
+      working_directory:
+        required: false
+        type: string
+        default: ""
+        description: "Directory of the Go module to build (defaults to ./<image_name>)"
     secrets:
       API_SECRET:
         required: false
@@ -44,7 +49,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ^1.20
-          cache-dependency-path: ${{ inputs.image_name }}/go.sum
+          cache-dependency-path: ${{ inputs.working_directory != '' && inputs.working_directory || inputs.image_name }}/go.sum
         id: go
 
       - name: Configure git for private modules
@@ -57,7 +62,7 @@ jobs:
           fi
   
       - name: Build Binary
-        working-directory: ./${{inputs.image_name}}
+        working-directory: ${{ inputs.working_directory != '' && inputs.working_directory || format('./{0}', inputs.image_name) }}
         env:
           # Exposed so `inputs.flags` can reference them with shell expansion
           # ($CM_SIGN_PUBLIC_KEY / $CM_ENCRYPT_SALT). The `secrets` context can't
@@ -84,8 +89,8 @@ jobs:
       - name: Build and Push the Image
         uses: docker/build-push-action@v6
         with:
-          context: ${{ inputs.build_context != '' && inputs.build_context || format('./{0}', inputs.image_name) }}
-          file: ${{ inputs.dockerfile != '' && inputs.dockerfile || format('./{0}/Dockerfile', inputs.image_name) }}
+          context: ${{ inputs.build_context != '' && inputs.build_context || (inputs.working_directory != '' && inputs.working_directory || format('./{0}', inputs.image_name)) }}
+          file: ${{ inputs.dockerfile != '' && inputs.dockerfile || format('{0}/Dockerfile', inputs.working_directory != '' && inputs.working_directory || format('./{0}', inputs.image_name)) }}
           cache-from: type=gha,scope=${{ inputs.image_name }}
           cache-to: type=gha,mode=max,scope=${{ inputs.image_name }}
           push: true

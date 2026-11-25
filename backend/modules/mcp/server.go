@@ -44,6 +44,8 @@ func (m *Module) buildServer() *mcp.Server {
 		Version: version,
 	}, nil)
 	m.server = srv
+	m.agent = mcp.NewServer(&mcp.Implementation{Name: name, Title: "UTMStack (SOC agent)", Version: version}, nil)
+	m.agent.AddReceivingMiddleware(agentFilter)
 
 	registerAlerts(m)
 	registerAlertScoring(m)
@@ -68,7 +70,7 @@ func (m *Module) buildServer() *mcp.Server {
 
 	registerResources(m)
 
-	catcher.Info(fmt.Sprintf("MCP server built: %d tools registered", m.toolCount), nil)
+	catcher.Info(fmt.Sprintf("MCP server built: %d tools registered, %d for the SOC agent", m.toolCount, m.agentCount), nil)
 	return srv
 }
 
@@ -154,7 +156,7 @@ func Add[In, Out any](m *Module, t *mcp.Tool, gate Gate, h Handler[In, Out]) {
 		}
 		t.InputSchema = schema
 	}
-	mcp.AddTool(m.server, t, func(ctx context.Context, _ *mcp.CallToolRequest, in In) (*mcp.CallToolResult, Out, error) {
+	handler := func(ctx context.Context, _ *mcp.CallToolRequest, in In) (*mcp.CallToolResult, Out, error) {
 		var zero Out
 		actor := ActorFromContext(ctx)
 		if actor == nil {
@@ -171,7 +173,16 @@ func Add[In, Out any](m *Module, t *mcp.Tool, gate Gate, h Handler[In, Out]) {
 		}
 		m.auditSuccess(ctx, actor, toolName)
 		return nil, out, nil
-	})
+	}
+
+	mcp.AddTool(m.server, t, handler)
+
+	// The same tool, with the same checks, on the short list the SOC agent sees.
+	if _, ok := agentTools[toolName]; ok && m.agent != nil {
+		m.agentCount++
+		onAgent := *t
+		mcp.AddTool(m.agent, &onAgent, handler)
+	}
 }
 
 // errorResult builds a CallToolResult with IsError set and a TextContent

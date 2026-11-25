@@ -24,11 +24,10 @@ type Module struct {
 func NewModule(
 	db *gorm.DB,
 	cipher connectors.Cipher,
-	configDir string,
+	store connectors.ConfigRepository,
 	datasources ds_connectors.DatasourceUsecase,
 	agentClient *agentmanager.AgentManagerClient,
 ) *Module {
-	store := repository.NewConfigStore(configDir)
 	schema := repository.NewCodeSchemaProvider() // field schema lives in code
 	verif := verifier.NewBackendVerifier()
 
