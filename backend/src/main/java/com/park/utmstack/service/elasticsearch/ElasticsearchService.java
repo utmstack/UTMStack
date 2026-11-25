@@ -577,8 +577,8 @@ public class ElasticsearchService {
      * documents in memory at a time. Designed for very large exports where loading every hit at
      * once would OOM the JVM (and take the OpenSearch client's I/O reactor down with it).
      *
-     * Sort is forced to {@code @timestamp desc} with {@code _id desc} as tiebreaker so that
-     * search_after is stable and deterministic.
+     * Sort is forced to {@code @timestamp desc} with {@code _doc desc} as tiebreaker so that
+     * search_after is stable and deterministic without loading {@code _id} fielddata into heap.
      *
      * @param filters      filters to apply
      * @param max          hard upper bound on total documents to emit; null or <=0 means unbounded
@@ -611,7 +611,7 @@ public class ElasticsearchService {
                             .query(SearchUtil.toQuery(filters))
                             .size(sizeFinal)
                             .sort(s -> s.field(f -> f.field("@timestamp").order(SortOrder.Desc)))
-                            .sort(s -> s.field(f -> f.field("_id").order(SortOrder.Desc)));
+                            .sort(s -> s.field(f -> f.field("_doc").order(SortOrder.Desc)));
                     if (afterFinal != null && !afterFinal.isEmpty())
                         srb.searchAfter(afterFinal);
                     return c.search(srb.build(), type);

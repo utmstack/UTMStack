@@ -98,9 +98,13 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 			continue
 		}
 
+		// Derive stream context from parent ctx BEFORE creating the gRPC stream so that
+		// cancelling ctxEof immediately unblocks both plClient.Send and plClient.Recv.
+		ctxEof, cancelEof := context.WithCancel(ctx)
 		client := plugins.NewIntegrationClient(connection)
-		plClient, err := createClient(client, ctx)
+		plClient, err := createClient(client, ctxEof)
 		if err != nil {
+			cancelEof()
 			if errors.Is(err, ErrAgentUninstalled) {
 				utils.Logger.Info("Agent uninstalled, stopping log processor")
 				return
@@ -114,8 +118,6 @@ func (l *LogProcessor) ProcessLogs(cnf *config.Config, ctx context.Context) {
 		}
 		l.connErrWritten = false
 
-		// Derive stream context from parent ctx so service shutdown terminates both goroutines promptly.
-		ctxEof, cancelEof := context.WithCancel(ctx)
 		ackDone := make(chan struct{})
 		go func() {
 			defer close(ackDone)
@@ -166,7 +168,11 @@ func (l *LogProcessor) handleAcknowledgements(plClient plugins.Integration_Proce
 
 			l.ackErrWritten = false
 			if ack.LastId != "" {
-				ackCh <- ack.LastId
+				select {
+				case <-ctx.Done():
+					return
+				case ackCh <- ack.LastId:
+				}
 			}
 		}
 	}
@@ -177,12 +183,17 @@ func (l *LogProcessor) flushAcknowledgements(ackCh <-chan string) {
 	defer ticker.Stop()
 
 	pending := make([]string, 0, ackBatchSize)
-	flush := func() {
+	flush := func(final bool) {
 		if len(pending) == 0 {
 			return
 		}
 		if err := l.db.MarkProcessedBatch(pending); err != nil {
-			utils.Logger.ErrorF("failed to update log batch: %v", err)
+			utils.Logger.ErrorF("failed to update log batch (%d acks): %v", len(pending), err)
+			// Retain for retry on transient lock errors, but bound memory and don't leak on final flush.
+			if final || len(pending) >= ackBatchSize*4 {
+				pending = pending[:0]
+			}
+			return
 		}
 		pending = pending[:0]
 	}
@@ -191,15 +202,15 @@ func (l *LogProcessor) flushAcknowledgements(ackCh <-chan string) {
 		select {
 		case id, ok := <-ackCh:
 			if !ok {
-				flush()
+				flush(true)
 				return
 			}
 			pending = append(pending, id)
 			if len(pending) >= ackBatchSize {
-				flush()
+				flush(false)
 			}
 		case <-ticker.C:
-			flush()
+			flush(false)
 		}
 	}
 }
@@ -231,10 +242,14 @@ func dequeueBatch(ctx context.Context, priorityQ, standardQ <-chan *plugins.Log,
 
 	for len(batch) < maxBatch {
 		select {
+		case <-ctx.Done():
+			return batch
 		case lg := <-priorityQ:
 			batch = append(batch, lg)
 		default:
 			select {
+			case <-ctx.Done():
+				return batch
 			case lg := <-standardQ:
 				batch = append(batch, lg)
 			default:

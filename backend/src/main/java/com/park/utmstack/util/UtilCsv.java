@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,35 +57,7 @@ public class UtilCsv {
                 DocumentContext docctx = JsonPath.parse(d);
                 String[] cells = new String[columns.length];
                 for (int i = 0; i < columns.length; i++) {
-                    String fieldName = columns[i].getField();
-                    String fieldType = columns[i].getType();
-                    cells[i] = null;
-
-                    Object value;
-                    try {
-                        value = docctx.read("$." + fieldName);
-                    } catch (PathNotFoundException e) {
-                        continue;
-                    }
-
-                    if (value == null)
-                        continue;
-
-                    if (value instanceof String) {
-                        cells[i] = fieldType.equals("date") ? DATE_FORMATTER.format(Instant.parse(String.valueOf(value))) :
-                                String.valueOf(value).replace("\n", " ").replace("\t", " ");
-                    } else if (value instanceof List) {
-                        cells[i] = ((List<?>) value).stream().map(String::valueOf).collect(Collectors.joining(","));
-                    } else if (value instanceof Number) {
-                        cells[i] = String.valueOf(value);
-                    } else if (value instanceof Map) {
-                        try {
-                            cells[i] = OBJECT_MAPPER.writeValueAsString(value);
-                        } catch (Exception ex) {
-                            cells[i] = value.toString();
-                        }
-                    }
-                    cells[i] = sanitizeCsvCell(cells[i]);
+                    cells[i] = extractCellValue(docctx, d, columns[i].getField(), columns[i].getType(), DATE_FORMATTER);
                 }
                 rows.add(cells);
             });
@@ -149,39 +122,73 @@ public class UtilCsv {
             DocumentContext ctx = JsonPath.parse(d);
             String[] cells = new String[columns.length];
             for (int i = 0; i < columns.length; i++) {
-                String fieldName = columns[i].getField();
-                String fieldType = columns[i].getType();
-                cells[i] = null;
-
-                Object value;
-                try {
-                    value = ctx.read("$." + fieldName);
-                } catch (PathNotFoundException e) {
-                    continue;
-                }
-
-                if (value == null)
-                    continue;
-
-                if (value instanceof String) {
-                    cells[i] = "date".equals(fieldType) ? DATE_FORMATTER.format(Instant.parse(String.valueOf(value))) :
-                            String.valueOf(value).replace("\n", " ").replace("\t", " ");
-                } else if (value instanceof List) {
-                    cells[i] = ((List<?>) value).stream().map(String::valueOf).collect(Collectors.joining(","));
-                } else if (value instanceof Number) {
-                    cells[i] = String.valueOf(value);
-                } else if (value instanceof Map) {
-                    try {
-                        cells[i] = OBJECT_MAPPER.writeValueAsString(value);
-                    } catch (Exception ex) {
-                        cells[i] = value.toString();
-                    }
-                }
-                cells[i] = sanitizeCsvCell(cells[i]);
+                cells[i] = extractCellValue(ctx, d, columns[i].getField(), columns[i].getType(), DATE_FORMATTER);
             }
             printer.printRecord((Object[]) cells);
         }
         printer.flush();
+    }
+
+    private static String extractCellValue(DocumentContext ctx, Object rawDoc, String fieldName,
+                                           String fieldType, DateTimeFormatter dateFormatter) {
+        if (fieldName == null || fieldName.isEmpty()) {
+            return null;
+        }
+
+        Object value = readPathOrNull(ctx, fieldName);
+        // Log Explorer's default "Summary" column is UI-synthesized and does not exist in OpenSearch;
+        // fall back to raw -> utm.message -> JSON serialization of the full document so the CSV is not blank.
+        if (value == null && "Summary".equals(fieldName)) {
+            value = readPathOrNull(ctx, "raw");
+            if (value == null) {
+                value = readPathOrNull(ctx, "utm.message");
+            }
+            if (value == null) {
+                value = rawDoc;
+            }
+        }
+        if (value == null) {
+            return null;
+        }
+
+        String formatted = null;
+        if (value instanceof String) {
+            String str = (String) value;
+            if ("date".equals(fieldType)) {
+                try {
+                    formatted = dateFormatter.format(Instant.parse(str));
+                } catch (DateTimeParseException ex) {
+                    formatted = str;
+                }
+            } else {
+                formatted = str;
+            }
+        } else if (value instanceof List) {
+            formatted = ((List<?>) value).stream().map(String::valueOf).collect(Collectors.joining(","));
+        } else if (value instanceof Number || value instanceof Boolean) {
+            formatted = String.valueOf(value);
+        } else if (value instanceof Map) {
+            try {
+                formatted = OBJECT_MAPPER.writeValueAsString(value);
+            } catch (Exception ex) {
+                formatted = value.toString();
+            }
+        } else {
+            formatted = String.valueOf(value);
+        }
+
+        if (formatted != null) {
+            formatted = formatted.replace("\r", " ").replace("\n", " ").replace("\t", " ");
+        }
+        return sanitizeCsvCell(formatted);
+    }
+
+    private static Object readPathOrNull(DocumentContext ctx, String fieldName) {
+        try {
+            return ctx.read("$." + fieldName);
+        } catch (PathNotFoundException e) {
+            return null;
+        }
     }
 
     /**

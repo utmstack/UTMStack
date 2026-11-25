@@ -118,7 +118,10 @@ func ResolveMainIP(online bool, persisted string, getOnlineIP, getAirGapIP func(
 	if persisted != "" {
 		return persisted, nil
 	}
-	return "", err
+	if err != nil {
+		return "", err
+	}
+	return "", fmt.Errorf("could not determine local IP address in offline mode")
 }
 
 func GetMainIface(mainIP string) (string, error) {
