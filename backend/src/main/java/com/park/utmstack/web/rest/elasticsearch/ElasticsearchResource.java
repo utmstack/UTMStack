@@ -217,7 +217,11 @@ public class ElasticsearchResource {
         }
         final boolean enrichEchoes = needsEchoes;
 
-        try (CSVPrinter printer = UtilCsv.openCsvStream(response, params.getColumns())) {
+        // Lazily open the CSV response stream on the first non-empty batch so that
+        // (1) empty result sets return 0 bytes (triggering the frontend "No data found" toast) and
+        // (2) page-1 search failures return a real HTTP 500 instead of a committed 200 header-only CSV.
+        final CSVPrinter[] printerRef = new CSVPrinter[1];
+        try {
             elasticsearchService.searchStream(
                     params.getFilters(),
                     params.getTop(),
@@ -225,6 +229,12 @@ public class ElasticsearchResource {
                     500,
                     Map.class,
                     batch -> {
+                        if (batch == null || batch.isEmpty()) {
+                            return true;
+                        }
+                        if (printerRef[0] == null) {
+                            printerRef[0] = UtilCsv.openCsvStream(response, params.getColumns());
+                        }
                         if (enrichEchoes) {
                             for (Map d : batch) {
                                 Object id = d.get("id");
@@ -236,7 +246,7 @@ public class ElasticsearchResource {
                                 }
                             }
                         }
-                        UtilCsv.writeCsvBatch(printer, params.getColumns(), batch);
+                        UtilCsv.writeCsvBatch(printerRef[0], params.getColumns(), batch);
                         return true;
                     });
             return ResponseEntity.ok().build();
@@ -244,8 +254,19 @@ public class ElasticsearchResource {
             String msg = ctx + ": " + e.getMessage();
             log.error(msg, e);
             applicationEventService.createEvent(msg, ApplicationEventType.ERROR);
+            if (response.isCommitted() || printerRef[0] != null) {
+                return null;
+            }
             return ResponseUtil.buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR,
                     "An internal error occurred while exporting the CSV. Please check server logs.");
+        } finally {
+            if (printerRef[0] != null) {
+                try {
+                    printerRef[0].close();
+                } catch (Exception closeEx) {
+                    log.warn("{}: failed closing CSV printer: {}", ctx, closeEx.getMessage());
+                }
+            }
         }
     }
 

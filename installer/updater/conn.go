@@ -20,6 +20,11 @@ func MonitorConnection(server string, timeSleep time.Duration, maxAttempts int, 
 		if err == nil && status == http.StatusOK {
 			consecutiveErrors = 0
 			*hasConnection = true
+			if config.GetMainServer() == "" {
+				if _, refreshErr := config.RefreshMainServer(); refreshErr != nil {
+					fmt.Printf("warning: failed to refresh main server IP: %v\n", refreshErr)
+				}
+			}
 		} else {
 			consecutiveErrors++
 			if consecutiveErrors >= maxAttempts {

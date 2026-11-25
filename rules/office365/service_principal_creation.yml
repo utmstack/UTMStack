@@ -30,4 +30,4 @@ where: |
   equals("action", "Add service principal.") && equals("actionResult", "success")
 groupBy:
   - adversary.user
-  - origin.ip
+  - adversary.ip

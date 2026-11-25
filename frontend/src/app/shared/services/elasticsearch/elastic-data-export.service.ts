@@ -15,23 +15,30 @@ export class ElasticDataExportService {
   exportCsv(params, filePrefix): Promise<boolean> {
     const expandedParams = {...params, columns: this.expandColumns(params.columns || [])};
     return new Promise<boolean>(resolve => {
-      this.elasticDataService.exportToCsv(expandedParams).subscribe((dat) => {
-        const data = new Blob([dat], {type: 'text/csv;charset=utf-8;'});
-        if (data.size > 0) {
-          // Browsers that support HTML5 download attribute
-          const link = document.createElement('a');
-          const url = URL.createObjectURL(data);
-          link.setAttribute('href', url);
-          const csvName = filePrefix + '-' + moment(new Date()).format('YYYY-MM-DD') + '.csv';
-          link.setAttribute('download', csvName);
-          link.style.visibility = 'hidden';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-        } else {
-          this.utmToastService.showWarning('NO DATA FOUND', 'No data found for this report');
+      this.elasticDataService.exportToCsv(expandedParams).subscribe({
+        next: (dat) => {
+          const data = new Blob([dat], {type: 'text/csv;charset=utf-8;'});
+          if (data.size > 0) {
+            // Browsers that support HTML5 download attribute
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(data);
+            link.setAttribute('href', url);
+            const csvName = filePrefix + '-' + moment(new Date()).format('YYYY-MM-DD') + '.csv';
+            link.setAttribute('download', csvName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+          } else {
+            this.utmToastService.showWarning('NO DATA FOUND', 'No data found for this report');
+          }
+          resolve(true);
+        },
+        error: () => {
+          this.utmToastService.showError('EXPORT FAILED', 'Failed to export CSV report. Please try again or narrow the search filter.');
+          resolve(false);
         }
-        resolve(true);
       });
     });
   }

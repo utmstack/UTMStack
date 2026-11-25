@@ -187,7 +187,7 @@ $response | ConvertTo-Json
     }"
   }
   `;
-  responseBody = `{"status": "received"}`;
+  responseBody = `{"lastId": "<uuid>"}`;
 
   constructor(private federationConnectionService: FederationConnectionService) {
     this.getToken();

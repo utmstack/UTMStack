@@ -10,12 +10,14 @@ import static com.park.utmstack.config.Constants.PROP_DATE_SETTINGS_TIMEZONE;
 public class TimezoneUtil {
 
     public static ZoneId getAppTimezone() {
-        ZoneId timezone;
-        try {
-            timezone = ZoneId.of(Constants.CFG.get(PROP_DATE_SETTINGS_TIMEZONE));
-        } catch (DateTimeException e) {
-            timezone = ZoneId.systemDefault();
+        String tz = Constants.CFG.get(PROP_DATE_SETTINGS_TIMEZONE);
+        if (tz == null || tz.isBlank()) {
+            return ZoneId.systemDefault();
         }
-        return timezone;
+        try {
+            return ZoneId.of(tz);
+        } catch (DateTimeException e) {
+            return ZoneId.systemDefault();
+        }
     }
 }

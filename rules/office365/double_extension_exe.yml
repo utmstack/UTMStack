@@ -31,4 +31,4 @@ where: |
   !equals("utm.SourceFileExtension", "exe")
 groupBy:
   - adversary.user
-  - origin.ip
+  - adversary.ip

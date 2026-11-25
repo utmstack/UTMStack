@@ -29,5 +29,5 @@ where: |
     contains("utm.message", "2755") || contains("utm.message", "6755") ||
     contains("utm.message", "u+s") || contains("utm.message", "g+s")))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

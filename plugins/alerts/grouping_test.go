@@ -3,15 +3,18 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"io/fs"
+	"path/filepath"
 	"reflect"
 	"strings"
+	"testing"
+	"time"
 
 	sdkos "github.com/threatwinds/go-sdk/os"
-	"github.com/tidwall/gjson"
-	"testing"
-
-	"github.com/utmstack/go-sdk/plugins"
 	"github.com/threatwinds/go-sdk/utils"
+	"github.com/tidwall/gjson"
+	"github.com/utmstack/go-sdk/plugins"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -150,5 +153,85 @@ func TestAlertGroupingDoesNotEnableNameOnlyQuery(t *testing.T) {
 		if len(query.Bool.Filter) != 1 {
 			t.Fatalf("unexpected grouping term: %v", query)
 		}
+	}
+}
+
+func TestBuildDuplicateFilterExcludesCompletedStatus(t *testing.T) {
+	alert := &plugins.Alert{
+		Name:       "Linux SSH Bruteforce Attack",
+		DataSource: "web01",
+		Adversary:  &plugins.Side{Ip: "203.0.113.42"},
+	}
+	wire, err := utils.ProtoMessageToString(alert)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	now := time.Date(2026, 11, 25, 12, 0, 0, 0, time.UTC)
+	builder := sdkos.NewBoolBuilder(context.Background(), nil, "duplicate-filter-test")
+	if !buildDuplicateFilter(builder, alert.Name, *wire, []string{"dataSource", "adversary.ip"}, now) {
+		t.Fatal("expected buildDuplicateFilter to return true")
+	}
+
+	query, errs := builder.BuildWithErrors()
+	if len(errs) != 0 {
+		t.Fatalf("unexpected builder errors: %v", errs)
+	}
+
+	var foundMustNotCompleted bool
+	for _, clause := range query.Bool.MustNot {
+		if term, ok := clause.Term["status"]; ok {
+			if term["value"] == statusCompleted || term["value"] == float64(statusCompleted) {
+				foundMustNotCompleted = true
+			}
+		}
+	}
+	if !foundMustNotCompleted {
+		encoded, _ := json.Marshal(query)
+		t.Fatalf("expected must_not status=%d in duplicate filter, got: %s", statusCompleted, encoded)
+	}
+
+	terms := map[string]any{}
+	for _, clause := range query.Bool.Filter {
+		for field, term := range clause.Term {
+			terms[field] = term["value"]
+		}
+	}
+	wantTerms := map[string]any{
+		"name":         "Linux SSH Bruteforce Attack",
+		"dataSource":   "web01",
+		"adversary.ip": "203.0.113.42",
+	}
+	if !reflect.DeepEqual(terms, wantTerms) {
+		encoded, _ := json.Marshal(query)
+		t.Fatalf("duplicate filter terms differ: got %v (%s), want %v", terms, encoded, wantTerms)
+	}
+}
+
+func TestNoRuleGroupsByBareOrigin(t *testing.T) {
+	err := filepath.WalkDir("../../rules", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !strings.HasSuffix(path, ".yml") {
+			return err
+		}
+		blob, err := utils.ReadPbYaml(path)
+		if err != nil {
+			t.Errorf("%s: failed to read rule yaml: %v", path, err)
+			return nil
+		}
+		r := new(plugins.Rule)
+		if err := protojson.Unmarshal(blob, r); err != nil {
+			t.Errorf("%s: failed to unmarshal rule: %v", path, err)
+			return nil
+		}
+		r.Normalize()
+		for _, field := range append(append([]string(nil), r.GroupBy...), r.DeduplicateBy...) {
+			if strings.HasPrefix(field, "origin.") {
+				t.Errorf("%s: invalid bare origin grouping field %q (alerts have adversary.*/target.* or lastEvent.origin.*)", path, field)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }

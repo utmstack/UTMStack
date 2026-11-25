@@ -94,6 +94,36 @@ func GetMainIPInAirGapMode() (string, error) {
 	return "", fmt.Errorf("could not find a suitable local IP address in offline mode")
 }
 
+// ResolveMainIP resolves the host's primary IP, falling back to local interface
+// discovery or a previously persisted value from /root/utmstack.yml when the
+// network is still coming up at boot (e.g. air-gap or delayed DHCP).
+func ResolveMainIP(online bool, persisted string, getOnlineIP, getAirGapIP func() (string, error)) (string, error) {
+	if online {
+		if ip, err := getOnlineIP(); err == nil && ip != "" {
+			return ip, nil
+		}
+		if ip, err := getAirGapIP(); err == nil && ip != "" {
+			return ip, nil
+		}
+		if persisted != "" {
+			return persisted, nil
+		}
+		return "", fmt.Errorf("could not determine main IP online or via local interfaces")
+	}
+
+	ip, err := getAirGapIP()
+	if err == nil && ip != "" {
+		return ip, nil
+	}
+	if persisted != "" {
+		return persisted, nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return "", fmt.Errorf("could not determine local IP address in offline mode")
+}
+
 func GetMainIface(mainIP string) (string, error) {
 	var iface string
 	ifaces, err := net.Interfaces()
