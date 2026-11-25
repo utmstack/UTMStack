@@ -188,6 +188,7 @@ public class UtmNetworkScan implements Serializable {
         this.assetAlive = assetDto.getAssetAlive();
         this.assetNotes = assetDto.getAssetNotes();
         this.assetAlias = assetDto.getAssetAlias();
+        this.isAgent = Boolean.TRUE.equals(assetDto.getIsAgent());
 
         if (assetDto.getId() == null) {
             this.discoveredAt = LocalDateTime.now().toInstant(ZoneOffset.UTC);
