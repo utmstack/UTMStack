@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -113,11 +114,11 @@ func resolveGroupBy(groupBy string, required bool) (string, error) {
 		return groupBy, nil
 	case "":
 		if required {
-			return "", ErrInvalidStatsParam
+			return "", fmt.Errorf("%w: group_by is required and must be dataSource or dataType", ErrInvalidStatsParam)
 		}
 		return "", nil
 	default:
-		return "", ErrInvalidStatsParam
+		return "", fmt.Errorf("%w: group_by must be dataSource or dataType, not %q", ErrInvalidStatsParam, groupBy)
 	}
 }
 
@@ -127,7 +128,8 @@ func resolveStatus(status string) (string, string, error) {
 	}
 	t, ok := statusToType[status]
 	if !ok {
-		return "", "", ErrInvalidStatsParam
+		return "", "", fmt.Errorf("%w: status must be received, parsing_dropped, analysis_dropped, correlation_dropped or all, not %q",
+			ErrInvalidStatsParam, status)
 	}
 	return status, t, nil
 }

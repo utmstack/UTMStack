@@ -3,7 +3,9 @@ package mcp
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 	"github.com/utmstack/go-sdk/v2/store"
@@ -114,6 +116,9 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 			if err != nil {
 				return nil, err
 			}
+			if err := common_models.ValidateTimeBounds(in.Filters); err != nil {
+				return nil, err
+			}
 			scope, rest := common_models.SplitTimeBounds(scope, in.Filters)
 			f, err := common_models.ToStoreFilters(rest)
 			if err != nil {
@@ -159,6 +164,9 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 			if err != nil {
 				return nil, err
 			}
+			if err := common_models.ValidateTimeBounds(in.Filters); err != nil {
+				return nil, err
+			}
 			scope, rest := common_models.SplitTimeBounds(scope, in.Filters)
 			f, err := common_models.ToStoreFilters(rest)
 			if err != nil {
@@ -184,6 +192,9 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 			if err != nil {
 				return nil, err
 			}
+			if err := common_models.ValidateTimeBounds(in.Filters); err != nil {
+				return nil, err
+			}
 			scope, rest := common_models.SplitTimeBounds(scope, in.Filters)
 			f, err := common_models.ToStoreFilters(rest)
 			if err != nil {
@@ -192,6 +203,9 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 			n := in.Top
 			if n <= 0 {
 				n = 100
+			}
+			if err := checkFieldRoot(ctx, events, scope, in.Dataset, in.Field); err != nil {
+				return nil, err
 			}
 			buckets, err := events.TopValues(ctx, scope, in.Field, f, n)
 			if err != nil {
@@ -257,6 +271,9 @@ func registerStoreQueries(m *Module, events *eventstore.Store) {
 			}
 			scope, err := storeScope(ctx, in.Dataset, in.DataType)
 			if err != nil {
+				return nil, err
+			}
+			if err := common_models.ValidateTimeBounds(in.Filters); err != nil {
 				return nil, err
 			}
 			scope, rest := common_models.SplitTimeBounds(scope, in.Filters)
@@ -353,4 +370,64 @@ func trimTrailingSemicolons(q string) string {
 		q = q[:len(q)-1]
 	}
 	return q
+}
+
+// checkFieldRoot refuses a field whose first segment the dataset does not have, with the real fields it
+// probably meant, instead of letting the store fail with a column error. Paths under a JSON column
+// (log.anything) are dynamic and always pass: only the root is checked.
+func checkFieldRoot(ctx context.Context, events *eventstore.Store, scope store.Scope, dataset, field string) error {
+	fields, err := events.DescribeFields(ctx, scope)
+	if err != nil {
+		return nil // the query itself will say what is wrong
+	}
+
+	names := make([]string, 0, len(fields))
+	for _, f := range fields {
+		names = append(names, f.Name)
+	}
+
+	if msg := unknownRootMessage(dataset, field, names); msg != "" {
+		return errors.New(msg)
+	}
+
+	return nil
+}
+
+// unknownRootMessage is empty when the field's first segment exists in the dataset.
+func unknownRootMessage(dataset, field string, names []string) string {
+	roots := map[string]bool{}
+	for _, n := range names {
+		roots[strings.SplitN(n, ".", 2)[0]] = true
+	}
+
+	if roots[strings.SplitN(field, ".", 2)[0]] {
+		return ""
+	}
+
+	msg := fmt.Sprintf("%q is not a field of the %s dataset.", field, dataset)
+	if near := suggestFields(field, names); len(near) > 0 {
+		msg += " Did you mean " + strings.Join(near, " or ") + "?"
+	}
+
+	return msg + fmt.Sprintf(" Call store.dataset.fields with dataset %q for the valid names.", dataset)
+}
+
+// suggestFields offers the real fields a guessed name most likely meant: the same letters ignoring case
+// and separators, or a field whose last segment is the guess (user → origin.user, target.user).
+func suggestFields(guess string, fields []string) []string {
+	want := strings.ToLower(fieldNormalizer.Replace(guess))
+
+	var out []string
+
+	for _, f := range fields {
+		last := f[strings.LastIndex(f, ".")+1:]
+		if strings.ToLower(fieldNormalizer.Replace(f)) == want || strings.ToLower(fieldNormalizer.Replace(last)) == want {
+			out = append(out, fmt.Sprintf("%q", f))
+			if len(out) == 4 {
+				break
+			}
+		}
+	}
+
+	return out
 }

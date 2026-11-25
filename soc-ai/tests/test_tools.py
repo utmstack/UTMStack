@@ -1,3 +1,6 @@
+import re
+from datetime import datetime
+
 import pytest
 
 from socai.backend import ToolError
@@ -56,8 +59,30 @@ async def test_find_alerts_builds_the_filters_for_the_model():
     fields = {f["field"]: f for f in args["filters"]}
 
     assert fields["status"]["value"] == "Open" and fields["severity"]["value"] == "high"
-    assert fields["@timestamp"]["value"] == ["now-7d", "now"]
+    lo, hi = fields["@timestamp"]["value"]
+    assert 6.99 * 86400 < (datetime.fromisoformat(hi.rstrip("Z")) - datetime.fromisoformat(lo.rstrip("Z"))).total_seconds() < 7.01 * 86400
     assert args["size"] == 25, "a model may not ask for a hundred rows"
+
+
+def _span(since):
+    lo, hi = since_filter(since)[0]["value"]
+
+    return (datetime.fromisoformat(hi.rstrip("Z")) - datetime.fromisoformat(lo.rstrip("Z"))).total_seconds(), lo
+
+
+def test_windows_go_out_as_absolute_times():
+    # the backend drops a bound it cannot read, and the query then has no time limit
+    for since in ("30m", "24h", "7d", "2w", "today", "2026-11-25"):
+        for bound in since_filter(since)[0]["value"]:
+            assert re.match(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$", bound), bound
+
+
+def test_the_forms_a_model_tends_to_write_are_understood():
+    assert abs(_span("16h34m")[0] - (16 * 3600 + 34 * 60)) < 2
+    assert abs(_span("1h30m")[0] - 5400) < 2
+    assert _span("today")[1].endswith("T00:00:00Z")
+    assert _span("2026-11-25")[1] == "2026-11-25T00:00:00Z"
+    assert _span("2026-11-25 08:30:00")[1] == "2026-11-25T08:30:00Z"
 
 
 def test_a_window_the_model_made_up_is_refused():
@@ -118,3 +143,34 @@ async def test_every_call_tells_the_backend_which_groups_to_turn_on():
     await Toolbox(b, groups=groups).set_alert_status(["a1"], "closed")
 
     assert set(b.groups_seen) == {groups}
+
+
+async def test_find_alerts_has_no_implicit_window_and_says_which_one_it_used():
+    b = backend()
+    out = await Toolbox(b).find_alerts(status="open")
+
+    assert not any(f["field"] == "@timestamp" for f in b.calls[-1][1]["filters"]), "an unasked-for window changes the count"
+    assert out["window"] == "all time"
+
+    out = await Toolbox(b).find_alerts(status="open", since="24h")
+    assert out["window"] == "24h" and any(f["field"] == "@timestamp" for f in b.calls[-1][1]["filters"])
+
+
+async def test_log_text_search_looks_in_the_raw_line_not_a_column_that_does_not_exist():
+    b = FakeBackend({"store.search": {"hits": [], "total": 0}})
+    await Toolbox(b).search_logs(text="failed password")
+
+    fields = [f["field"] for f in b.calls[-1][1]["filters"]]
+    assert "raw" in fields and "message" not in fields
+
+
+async def test_a_ranking_of_people_is_anonymised_when_the_toolbox_hides_people():
+    rows = [{"value": "Maria Lopez", "count": 9}, {"value": "WIN-1$", "count": 5}, {"value": "root", "count": 3}, {"value": "jdoe@corp.com", "count": 2}]
+    b = FakeBackend({"store.property_values": rows})
+
+    shown = await Toolbox(b, hide_people=True).top_values("logs", "origin.user")
+    assert [r["value"] for r in shown] == ["User A", "WIN-1$", "root", "User B"]
+    assert [r["count"] for r in shown] == [9, 5, 3, 2], "the counts are what matters and they stay"
+
+    assert await Toolbox(b, hide_people=True).top_values("logs", "origin.ip") == rows, "only people fields are touched"
+    assert await Toolbox(b).top_values("logs", "origin.user") == rows, "the chat, which is a person's own tool, is not changed"

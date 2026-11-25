@@ -55,6 +55,22 @@ async function refreshAccessToken(): Promise<string | null> {
   }
 }
 
+/**
+ * Renews the access token for callers that cannot go through the axios client, such as the chat stream
+ * (fetch). Concurrent callers share one refresh. When it fails the session is over, as it is for axios.
+ */
+export async function refreshSession(): Promise<string | null> {
+  const doRefresh = IS_FEDERATION ? refreshFederationToken : refreshAccessToken
+  const pending = refreshPromise ?? (refreshPromise = doRefresh())
+  const token = await pending
+  refreshPromise = null
+  if (!token) {
+    clearTokens()
+    if (logoutHandler) logoutHandler('Session expired')
+  }
+  return token
+}
+
 // Federation rotates the FS access token via /api/v1/auth/refresh, which speaks
 // camelCase. The proxy authenticates every instance call with the FS JWT, so a
 // 401 from either the FS API or a proxied instance means the FS token expired.

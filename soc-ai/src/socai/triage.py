@@ -35,8 +35,10 @@ class Verdict(BaseModel):
     confident: bool = Field(description="False only when the alert and its score are not enough to decide and a "
                             "specific lookup would settle it. Do not use it out of caution.")
     missing: str = Field("", description="When not confident: exactly what is missing and where it would be found")
-    score: int = Field(description="0 to 100. Start from the given score and move it only with a reason", ge=0, le=100)
-    risk: Literal["Low", "Medium", "High"]
+    adjustment: int = Field(0, ge=-10, le=10, description="Points to move the given score by: 0 unless the facts clearly say "
+                            "otherwise, never more than 10 either way. Say why in context.")
+    score: int | None = Field(None, ge=0, le=100, description="Only when no score was given with the facts: your own, 0 to 100")
+    risk: Literal["Low", "Medium", "High"] | None = Field(None, description="Ignored when a score was given: it follows the score")
     threat_assessment: str = Field(description="One sentence")
     affected_asset: str = "N/A"
     context: str = Field(description="What the score breakdown and the alert show")
@@ -48,11 +50,30 @@ def _clean(text: str) -> str:
     return " ".join(str(text).replace("|", "/").split())
 
 
-def format_note(v: Verdict) -> str:
+def final_score(v: Verdict, facts: dict[str, Any]) -> int:
+    """The score on the note: the backend's, moved by at most ten points.
+
+    The model used to write its own, and the same alert came out anywhere between 22 and 33 while the context
+    still quoted 33. The base is worked out by the backend and is the same every time; the model only decides how
+    far the facts move it."""
+    base = (facts.get("score") or {}).get("score") if isinstance(facts.get("score"), dict) else None
+
+    if isinstance(base, (int, float)):
+        return max(0, min(100, round(base) + v.adjustment))
+
+    return v.score if v.score is not None else 50
+
+
+def risk_for(score: int) -> str:
+    return "High" if score >= 70 else "Medium" if score >= 40 else "Low"
+
+
+def format_note(v: Verdict, score: int | None = None) -> str:
     """The single line the alerts page parses. The order and the separators are its contract."""
     state = "Completed" if v.classification == "possible false positive" else "Open"
+    score = score if score is not None else (v.score if v.score is not None else 50)
 
-    return (f"{MARK} Score: {v.score}/100 - {state} - {v.risk} Risk | Threat Assessment: {_clean(v.threat_assessment)} "
+    return (f"{MARK} Score: {score}/100 - {state} - {risk_for(score)} Risk | Threat Assessment: {_clean(v.threat_assessment)} "
             f"| Affected Asset: {_clean(v.affected_asset)} | Context: {_clean(v.context)} "
             f"| LLM Analysis: {_clean(v.analysis)} | Action: {_clean(v.action)}")
 
@@ -60,7 +81,8 @@ def format_note(v: Verdict) -> str:
 SYSTEM = f"""You are an autonomous SOC analyst inside UTMStack, a SIEM. You are given the facts about ONE alert: its \
 fields, its deterministic 0-100 risk score with the breakdown (intrinsic risk, deviation from baseline, asset \
 criticality, attack chain), the other alerts around it, and how often it has fired. The score is consistent and \
-explainable: treat it as the starting point and move it only when the facts clearly say so, and say why.
+explainable: it is the starting point. You do not write a new score: you give an adjustment of at most 10 points up \
+or down, only when the facts clearly say so, and say why in the context.
 
 Some values are anonymized (names and addresses of people); "anonymizedFields" lists them. Read nothing into \
 the placeholders.
@@ -140,7 +162,7 @@ def triage_graph(model: BaseChatModel, backend: Backend, settings: Settings, age
         alert_id = state["alert_id"]
 
         try:
-            await tb.add_alert_note(alert_id, format_note(v))
+            await tb.add_alert_note(alert_id, format_note(v, final_score(v, state["facts"])))
 
             # Only what an administrator turned on, and only when the verdict is firm.
             if v.confident:

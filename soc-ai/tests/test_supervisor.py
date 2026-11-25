@@ -61,11 +61,10 @@ async def test_a_specialist_that_does_not_exist_is_not_run_and_the_supervisor_re
 
 
 async def test_it_stops_delegating_after_the_hops_it_is_allowed():
-    delegate = route(action="delegate", agent="alerts", task="again")
     model = Scripted(script=[
-        delegate, call("count_open"), say("42"),
-        delegate, say("nothing new"),  # the repeat of the same call is refused inside the specialist
-        delegate, say("nothing new"),
+        route(action="delegate", agent="alerts", task="count the open alerts"), call("count_open"), say("42"),
+        route(action="delegate", agent="alerts", task="break the alerts down by severity"), say("nothing new"),
+        route(action="delegate", agent="alerts", task="find the newest critical detection"), say("nothing new"),
         route(action="finish", answer="enough"),
     ])
     out = await run(model)
@@ -83,3 +82,27 @@ async def test_finishing_without_an_answer_writes_one_from_the_findings():
     out = await run(model)
 
     assert out["answer"] == "There are 42 open alerts."
+
+
+async def test_the_same_question_in_other_words_is_not_asked_again():
+    model = Scripted(script=[
+        route(action="delegate", agent="alerts", task="how many open alerts are there right now?"), call("count_open"), say("42"),
+        route(action="delegate", agent="alerts", task="how many alerts are open right now"),   # a rewording
+        route(action="finish", answer="42 are open."),
+    ])
+    out = await run(model, "open alerts?")
+
+    assert out["answer"] == "42 are open."
+    assert "you already asked alerts this" in str(model.asked[-1][-1].content)
+    assert len(model.asked) == 5, "the second delegation never woke the specialist"
+
+
+async def test_a_different_task_for_the_same_specialist_still_goes_through():
+    model = Scripted(script=[
+        route(action="delegate", agent="alerts", task="count the open alerts"), call("count_open"), say("42"),
+        route(action="delegate", agent="alerts", task="list the five newest high severity detections"), say("none"),
+        route(action="finish", answer="done"),
+    ])
+    out = await run(model)
+
+    assert out["answer"] == "done" and "[alerts] none" in str(model.asked[-1][-1].content)

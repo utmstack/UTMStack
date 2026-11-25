@@ -148,6 +148,7 @@ type Handler[In, Out any] func(ctx context.Context, actor *authz.Actor, in In) (
 // returns; for tools that have no useful output (mutations) return nil.
 func Add[In, Out any](m *Module, t *mcp.Tool, gate Gate, h Handler[In, Out]) {
 	m.toolCount++
+	describe(t)
 	toolName := t.Name
 	if t.InputSchema == nil {
 		schema, err := inputSchemaFor[In]()

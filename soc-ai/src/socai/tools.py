@@ -14,13 +14,14 @@ from __future__ import annotations
 import asyncio
 import re
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from typing import Any, Awaitable, Callable
 
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel, Field
 
 from .backend import Backend, ToolError
-from .anonymize import hide_people
+from .anonymize import hide_field_values, hide_people
 from .shaping import project, render
 
 MARK = "[AI SOC Agent]"
@@ -42,17 +43,48 @@ STATUS_TEXT = {"open": "Open", "in_review": "In review", "closed": "Completed"}
 STATUS_CODE = {"open": 0, "in_review": 1, "closed": 2}
 
 
+_UNITS = {"m": 60, "h": 3600, "d": 86400, "w": 604800}
+_COMPOUND = re.compile(r"^(?:\d+[mhdw])+$")
+_PART = re.compile(r"(\d+)([mhdw])")
+
+
+def _now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _iso(t: datetime) -> str:
+    return t.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def since_filter(since: str | None) -> list[dict[str, Any]]:
-    """A relative window such as "24h" or "7d" as a filter on the timestamp."""
+    """A window as a filter on the timestamp: "30m", "24h", "7d", "2w", "1h30m", "today", or a date/time.
+
+    The bounds go out as absolute times. The backend ignores a bound it cannot read, which would leave the
+    query without any limit; an absolute time is read the same everywhere."""
     if not since:
         return []
 
-    m = _SINCE.match(since.strip().lower())
+    text = since.strip().lower()
+    now = _now()
 
-    if not m:
-        raise ToolError(f'since must look like "30m", "24h", "7d" or "2w", got {since!r}')
+    if text == "today":
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    elif _COMPOUND.match(text):
+        start = now - timedelta(seconds=sum(int(n) * _UNITS[u] for n, u in _PART.findall(text)))
+    else:
+        start = None
 
-    return [{"field": "@timestamp", "operator": "IS_BETWEEN", "value": [f"now-{m.group(1)}{m.group(2)}", "now"]}]
+        for layout in ("%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+            try:
+                start = datetime.strptime(since.strip().rstrip("Z") + ("Z" if layout.endswith("Z") else ""), layout).replace(tzinfo=timezone.utc)
+                break
+            except ValueError:
+                continue
+
+        if start is None:
+            raise ToolError(f'since must look like "30m", "24h", "7d", "2w", "today" or a date such as "2026-11-25", got {since!r}')
+
+    return [{"field": "@timestamp", "operator": "IS_BETWEEN", "value": [_iso(start), _iso(now)]}]
 
 
 def eq(field: str, value: Any) -> dict[str, Any]:
@@ -143,9 +175,11 @@ class Toolbox:
         name_contains: str | None = None,
         ip: str | None = None,
         host: str | None = None,
-        since: str | None = "24h",
+        since: str | None = None,
         limit: int = 10,
     ) -> dict[str, Any]:
+        # Without a window it counts every alert: an implicit one answered "how many open alerts" with the
+        # last day's, and the person could not tell.
         filters = since_filter(since)
 
         if severity:
@@ -173,14 +207,16 @@ class Toolbox:
         )
         total = res.get("total") if isinstance(res, dict) else None
 
-        return {"total": total, "alerts": [project(h, RELATED_FIELDS) for h in _hits(res)]}
+        return {"total": total, "window": since or "all time", "alerts": [project(h, RELATED_FIELDS) for h in _hits(res)]}
 
     async def top_values(self, dataset: str, field: str, since: str | None = "24h", filters: list[dict] | None = None,
                          top: int = 10) -> Any:
-        return await self._call(
+        res = await self._call(
             "store.property_values",
             {"dataset": dataset, "field": field, "filters": [*since_filter(since), *(filters or [])], "top": min(top, 25)},
         )
+
+        return hide_field_values(field, res) if self.hide_people else res
 
     async def search_logs(self, data_type: str | None = None, text: str | None = None, ip: str | None = None,
                           host: str | None = None, user: str | None = None, since: str = "1h",
@@ -197,7 +233,7 @@ class Toolbox:
             filters.append({"field": "origin.user", "operator": "IS", "value": user})
 
         if text:
-            filters.append({"field": "message", "operator": "CONTAIN", "value": text})
+            filters.append({"field": "raw", "operator": "CONTAIN", "value": text})
 
         args: dict[str, Any] = {"dataset": "logs", "filters": filters, "size": min(max(limit, 1), 15),
                                 "sort_by": "@timestamp", "sort_order": "desc"}
@@ -212,7 +248,7 @@ class Toolbox:
         return {"total": res.get("total") if isinstance(res, dict) else None,
                 "logs": [project(h, keep) for h in _hits(res)]}
 
-    async def incident_summary(self, incident_id: int) -> dict[str, Any]:
+    async def incident_summary(self, incident_id: str) -> dict[str, Any]:
         inc, alerts, notes = await asyncio.gather(
             self._call("incidents.get", {"id": incident_id}),
             self._call("incident_alerts.list", {"incident_id": incident_id, "size": 10}),
@@ -284,13 +320,17 @@ class _FindAlerts(BaseModel):
     name_contains: str | None = None
     ip: str | None = Field(None, description="Adversary IP address")
     host: str | None = Field(None, description="Target host name")
-    since: str | None = Field("24h", description='Window such as "30m", "24h", "7d"')
+    since: str | None = Field(None, description='Window such as "30m", "24h", "7d", "today". Leave it out to count every alert, '
+                              'and pass it whenever the question names a period.')
     limit: int = Field(10, description="At most 25")
 
 
 class _TopValues(BaseModel):
     dataset: str = Field(description="alerts or logs")
-    field: str = Field(description='Exact field path, for example "adversary.ip" or "dataType"')
+    field: str = Field(description=(
+        'Exact field path. Logs: "origin.user", "origin.ip", "origin.host", "target.ip", "dataType", "action". '
+        'Alerts: "adversary.ip", "target.user", "name", "severity", "status". A bare "user" or "ip" is not a field; '
+        'use the dotted path.'))
     since: str | None = "24h"
     top: int = 10
 
@@ -306,7 +346,7 @@ class _SearchLogs(BaseModel):
 
 
 class _IncidentId(BaseModel):
-    incident_id: int
+    incident_id: str = Field(description="The incident's UUID, as listed by list_incidents. It is not a number.")
 
 
 class _ListIncidents(BaseModel):
@@ -365,7 +405,7 @@ def read_tools(tb: Toolbox) -> dict[str, StructuredTool]:
             "name there were in 30 days. Call this first; it usually makes other lookups unnecessary.",
             _AlertId, lambda alert_id: tb.alert_dossier(alert_id), h),
         "find_alerts": _tool(
-            "find_alerts", "Find alerts by simple criteria. Returns the total and up to 25 short rows.",
+            "find_alerts", "Find alerts by simple criteria. Returns the total (over the window it names) and up to 25 short rows.",
             _FindAlerts, tb.find_alerts, h),
         "top_values": _tool(
             "top_values", "The most common values of one field, with counts. Use it to see what stands out.",
@@ -376,7 +416,7 @@ def read_tools(tb: Toolbox) -> dict[str, StructuredTool]:
         "get_incident": _tool(
             "get_incident", "An incident with its alerts and latest notes, in one call.", _IncidentId,
             lambda incident_id: tb.incident_summary(incident_id), h),
-        "list_incidents": _tool("list_incidents", "List incidents.", _ListIncidents, tb.list_incidents, h),
+        "list_incidents": _tool("list_incidents", "List incidents. Each one has an id that is a UUID.", _ListIncidents, tb.list_incidents, h),
     }
 
 

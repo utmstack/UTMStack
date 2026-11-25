@@ -45,3 +45,37 @@ def hide_people(value: Any, _path: str = "", _hidden: list[str] | None = None) -
         return cleaned, hidden
 
     return value, hidden
+
+
+_PERSON_FIELDS = {"user", "username", "email", "account", "accountname"}
+_SYSTEM_ACCOUNTS = {"root", "system", "administrator", "admin", "guest", "nobody", "daemon", "local service", "network service"}
+
+
+def hide_field_values(field: str, result: Any) -> Any:
+    """The values of a field that holds people, as a ranking: a "top users" answer is made of names.
+
+    Each person becomes "User A", "User B" in the order of the ranking, counts kept, so the model can still say
+    who stands out without knowing who they are. Machine and system accounts are not people and stay."""
+    if field.rsplit(".", 1)[-1].lower() not in _PERSON_FIELDS:
+        return result
+
+    rows = result if isinstance(result, list) else (result.get("result") if isinstance(result, dict) else None)
+
+    if not isinstance(rows, list):
+        return result
+
+    names: dict[str, str] = {}
+    out = []
+
+    for row in rows:
+        v = row.get("value") if isinstance(row, dict) else None
+
+        if isinstance(v, str) and v and not v.endswith("$") and v.lower() not in _SYSTEM_ACCOUNTS:
+            if v not in names:
+                names[v] = f"User {chr(ord('A') + len(names) % 26)}{'' if len(names) < 26 else len(names) // 26}"
+
+            row = {**row, "value": names[v]}
+
+        out.append(row)
+
+    return out if isinstance(result, list) else {**result, "result": out}

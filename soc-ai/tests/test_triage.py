@@ -19,7 +19,7 @@ def backend(notes=""):
 
 
 def verdict(**over):
-    base = dict(classification="possible incident", confident=True, score=80, risk="High",
+    base = dict(classification="possible incident", confident=True, adjustment=3,
                 threat_assessment="Login from two countries", affected_asset="srv", context="score 77",
                 analysis="travel is impossible", action="reset credentials")
 
@@ -33,10 +33,10 @@ def run(model, b, settings=Settings(), alert_id="a1"):
 
 
 def test_the_note_is_the_exact_line_the_alerts_page_parses():
-    v = Verdict(classification="possible false positive", confident=True, score=12, risk="Low",
+    v = Verdict(classification="possible false positive", confident=True, score=12,
                 threat_assessment="A | pipe\nand a newline", affected_asset="N/A", context="c", analysis="a", action="close")
 
-    assert format_note(v) == (f"{MARK} Score: 12/100 - Completed - Low Risk | Threat Assessment: A / pipe and a newline "
+    assert format_note(v, 12) == (f"{MARK} Score: 12/100 - Completed - Low Risk | Threat Assessment: A / pipe and a newline "
                               "| Affected Asset: N/A | Context: c | LLM Analysis: a | Action: close")
 
 
@@ -72,14 +72,14 @@ async def test_an_unsure_verdict_investigates_once_on_the_precise_doubt_then_dec
         verdict(confident=False, missing="whether 9.9.9.9 attacked other hosts"),
         call("get_alert_dossier", alert_id="a1"),            # the specialist's one lookup
         say("9.9.9.9 only touched this host."),               # its report
-        verdict(score=30, risk="Low", classification="possible false positive"),
+        verdict(adjustment=-10, classification="possible false positive"),
     ])
     out = await run(model, b)
 
     assert out["outcome"] == "written"
     assert "whether 9.9.9.9 attacked other hosts" in str(model.asked[1][-1].content)
     assert "9.9.9.9 only touched this host." in str(model.asked[-1][-1].content), "the final verdict saw the finding"
-    assert any("Score: 30/100 - Completed" in a.get("notes", "") for t, a in b.calls if t == "alerts.update_notes")
+    assert any("Score: 67/100 - Completed" in a.get("notes", "") for t, a in b.calls if t == "alerts.update_notes")
 
 
 async def test_it_does_not_investigate_twice():
@@ -145,3 +145,29 @@ async def test_an_alert_a_person_asked_about_is_assessed_again_even_if_it_was_be
     out = await triage_graph(model, b, Settings(), agents).ainvoke({"alert_id": "a1", "force": True})
 
     assert out["outcome"] == "written" and len(model.asked) == 1
+
+
+def test_the_score_is_the_backends_moved_by_at_most_ten_and_the_risk_follows_it():
+    from socai.triage import final_score, risk_for
+
+    facts = {"score": {"score": 33}}
+    v = lambda adj: Verdict(classification="standard alert", confident=True, adjustment=adj, threat_assessment="t",
+                            context="c", analysis="a", action="x")
+
+    assert [final_score(v(a), facts) for a in (-10, 0, 7)] == [23, 33, 40], "the same alert can no longer land anywhere"
+    assert final_score(v(10), {"score": {"score": 97}}) == 100 and final_score(v(-10), {"score": {"score": 4}}) == 0
+    assert (risk_for(33), risk_for(40), risk_for(69), risk_for(70)) == ("Low", "Medium", "Medium", "High")
+
+    # with no score to start from, the model's own is used, and 50 if it gave none
+    own = Verdict(classification="standard alert", confident=True, score=61, threat_assessment="t", context="c", analysis="a", action="x")
+    assert final_score(own, {}) == 61
+    assert final_score(v(0), {}) == 50
+
+
+def test_an_adjustment_beyond_ten_is_not_accepted():
+    import pytest
+    from pydantic import ValidationError
+
+    with pytest.raises(ValidationError):
+        Verdict(classification="standard alert", confident=True, adjustment=40, threat_assessment="t", context="c",
+                analysis="a", action="x")

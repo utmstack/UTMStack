@@ -44,7 +44,7 @@ def build_subagents(backend: Backend, settings: Settings, specs: list[dict[str, 
         if group != "none" and group not in groups:
             return {}
 
-        return mcp_tools(backend, specs, prefixes, tenant=tenant, allow_changes=True, hide=hide_people)
+        return mcp_tools(backend, specs, prefixes, tenant=tenant, allow_changes=True, hide=hide_people, groups=groups)
 
     def pick(src: dict[str, BaseTool], *names: str) -> dict[str, BaseTool]:
         return {n: src[n] for n in names if n in src}
@@ -79,14 +79,17 @@ def build_subagents(backend: Backend, settings: Settings, specs: list[dict[str, 
                  {**pick(reads, "search_logs", "top_values"), **generic(("store.dataset",), "none")}),
         SubAgent("dashboards", "Create and manage dashboards and visualisations.",
                  COMMON + "\n\nYou are the dashboards specialist. Check every visualisation query returns data "
-                 "before you create it, and say plainly which ones you could not make.",
+                 "before you create it, and say plainly which ones you could not make. Create each widget once: if a call "
+                 "timed out, look at what the dashboard already has before you try again.",
                  {**generic(("dashboards.", "visualizations."), "dashboards"),
                   **(generic(("store.dataset",), "none") if "dashboards" in groups else {})}),
         SubAgent("compliance", "Compliance frameworks, controls and their evaluation.",
                  COMMON + "\n\nYou are the compliance specialist.", generic(("compliance.",), "compliance")),
         SubAgent("soar", "SOAR response rules: list, create, enable and see what ran.",
                  COMMON + "\n\nYou are the SOAR specialist. Build a rule from what you were told, exactly; do not model "
-                 "it on existing ones unless asked.", generic(("soar.",), "soar")),
+                 "it on existing ones unless asked. Rules are created switched off; switch one on only if the user asked "
+                 "for that. If a value the rule needs was not given (an e-mail address, a URL, a command), ask for it "
+                 "and do not make one up.", generic(("soar.",), "soar")),
         SubAgent("datasources", "Data sources: what is connected and how much it sends.",
                  COMMON + "\n\nYou are the data sources specialist.",
                  generic(("datasources.", "ingestion_stats."), "datasources")),

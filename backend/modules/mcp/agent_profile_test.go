@@ -343,3 +343,34 @@ func TestAsObjectLeavesObjectsAlone(t *testing.T) {
 		t.Fatal("nil stays nil")
 	}
 }
+
+// A description for a tool that is not on the agent's list is dead text, and a tool on the list with no
+// description at all makes the model guess its parameters (it guessed group_by for ingestion_stats.totals,
+// which is required, and failed 53 times out of 57).
+func TestEveryDescriptionIsForAToolTheAgentSees(t *testing.T) {
+	for name, d := range agentDescriptions {
+		if _, ok := agentTools[name]; !ok {
+			t.Errorf("%s has a description but is not on the agent's list", name)
+		}
+
+		if len(d) < 40 {
+			t.Errorf("%s: the description is too short to help (%d characters)", name, len(d))
+		}
+	}
+}
+
+func TestACodeDescriptionWinsAndAMissingOneIsFilled(t *testing.T) {
+	filled := &mcp.Tool{Name: "ingestion_stats.totals"}
+	describe(filled)
+
+	if !strings.Contains(filled.Description, "group_by is REQUIRED") {
+		t.Fatalf("%q", filled.Description)
+	}
+
+	own := &mcp.Tool{Name: "ingestion_stats.totals", Description: "mine"}
+	describe(own)
+
+	if own.Description != "mine" {
+		t.Fatal("a description given at registration must not be replaced")
+	}
+}

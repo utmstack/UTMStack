@@ -24,7 +24,8 @@ const (
 
 type Store struct {
 	store.Store
-	built *factory.Built
+	built  *factory.Built
+	fields fieldsCache
 }
 
 func New() (*Store, error) {

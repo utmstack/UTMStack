@@ -3,6 +3,8 @@ package common_models
 import (
 	"errors"
 	"fmt"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -42,6 +44,31 @@ func SplitTimeBounds(scope store.Scope, filters []FilterType) (store.Scope, []Fi
 	return scope, rest
 }
 
+// ValidateTimeBounds refuses a time filter whose value cannot be read. SplitTimeBounds drops such a bound,
+// which leaves the query with no time limit at all: a caller that asked for the last day would get the whole
+// table, and not know.
+func ValidateTimeBounds(filters []FilterType) error {
+	for _, f := range filters {
+		if f.Field != timeColumn {
+			continue
+		}
+
+		switch f.Operator {
+		case OpIsBetween:
+			from, to := boundPair(f.Value)
+			if from.IsZero() || to.IsZero() {
+				return fmt.Errorf("the %s filter needs two times, as [from, to]: use RFC3339 (2026-11-25T10:00:00Z) or relative (now-24h, now); got %v", timeColumn, f.Value)
+			}
+		case OpGreater, OpLessOrEq:
+			if asTime(f.Value).IsZero() {
+				return fmt.Errorf("the %s filter needs a time: use RFC3339 (2026-11-25T10:00:00Z) or relative (now-24h); got %v", timeColumn, f.Value)
+			}
+		}
+	}
+
+	return nil
+}
+
 func boundPair(v any) (time.Time, time.Time) {
 	pair, ok := v.([]any)
 	if !ok || len(pair) != 2 {
@@ -50,10 +77,28 @@ func boundPair(v any) (time.Time, time.Time) {
 	return asTime(pair[0]), asTime(pair[1])
 }
 
+var relativeTime = regexp.MustCompile(`^now(?:-(\d{1,6})([smhdw]))?$`)
+
+var relativeUnit = map[string]time.Duration{
+	"s": time.Second, "m": time.Minute, "h": time.Hour, "d": 24 * time.Hour, "w": 7 * 24 * time.Hour,
+}
+
+// asTime reads an absolute timestamp, or a time relative to now: "now", "now-24h", "now-7d".
 func asTime(v any) time.Time {
 	s, ok := v.(string)
 	if !ok || s == "" {
 		return time.Time{}
+	}
+
+	if m := relativeTime.FindStringSubmatch(strings.TrimSpace(strings.ToLower(s))); m != nil {
+		now := time.Now().UTC()
+		if m[1] == "" {
+			return now
+		}
+
+		n, _ := strconv.Atoi(m[1])
+
+		return now.Add(-time.Duration(n) * relativeUnit[m[2]])
 	}
 	for _, layout := range []string{time.RFC3339Nano, time.RFC3339, "2006-01-02 15:04:05.000", "2006-01-02 15:04:05", "2006-01-02"} {
 		if t, err := time.Parse(layout, s); err == nil {

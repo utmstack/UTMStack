@@ -1,4 +1,4 @@
-import { getStoredTokens } from "@/shared/lib/api-client";
+import { getStoredTokens, refreshSession } from "@/shared/lib/api-client";
 import { IS_FEDERATION } from "@/shared/config/mode";
 import { getCurrentInstanceId } from "@/shared/lib/current-instance";
 
@@ -56,19 +56,25 @@ export async function streamChat(
   onEvent: (e: ChatEvent) => void,
   signal?: AbortSignal,
 ): Promise<void> {
-  const tokens = getStoredTokens();
-  const res = await fetch(`${API_URL}/soc-ai/chat`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(tokens?.access_token
-        ? { Authorization: `Bearer ${tokens.access_token}` }
-        : {}),
-      ...federationHeaders(),
-    },
-    body: JSON.stringify(body),
-    signal,
-  });
+  // The access token is short-lived and this call bypasses the axios client that renews it, so a 401 gets
+  // one refresh and one retry before it is reported.
+  const send = (accessToken?: string) =>
+    fetch(`${API_URL}/soc-ai/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        ...federationHeaders(),
+      },
+      body: JSON.stringify(body),
+      signal,
+    });
+
+  let res = await send(getStoredTokens()?.access_token);
+  if (res.status === 401) {
+    const renewed = await refreshSession();
+    if (renewed) res = await send(renewed);
+  }
 
   if (!res.ok || !res.body) {
     let msg = `Request failed (${res.status})`;

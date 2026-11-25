@@ -6,6 +6,7 @@ now", which is what keeps a question from turning into a long wander over a hund
 
 from __future__ import annotations
 
+import re
 from typing import Any, Literal
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -35,6 +36,7 @@ class SupState(TypedDict, total=False):
     lang: str | None
     findings: list[str]
     hops: int
+    asked: list[tuple[str, str]]  # (specialist, task) already handed out
     answer: str
     pending: Route | None
 
@@ -58,8 +60,33 @@ Rules:
 before deciding the next step.
 - Never delegate the same thing twice. When the findings are enough, finish.
 - A specialist may say a change is not enabled. Report that; do not insist.
+- If a specialist could not do something, do not ask again in other words: say what is missing.
+- Never mention specialists, delegations, budgets, steps or tools to the user. Say what you could not find or do \
+in terms of the data and the request.
 - Finish with a direct answer: what you found or did, and what you could not do. Never invent data.
 {language}"""
+
+
+_WORD = re.compile(r"\w+", re.UNICODE)
+
+
+def _already_asked(asked: list[tuple[str, str]], agent: str, task: str) -> bool:
+    """The same specialist given a task that says much the same: most of its words were in an earlier one."""
+    words = {w.lower() for w in _WORD.findall(task) if len(w) > 2}
+
+    if not words:
+        return False
+
+    for who, earlier in asked:
+        if who != agent:
+            continue
+
+        before = {w.lower() for w in _WORD.findall(earlier) if len(w) > 2}
+
+        if before and len(words & before) / len(words | before) >= 0.6:
+            return True
+
+    return False
 
 
 def supervisor(model: BaseChatModel, agents: dict[str, SubAgent], settings: Settings, *, max_hops: int = 4):
@@ -79,13 +106,21 @@ def supervisor(model: BaseChatModel, agents: dict[str, SubAgent], settings: Sett
             messages.append(SystemMessage("You have used all your delegations. Finish now."))
 
         r = await decide(model, Route, messages)
+        asked = state.get("asked", [])
+
+        if r.action == "delegate" and r.agent in agents and r.task and _already_asked(asked, r.agent, r.task):
+            # The same question to the same specialist in other words gets the same answer: the reply is
+            # already in the findings. Say so, and spend a delegation so the loop has an end.
+            note = (f"[supervisor] you already asked {r.agent} this; its answer is in the findings above. Finish with what "
+                    "you have and say what could not be found.")
+            return {"findings": [*findings, note], "hops": hops + 1, "pending": None}
 
         if r.action == "delegate" and (hops >= max_hops or r.agent not in agents or not r.task):
             note = (f"[supervisor] there is no specialist named {r.agent!r}" if r.agent not in agents
                     else "[supervisor] delegation refused")
             return {"findings": [*findings, note], "hops": hops + 1, "pending": None}
 
-        return {"pending": r}
+        return {"pending": r, "asked": [*asked, (r.agent, r.task)] if r.action == "delegate" and r.agent and r.task else asked}
 
     def after_route(state: SupState) -> str:
         r = state.get("pending")
