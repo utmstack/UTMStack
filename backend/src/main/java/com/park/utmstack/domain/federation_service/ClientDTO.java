@@ -1,5 +1,6 @@
 package com.park.utmstack.domain.federation_service;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.util.StringUtils;
 
@@ -13,6 +14,7 @@ public class ClientDTO {
     private String clientDescription;
     private String clientEmail;
 
+    @JsonCreator
     public ClientDTO() {
     }
 

@@ -22,6 +22,8 @@ import org.springframework.stereotype.Service;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,7 +53,7 @@ public class ApiKeyService {
                 .userId(userId)
                 .name(dto.getName())
                 .expiresAt(dto.getExpiresAt())
-                .allowedIp(String.join(",", dto.getAllowedIp()))
+                .allowedIp(dto.getAllowedIp() != null ? String.join(",", dto.getAllowedIp()) : null)
                 .createdAt(Instant.now())
                 .generatedAt(Instant.now())
                 .apiKey(generateRandomKey())
@@ -154,11 +156,18 @@ public class ApiKeyService {
         }
     }
 
+    public static String apiAccessLogsIndexForDate(LocalDate date) {
+        String prefix = V11_API_ACCESS_LOGS.endsWith("*")
+            ? V11_API_ACCESS_LOGS.substring(0, V11_API_ACCESS_LOGS.length() - 1)
+            : V11_API_ACCESS_LOGS;
+        return prefix + date.toString();
+    }
+
     @Async
     public void logUsage(ApiKeyUsageLog apiKeyUsageLog) {
         final String ctx = CLASSNAME + ".logUsage";
         try {
-            client.getClient().index(V11_API_ACCESS_LOGS, apiKeyUsageLog);
+            client.getClient().index(apiAccessLogsIndexForDate(LocalDate.now(ZoneOffset.UTC)), apiKeyUsageLog);
         } catch (Exception e) {
             log.error(ctx + ": {}", e.getMessage());
         }

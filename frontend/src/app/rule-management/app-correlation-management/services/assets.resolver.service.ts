@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import {ActivatedRouteSnapshot, Resolve, RouterStateSnapshot} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable} from 'rxjs';
-import {tap} from 'rxjs/operators';
+import {finalize} from 'rxjs/operators';
 import {Asset, itemsPerPage} from '../../models/rule.model';
 import {AssetManagerService} from './asset-manager.service';
 
@@ -15,6 +15,6 @@ export class AssetsResolverService implements Resolve<Observable<HttpResponse<As
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<HttpResponse<Asset[]>> {
         this.spinner.show('loadingSpinner');
         return this.assetManagerService.getAll({page: 0, size: itemsPerPage})
-            .pipe(tap(() => this.spinner.hide('loadingSpinner')));
+            .pipe(finalize(() => this.spinner.hide('loadingSpinner')));
     }
 }

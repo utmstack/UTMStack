@@ -207,7 +207,8 @@ public class UserResource {
 
             User user = userRepository.findOneWithAuthoritiesById(userDTO.getId())
                     .orElseThrow(() -> new NoSuchElementException(String.format("User %1$s not found", userDTO.getId().toString())));
-            if (!userDTO.getAuthorities().contains("ROLE_ADMIN") &&
+            boolean keepsAdminRole = userDTO.getAuthorities() == null || userDTO.getAuthorities().contains("ROLE_ADMIN");
+            if (!keepsAdminRole &&
                     user.getAuthorities().stream().anyMatch(authority -> authority.getName().equals("ROLE_ADMIN")) && userRepository.countAdmins() == 1) {
                 throw new BadRequestAlertException(ctx, "Cannot update roles for the last remaining admin user.", UserService.class.toString());
             }

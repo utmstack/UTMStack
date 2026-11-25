@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.vm;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +32,7 @@ public class AlertTagRuleVM {
     private String lastModifiedBy;
     private Instant lastModifiedDate;
 
+    @JsonCreator
     public AlertTagRuleVM() {
     }
 

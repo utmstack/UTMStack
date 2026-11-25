@@ -1,5 +1,6 @@
 package com.park.utmstack.service.dto.logstash_pipeline;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.park.utmstack.domain.logstash_pipeline.UtmLogstashPipeline;
 
@@ -25,6 +26,7 @@ public class UtmLogstashPipelineDTO {
     private Boolean pipelineInternal = false;
 
 
+    @JsonCreator
     public UtmLogstashPipelineDTO(){}
     public UtmLogstashPipelineDTO(Long id, String pipelineId,
                                   String pipelineName,

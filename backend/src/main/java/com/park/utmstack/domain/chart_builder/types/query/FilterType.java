@@ -1,5 +1,6 @@
 package com.park.utmstack.domain.chart_builder.types.query;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.util.Assert;
 
@@ -12,6 +13,7 @@ public class FilterType implements Serializable {
     private String field;
     private Object value;
 
+    @JsonCreator
     public FilterType() {
     }
 

@@ -1,6 +1,7 @@
 import {Component, HostListener, OnInit, Renderer2} from '@angular/core';
-import {Router} from '@angular/router';
+import {NavigationCancel, NavigationError, Router} from '@angular/router';
 import {TranslateService} from '@ngx-translate/core';
+import {NgxSpinnerService} from 'ngx-spinner';
 import {catchError, delay, distinctUntilChanged, filter, map, skip, takeUntil, tap} from 'rxjs/operators';
 import {AccountService} from './core/auth/account.service';
 import {ApiServiceCheckerService} from './core/auth/api-checker-service';
@@ -48,7 +49,8 @@ export class AppComponent implements OnInit {
     private versionTypeService: VersionInfoService,
     private federationInstanceState: FederationInstanceStateService,
     private federationModeService: FederationModeService,
-    private translate: TranslateService) {
+    private translate: TranslateService,
+    private spinner: NgxSpinnerService) {
     this.federationActive$ = this.federationModeService.active$;
 
     // @ngx-translate 18: setDefaultLang() was removed. The language is set here
@@ -68,6 +70,9 @@ export class AppComponent implements OnInit {
     });
 
     this.router.events.subscribe((event) => {
+      if (event instanceof NavigationCancel || event instanceof NavigationError) {
+        this.spinner.hide('loadingSpinner');
+      }
       if (router.url.toString().includes('/dashboard/view/')) {
         this.renderer.addClass(document.body, 'scroll-0');
       } else {

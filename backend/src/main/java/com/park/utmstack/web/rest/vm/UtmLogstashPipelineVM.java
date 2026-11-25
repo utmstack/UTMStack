@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.vm;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.park.utmstack.domain.logstash_pipeline.UtmGroupLogstashPipelineFilters;
@@ -11,6 +12,7 @@ public class UtmLogstashPipelineVM {
     UtmLogstashPipelineDTO pipeline;
     List<UtmGroupLogstashPipelineFilters> filters;
 
+    @JsonCreator
     public UtmLogstashPipelineVM() {
     }
 

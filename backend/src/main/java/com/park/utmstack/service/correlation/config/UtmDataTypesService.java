@@ -190,9 +190,14 @@ public class UtmDataTypesService {
             utmDataTypesRepository.saveAll(dataTypes);
 
             // Get only excluded datatypes
-            dataTypes = dataTypes.stream().filter(cfg -> !cfg.getIncluded()).collect(Collectors.toList());
+            List<String> excludedDataTypes = dataTypes.stream()
+                .filter(cfg -> !Boolean.TRUE.equals(cfg.getIncluded()))
+                .map(UtmDataTypes::getDataType)
+                .collect(Collectors.toList());
 
-            networkScanRepository.deleteAllAssetsByDataType(dataTypes.stream().map(UtmDataTypes::getDataType).collect(Collectors.toList()));
+            if (!excludedDataTypes.isEmpty()) {
+                networkScanRepository.deleteAllAssetsByDataType(excludedDataTypes);
+            }
 
             dataInputStatusService.synchronizeSourcesToAssets();
         } catch (Exception e) {

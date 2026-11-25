@@ -49,6 +49,9 @@ public class UtmIncidentAlertService {
     public void updateAlertStatusByAlertId(AlertIncidentStatusChangeDTO alertIncidentStatusChangeDTO) {
         final String ctx = "UtmIncidentAlertService.updateAlertStatusByAlertId";
         try {
+            if (alertIncidentStatusChangeDTO.getAlertIds() == null || alertIncidentStatusChangeDTO.getAlertIds().isEmpty()) {
+                return;
+            }
             utmIncidentAlertRepository.updateAlertStatusByAlertIdIn(alertIncidentStatusChangeDTO.getAlertIds(), alertIncidentStatusChangeDTO.getStatus());
             utmIncidentHistoryService.createHistory(IncidentHistoryActionEnum.INCIDENT_ALERT_STATUS_CHANGED, alertIncidentStatusChangeDTO.getIncidentId(),
                 "Alert status changed", "Alerts changed to " + ResolveIncidentStatus.incidentLabelByInteger(alertIncidentStatusChangeDTO.getStatus()));

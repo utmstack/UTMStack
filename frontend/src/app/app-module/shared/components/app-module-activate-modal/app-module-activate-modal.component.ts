@@ -46,7 +46,7 @@ export class AppModuleActivateModalComponent implements OnInit {
       queryParams: {
         setUpModule: module.moduleName
       }
-    }).then(() => {
+    }).finally(() => {
       this.spinner.hide('loadingSpinner');
     });
   }

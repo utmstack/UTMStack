@@ -3,7 +3,7 @@ import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, Resolve, RouterStateSnapshot} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable, of} from 'rxjs';
-import {tap} from 'rxjs/operators';
+import {finalize} from 'rxjs/operators';
 import {Rule} from '../models/rule.model';
 import {RuleService} from './rule.service';
 
@@ -21,7 +21,7 @@ export class RuleResolverService implements Resolve<Observable<HttpResponse<Rule
 
         return this.ruleService.getRuleById(id)
             .pipe(
-                tap(() => this.spinner.hide('loadingSpinner'))
+                finalize(() => this.spinner.hide('loadingSpinner'))
             );
 
     }
