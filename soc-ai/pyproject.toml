@@ -1,0 +1,32 @@
+[project]
+name = "socai"
+version = "2.0.0"
+description = "UTMStack SOC AI: a supervisor and specialised agents that investigate alerts and operate the SIEM through the backend's MCP tools"
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=1.0",
+    "langchain-core>=1.0",
+    "langchain-openai>=1.0",
+    "langchain-anthropic>=1.0",
+    "mcp>=1.0",
+    "fastapi>=0.110",
+    "uvicorn>=0.30",
+    "nats-py>=2.9",
+    "httpx>=0.27",
+    "pydantic>=2.6",
+    "cryptography>=42",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "pytest-asyncio>=0.23"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
