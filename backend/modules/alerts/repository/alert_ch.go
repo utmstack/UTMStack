@@ -6,6 +6,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/threatwinds/go-sdk/catcher"
 	"github.com/utmstack/go-sdk/v2/store"
 	"gorm.io/gorm"
 
@@ -370,6 +371,9 @@ func decodeAlerts(rows []json.RawMessage) []domain.UtmAlert {
 	for _, raw := range rows {
 		var a domain.UtmAlert
 		if err := json.Unmarshal(raw, &a); err != nil {
+			// Left out, but not in silence: an alert that stops decoding is an alert that stops being found.
+			catcher.Warn("alerts: a stored alert could not be decoded and was left out", map[string]any{"error": err.Error()})
+
 			continue
 		}
 		out = append(out, a)

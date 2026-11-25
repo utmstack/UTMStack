@@ -182,7 +182,9 @@ func StartUsageReporting(instanceConf InstanceConfig) {
 		)
 		if err != nil || status != http.StatusOK {
 			config.Logger().ErrorF("error sending usage report: status: %d, error: %v", status, err)
+			continue
 		}
+		config.Logger().Info("usage report sent: %d tenants", len(days))
 	}
 }
 

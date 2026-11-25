@@ -27,6 +27,30 @@ type Geolocation struct {
 	Accuracy    int     `json:"accuracy,omitempty"`
 }
 
+// int64Keys are the fields of an alert that its schema declares as 64-bit integers. The event processor
+// writes those as strings, the way protojson does, so a stored alert carries "641" where the struct wants 641.
+var int64Keys = []string{"asn", "totalSpace", "packagesSent", "packagesReceived", "connections", "totalMem", "echoes"}
+
+// UnmarshalJSON reads an alert, accepting its 64-bit integers written as text. Without this an alert with
+// any of them did not decode at all, and every search that decodes alerts left it out in silence.
+func (a *UtmAlert) UnmarshalJSON(b []byte) error {
+	type plain UtmAlert
+
+	err := json.Unmarshal(b, (*plain)(a))
+	if err == nil {
+		return nil
+	}
+
+	var fixed plain
+	if json.Unmarshal(jsonflex.NormalizeInts(b, int64Keys...), &fixed) != nil {
+		return err
+	}
+
+	*a = UtmAlert(fixed)
+
+	return nil
+}
+
 // UnmarshalJSON reads asn as a number or as text: the event processor writes 64-bit integers as strings, and
 // an alert with a geolocation would otherwise not be readable at all.
 func (g *Geolocation) UnmarshalJSON(b []byte) error {

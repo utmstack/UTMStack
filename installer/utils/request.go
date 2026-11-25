@@ -57,14 +57,14 @@ func DoReq[response any](url string, data []byte, method string, headers map[str
 		return result, resp.StatusCode, fmt.Errorf("error reading response body: %w; response body: %s", err, string(body))
 	}
 
+	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
+		return result, resp.StatusCode, fmt.Errorf("unexpected status code: %d; response body: %s", resp.StatusCode, string(body))
+	}
+
 	if len(body) != 0 {
 		if err = json.Unmarshal(body, &result); err != nil {
 			return result, resp.StatusCode, fmt.Errorf("error unmarshalling response: %w; response body: %s", err, string(body))
 		}
-	}
-
-	if resp.StatusCode != http.StatusAccepted && resp.StatusCode != http.StatusOK {
-		return result, resp.StatusCode, fmt.Errorf("unexpected status code: %d; response body: %s", resp.StatusCode, string(body))
 	}
 
 	return result, resp.StatusCode, nil
