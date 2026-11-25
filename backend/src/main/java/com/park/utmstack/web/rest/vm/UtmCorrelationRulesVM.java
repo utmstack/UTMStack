@@ -1,5 +1,6 @@
 package com.park.utmstack.web.rest.vm;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.park.utmstack.domain.correlation.rules.UtmCorrelationRules;
 import com.park.utmstack.domain.correlation.rules.UtmGroupRulesDataType;
 
@@ -9,6 +10,7 @@ public class UtmCorrelationRulesVM {
     private UtmCorrelationRules rule;
     private List<UtmGroupRulesDataType> dataTypeRelations;
 
+    @JsonCreator
     public UtmCorrelationRulesVM(){}
     public UtmCorrelationRulesVM(UtmCorrelationRules rule, List<UtmGroupRulesDataType> dataTypeRelations) {
         this.rule = rule;

@@ -1,6 +1,7 @@
 package com.park.utmstack.domain.application_modules;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 
@@ -46,6 +47,7 @@ public class UtmModuleGroup implements Serializable {
     @Column(name = "collector_id")
     private String collector;
 
+    @JsonCreator
     public UtmModuleGroup() {
     }
 

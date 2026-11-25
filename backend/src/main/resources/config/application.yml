@@ -106,6 +106,9 @@ spring:
         size: 2
   thymeleaf:
     mode: HTML
+  jackson:
+    deserialization:
+      fail-on-null-for-primitives: false
   output:
     ansi:
       console-available: true

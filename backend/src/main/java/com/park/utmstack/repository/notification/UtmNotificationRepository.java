@@ -24,7 +24,8 @@ public interface UtmNotificationRepository extends JpaRepository<UtmNotification
                    "((:source) IS NULL OR n.source IN (:source)) " +
                    "AND ((:type) IS NULL OR n.type IN (:type)) " +
                    "AND ((:status) IS NULL OR n.status IN (:status)) " +
-                   "AND ((cast(:from as timestamp) is null) and (cast(:to as timestamp) is null) or (n.createdAt BETWEEN :from AND :to)) ")
+                   "AND ((cast(:from as timestamp) is null) OR n.createdAt >= :from) " +
+                   "AND ((cast(:to as timestamp) is null) OR n.createdAt <= :to) ")
     Page<UtmNotification> searchByFilters(@Param("source") NotificationSource source,
                                           @Param("type") NotificationType type,
                                           @Param("status") NotificationStatus status,

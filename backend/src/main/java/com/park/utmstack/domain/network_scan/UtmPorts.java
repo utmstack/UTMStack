@@ -1,6 +1,7 @@
 package com.park.utmstack.domain.network_scan;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.park.utmstack.service.dto.network_scan.NetworkScanDTO;
 
 import jakarta.persistence.*;
@@ -31,6 +32,7 @@ public class UtmPorts implements Serializable {
     @Column(name = "udp")
     private String udp;
 
+    @JsonCreator
     public UtmPorts() {
     }
 

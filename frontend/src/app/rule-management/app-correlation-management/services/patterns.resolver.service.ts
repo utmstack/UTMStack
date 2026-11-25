@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import {ActivatedRouteSnapshot, Resolve, RouterStateSnapshot} from '@angular/router';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {Observable} from 'rxjs';
-import {tap} from 'rxjs/operators';
+import {finalize} from 'rxjs/operators';
 import {itemsPerPage, RegexPattern} from '../../models/rule.model';
 import {PatternManagerService} from './pattern-manager.service';
 
@@ -15,6 +15,6 @@ export class PatternsResolverService implements Resolve<Observable<HttpResponse<
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<HttpResponse<RegexPattern[]>> {
         this.spinner.show('loadingSpinner');
         return this.patternManagerService.getAll({page: 0, size: itemsPerPage})
-            .pipe(tap(() => this.spinner.hide('loadingSpinner')));
+            .pipe(finalize(() => this.spinner.hide('loadingSpinner')));
     }
 }

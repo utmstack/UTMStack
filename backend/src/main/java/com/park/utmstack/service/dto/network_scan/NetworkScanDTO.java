@@ -1,5 +1,6 @@
 package com.park.utmstack.service.dto.network_scan;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.park.utmstack.domain.datainput_ingestion.UtmDataInputStatus;
 import com.park.utmstack.domain.network_scan.UtmAssetGroup;
 import com.park.utmstack.domain.network_scan.UtmAssetTypes;
@@ -48,6 +49,7 @@ public class NetworkScanDTO {
 
     private List<UtmDataInputStatus> dataInputList;
 
+    @JsonCreator
     public NetworkScanDTO() {
     }
 
