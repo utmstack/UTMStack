@@ -90,7 +90,8 @@ func (r *chAlertRepo) rewrite(ctx context.Context, scope store.Scope, ids []stri
 	}
 	defer release()
 
-	rows, err := r.store.FetchN(ctx, scope, []store.Filter{idIn(ids)}, len(ids))
+	rows,_, err := r.store.FetchPage(ctx, scope, []store.Filter{idIn(ids)},store.Page{Offset:0,Limit:len(ids)})
+
 	if err != nil {
 		return err
 	}
@@ -115,7 +116,12 @@ func (r *chAlertRepo) rewrite(ctx context.Context, scope store.Scope, ids []stri
 			continue
 		}
 
+		// v11 secondary records have no tenantId of their own: the scope the
+		// caller read them under already is the one that owns them.
 		tenant, _ := doc["tenantId"].(string)
+		if tenant == "" && scope.Tenant != store.AllTenants {
+			tenant = scope.Tenant
+		}
 		id, _ := doc["id"].(string)
 		if tenant == "" || id == "" {
 			continue
@@ -303,7 +309,7 @@ func (r *chAlertRepo) SearchByIDs(ctx context.Context, alertIDs []string) ([]dom
 	if err != nil {
 		return nil, err
 	}
-	rows, err := r.store.FetchN(ctx, scope, []store.Filter{idIn(alertIDs)}, patchLimit)
+	rows,_, err := r.store.FetchPage(ctx, scope, []store.Filter{idIn(alertIDs)},store.Page{Offset:0,Limit:patchLimit})
 	if err != nil {
 		return nil, err
 	}
@@ -319,7 +325,7 @@ func (r *chAlertRepo) SearchRecentByIDs(ctx context.Context, alertIDs []string, 
 	now := time.Now()
 	scope.From, scope.To = now.Add(-within), now.Add(time.Minute)
 
-	rows, err := r.store.FetchN(ctx, scope, []store.Filter{idIn(alertIDs)}, patchLimit)
+	rows,_, err := r.store.FetchPage(ctx, scope, []store.Filter{idIn(alertIDs)},store.Page{Offset:0,Limit:patchLimit})
 	if err != nil {
 		return nil, err
 	}
@@ -355,7 +361,7 @@ func (r *chAlertRepo) GetRawByID(ctx context.Context, alertID string) (json.RawM
 	if err != nil {
 		return nil, err
 	}
-	rows, err := r.store.FetchN(ctx, scope, []store.Filter{idIn([]string{alertID})}, 1)
+	rows,_, err := r.store.FetchPage(ctx, scope, []store.Filter{idIn([]string{alertID})},store.Page{Offset:0,Limit:1})
 	if err != nil {
 		return nil, err
 	}
