@@ -39,4 +39,4 @@ afterEvents:
     count: 4
 groupBy:
   - adversary.user
-  - origin.ip
+  - adversary.ip

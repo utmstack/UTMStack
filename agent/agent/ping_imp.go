@@ -17,18 +17,29 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 	var connErrLogged, streamErrLogged bool
 
 	for {
+		if ctx.Err() != nil {
+			return
+		}
+
 		connection, err := GetAgentManagerConnection(cnf)
 		if err != nil {
 			LogConnectionError(err, "Agent Manager", &connErrLogged)
-			time.Sleep(timeToSleep)
+			if !sleepCtx(ctx, timeToSleep) {
+				return
+			}
 			continue
 		}
 
 		client := NewPingServiceClient(connection)
 		stream, err := client.Ping(ctx)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			LogStreamError(err, "Ping Stream", &connErrLogged)
-			time.Sleep(timeToSleep)
+			if !sleepCtx(ctx, timeToSleep) {
+				return
+			}
 			continue
 		}
 
@@ -38,18 +49,28 @@ func StartPing(cnf *config.Config, ctx context.Context) {
 		ticker := time.NewTicker(pingInterval)
 
 	pingLoop:
-		for range ticker.C {
-			err := stream.Send(&PingRequest{Type: ConnectorType_AGENT})
-			if err != nil {
-				action := HandleGRPCStreamError(err, "error sending Ping request", &streamErrLogged)
-				if action == ActionReconnect {
-					break pingLoop
+		for {
+			select {
+			case <-ctx.Done():
+				ticker.Stop()
+				return
+			case <-ticker.C:
+				err := stream.Send(&PingRequest{Type: ConnectorType_AGENT})
+				if err != nil {
+					if ctx.Err() != nil {
+						ticker.Stop()
+						return
+					}
+					action := HandleGRPCStreamError(err, "error sending Ping request", &streamErrLogged)
+					if action == ActionReconnect {
+						break pingLoop
+					}
+					continue
 				}
-				continue
-			}
 
-			streamErrLogged = false
-			utils.Logger.LogF(100, "Ping request sent")
+				streamErrLogged = false
+				utils.Logger.LogF(100, "Ping request sent")
+			}
 		}
 
 		ticker.Stop()

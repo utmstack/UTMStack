@@ -9,6 +9,7 @@ import (
 
 	"github.com/glebarez/sqlite"
 	"github.com/utmstack/UTMStack/agent/config"
+	"github.com/utmstack/UTMStack/agent/models"
 	"github.com/utmstack/UTMStack/shared/fs"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -20,7 +21,10 @@ var (
 	dbInitErr  error
 )
 
-const deleteBatchSize = 500
+const (
+	deleteBatchSize = 500
+	insertBatchSize = 100
+)
 
 type Database struct {
 	db     *gorm.DB
@@ -37,6 +41,24 @@ func (d *Database) Create(data interface{}) error {
 	d.locker.Lock()
 	defer d.locker.Unlock()
 	return d.db.Create(data).Error
+}
+
+func (d *Database) CreateBatch(logs []*models.Log) error {
+	if len(logs) == 0 {
+		return nil
+	}
+	d.locker.Lock()
+	defer d.locker.Unlock()
+	return d.db.CreateInBatches(logs, insertBatchSize).Error
+}
+
+func (d *Database) MarkProcessedBatch(ids []string) error {
+	if len(ids) == 0 {
+		return nil
+	}
+	d.locker.Lock()
+	defer d.locker.Unlock()
+	return d.db.Model(&models.Log{}).Where("id IN ?", ids).Update("processed", true).Error
 }
 
 func (d *Database) Find(data interface{}, field string, value interface{}) (bool, error) {
@@ -133,6 +155,37 @@ func (d *Database) deleteOldestBatch(data interface{}, cond string, condArgs ...
 	return d.db.Where("id IN (?)", subquery).Delete(data)
 }
 
+// Open initializes a SQLite database at path with WAL mode and busy timeout
+// configured for concurrent high-throughput log buffering.
+func Open(path string) (*Database, error) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		file, err := os.Create(path)
+		if err != nil {
+			return nil, fmt.Errorf("creating database file: %w", err)
+		}
+		file.Close()
+	}
+
+	conn, err := gorm.Open(sqlite.Open(path), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Silent),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("connecting with database: %w", err)
+	}
+
+	for _, pragma := range []string{
+		"PRAGMA journal_mode=WAL;",
+		"PRAGMA synchronous=NORMAL;",
+		"PRAGMA busy_timeout=5000;",
+	} {
+		if err := conn.Exec(pragma).Error; err != nil {
+			return nil, fmt.Errorf("applying sqlite pragma %q: %w", pragma, err)
+		}
+	}
+
+	return &Database{db: conn}, nil
+}
+
 func GetDB() (*Database, error) {
 	dbOnce.Do(func() {
 		path := filepath.Join(fs.GetExecutablePath(), "logs_process")
@@ -141,25 +194,7 @@ func GetDB() (*Database, error) {
 			return
 		}
 
-		path = config.LogsDBFile
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			file, err := os.Create(path)
-			if err != nil {
-				dbInitErr = fmt.Errorf("creating database file: %w", err)
-				return
-			}
-			file.Close()
-		}
-
-		conn, err := gorm.Open(sqlite.Open(path), &gorm.Config{
-			Logger: logger.Default.LogMode(logger.Silent),
-		})
-		if err != nil {
-			dbInitErr = fmt.Errorf("connecting with database: %w", err)
-			return
-		}
-
-		dbInstance = &Database{db: conn}
+		dbInstance, dbInitErr = Open(config.LogsDBFile)
 	})
 
 	if dbInitErr != nil {
@@ -173,5 +208,9 @@ func GetDatabaseSizeInMB() (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	return int(fileInfo.Size() / (1024 * 1024)), nil
+	totalSize := fileInfo.Size()
+	if walInfo, err := os.Stat(config.LogsDBFile + "-wal"); err == nil {
+		totalSize += walInfo.Size()
+	}
+	return int(totalSize / (1024 * 1024)), nil
 }

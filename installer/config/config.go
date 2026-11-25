@@ -25,8 +25,9 @@ type Config struct {
 }
 
 var (
-	config     *Config
-	configOnce sync.Once
+	config       *Config
+	configOnce   sync.Once
+	mainServerMu sync.RWMutex
 )
 
 func GetConfig() *Config {
@@ -46,21 +47,15 @@ func GetConfig() *Config {
 			fmt.Println("⚠️  AirGap mode detected - some features will be limited")
 		}
 
-		// Check if the main server is reachable (AirGap mode)
-		if !ConnectedToInternet {
-			mainIP, err := utils.GetMainIPInAirGapMode()
-			if err != nil {
-				fmt.Printf("error getting main IP: %v", err)
-				os.Exit(1)
-			}
-			config.MainServer = mainIP
+		// Resolve the host's primary IP, falling back to any persisted MainServer
+		// rather than crashing if the network interface is still initializing at boot.
+		mainIP, err := utils.ResolveMainIP(ConnectedToInternet, config.MainServer, utils.GetMainIP, utils.GetMainIPInAirGapMode)
+		if err != nil {
+			fmt.Printf("warning: could not determine main IP at startup (%v); will retry when connectivity is restored\n", err)
 		} else {
-			mainIP, err := utils.GetMainIP()
-			if err != nil {
-				fmt.Printf("error getting main IP: %v", err)
-				os.Exit(1)
-			}
+			mainServerMu.Lock()
 			config.MainServer = mainIP
+			mainServerMu.Unlock()
 		}
 
 		sName, err := os.Hostname()
@@ -117,7 +112,43 @@ func GetConfig() *Config {
 func (c *Config) Set() error {
 	// /root/utmstack.yml holds the master secrets (internal/encryption key,
 	// database and OpenSearch passwords): keep it owner-only.
+	mainServerMu.RLock()
+	defer mainServerMu.RUnlock()
 	return utils.WriteSecretYAML(ConfigPath, c)
+}
+
+// GetMainServer returns the currently configured primary host IP safely.
+func GetMainServer() string {
+	cnf := GetConfig()
+	mainServerMu.RLock()
+	defer mainServerMu.RUnlock()
+	return cnf.MainServer
+}
+
+// RefreshMainServer attempts to resolve and persist MainServer after network
+// connectivity becomes available (e.g., following an air-gap or delayed-DHCP boot).
+func RefreshMainServer() (string, error) {
+	cnf := GetConfig()
+	mainServerMu.RLock()
+	persisted := cnf.MainServer
+	mainServerMu.RUnlock()
+
+	ip, err := utils.ResolveMainIP(ConnectedToInternet, persisted, utils.GetMainIP, utils.GetMainIPInAirGapMode)
+	if err != nil {
+		return "", err
+	}
+
+	mainServerMu.Lock()
+	changed := cnf.MainServer != ip
+	cnf.MainServer = ip
+	mainServerMu.Unlock()
+
+	if changed {
+		if err := cnf.Set(); err != nil {
+			return ip, err
+		}
+	}
+	return ip, nil
 }
 
 func DetectAirGapMode() bool {

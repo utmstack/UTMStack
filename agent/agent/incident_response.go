@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"runtime"
 	"strconv"
-	"time"
 
 	"github.com/utmstack/UTMStack/agent/config"
 	"github.com/utmstack/UTMStack/agent/utils"
@@ -18,18 +17,29 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 	var connErrLogged, streamErrLogged bool
 
 	for {
+		if ctx.Err() != nil {
+			return
+		}
+
 		connection, err := GetAgentManagerConnection(cnf)
 		if err != nil {
 			LogConnectionError(err, "Agent Manager", &connErrLogged)
-			time.Sleep(timeToSleep)
+			if !sleepCtx(ctx, timeToSleep) {
+				return
+			}
 			continue
 		}
 
 		client := NewAgentServiceClient(connection)
 		stream, err := client.AgentStream(ctx)
 		if err != nil {
+			if ctx.Err() != nil {
+				return
+			}
 			LogStreamError(err, "AgentStream", &connErrLogged)
-			time.Sleep(timeToSleep)
+			if !sleepCtx(ctx, timeToSleep) {
+				return
+			}
 			continue
 		}
 
@@ -39,6 +49,9 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 		for {
 			in, err := stream.Recv()
 			if err != nil {
+				if ctx.Err() != nil {
+					return
+				}
 				action := HandleGRPCStreamError(err, "error receiving command from server", &streamErrLogged)
 				if action == ActionReconnect {
 					break recvLoop
@@ -50,6 +63,9 @@ func IncidentResponseStream(cnf *config.Config, ctx context.Context) {
 			case *BidirectionalStream_Command:
 				err = commandProcessor(path, stream, cnf, msg.Command.Command, msg.Command.CmdId, msg.Command.Shell)
 				if err != nil {
+					if ctx.Err() != nil {
+						return
+					}
 					action := HandleGRPCStreamError(err, "error sending result to server", &streamErrLogged)
 					if action == ActionReconnect {
 						break recvLoop

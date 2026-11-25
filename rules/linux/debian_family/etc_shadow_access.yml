@@ -32,5 +32,5 @@ where: |
     contains("event.process", "usermod") || contains("event.process", "groupadd") ||
     contains("event.process", "chpasswd") || contains("event.process", "login"))
 groupBy:
-  - origin.host
-  - origin.user
+  - adversary.host
+  - adversary.user

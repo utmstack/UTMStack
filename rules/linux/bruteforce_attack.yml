@@ -30,3 +30,4 @@ afterEvents:
     count: 10
 deduplicateBy:
   - dataSource
+  - adversary.ip

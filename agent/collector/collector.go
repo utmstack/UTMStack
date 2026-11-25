@@ -56,11 +56,12 @@ func StartAll(ctx context.Context) {
 	activeCollectors = append(activeCollectors, fileCollector)
 	go runCollector(ctx, fileCollector, agent.LogQueue)
 
-	// Create platform collectors (filebeat, winlogbeat, macos, etc.)
+	// Create platform collectors (auditd, winlogbeat, macos, etc.) on PriorityLogQueue
+	// so high-volume external collectors (syslog/netflow) cannot starve local endpoint events.
 	platformCollectors := platform.GetCollectors()
 	for _, c := range platformCollectors {
 		activeCollectors = append(activeCollectors, c)
-		go runCollector(ctx, c, agent.LogQueue)
+		go runCollector(ctx, c, agent.PriorityLogQueue)
 	}
 
 	utils.Logger.Info("All collectors started")

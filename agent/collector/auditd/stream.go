@@ -59,7 +59,7 @@ func (s *eventStream) ReassemblyComplete(msgs []*auparse.AuditMessage) {
 		// Event sent successfully
 	default:
 		// Queue is full - drop event to prevent backpressure to kernel
-		utils.Logger.ErrorF("auditd: queue full, dropping event (sequence=%d)", msgs[0].Sequence)
+		utils.Logger.ErrorF("auditd: queue full (%d/%d), dropping event (sequence=%d)", len(s.queue), cap(s.queue), msgs[0].Sequence)
 	}
 }
 

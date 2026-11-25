@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <!--
+      Runs immediately BEFORE 20261012002_add_gap_dashboards.xml.
+      Instances that created custom dashboard visualizations prior to v11.3.x may
+      have user rows occupying ids 1584..1600 (because utm_dashboard_visualization_id_seq
+      previously started at 1, and 20261111001_fix_dashboard_viz_sequence.xml ran too late
+      in master.xml after 20261012002). This changeset vacates any non-gap rows in
+      1584..1600 into the reserved >= 1000000 range and advances the sequence so
+      20261012002 inserts cleanly without violating pk_utm_dashboard_visualization.
+      Idempotent: on instances where 20261012002 already ran, ids 1584..1600 belong to
+      dashboards 403/404/405 and 0 rows are modified.
+    -->
+    <changeSet id="20261012001b_vacate_gap_dashboard_viz_ids" author="osmontero">
+        <comment>Vacate colliding utm_dashboard_visualization ids 1584..1600 before 20261012002_add_gap_dashboards runs.</comment>
+        <sql dbms="postgresql" splitStatements="true" stripComments="true">
+            <![CDATA[
+                WITH base AS (
+                    SELECT GREATEST(1000000, COALESCE((SELECT max(id) FROM utm_dashboard_visualization), 999999) + 1) AS b
+                ),
+                targets AS (
+                    SELECT id AS old_id,
+                           ROW_NUMBER() OVER (ORDER BY id) AS i
+                      FROM utm_dashboard_visualization
+                     WHERE id BETWEEN 1584 AND 1600
+                       AND (id_dashboard IS NULL OR id_dashboard NOT IN (403, 404, 405))
+                )
+                UPDATE utm_dashboard_visualization AS dv
+                   SET id = base.b + targets.i - 1
+                  FROM targets, base
+                 WHERE dv.id = targets.old_id;
+
+                SELECT setval('utm_dashboard_visualization_id_seq',
+                               GREATEST(1000000, COALESCE((SELECT max(id) FROM utm_dashboard_visualization), 999999)), true);
+            ]]>
+        </sql>
+    </changeSet>
+</databaseChangeLog>

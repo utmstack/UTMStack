@@ -87,6 +87,21 @@ func correlate(ctx context.Context,
 	return nil, newAlert(alert, parentId)
 }
 
+const statusCompleted = 5
+
+func buildDuplicateFilter(bb *sdkos.BoolBuilder, alertName, alertString string, fields []string, now time.Time) bool {
+	// 1. Filter by Name (always)
+	bb.FilterTerm("name", alertName)
+
+	// 2. Ignore Completed/closed alerts so new attacks after analyst resolution raise a fresh alert
+	bb.MustNotTerm("status", statusCompleted)
+
+	bb.FilterRange("@timestamp", "gte", now.UTC().Add(-24*7*time.Hour).Format(time.RFC3339Nano))
+	bb.FilterRange("@timestamp", "lte", now.UTC().Format(time.RFC3339Nano))
+
+	return addAlertGroupingTerms(bb, alertString, fields)
+}
+
 func isDuplicate(alert *plugins.Alert) bool {
 	// Recover from panics to ensure the function doesn't terminate
 	defer func() {
@@ -115,13 +130,7 @@ func isDuplicate(alert *plugins.Alert) bool {
 	// Create BoolBuilder
 	bb := sdkos.NewBoolBuilder(ctx, indices, "plugin_com.utmstack.alerts")
 
-	// 1. Filter by Name (always)
-	bb.FilterTerm("name", alert.Name)
-
-	bb.FilterRange("@timestamp", "gte", time.Now().UTC().Add(-24*7*time.Hour).Format(time.RFC3339Nano))
-	bb.FilterRange("@timestamp", "lte", time.Now().UTC().Format(time.RFC3339Nano))
-
-	if !addAlertGroupingTerms(bb, *alertString, alert.DeduplicateBy) {
+	if !buildDuplicateFilter(bb, alert.Name, *alertString, alert.DeduplicateBy, time.Now()) {
 		return false
 	}
 
