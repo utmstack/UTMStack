@@ -40,6 +40,7 @@ async def test_the_chat_streams_each_step_and_the_final_answer():
     body = r.text
     assert r.status_code == 200 and "text/event-stream" in r.headers["content-type"]
     assert "event: tool_call" in body and "ask:alerts" in body
+    assert '"kind": "tool_call"' in body and '"kind": "final"' in body, "the page tells steps apart by data.kind"
     assert '"agent": "alerts", "tool": "find_alerts"' in body, "each step names the specialist that took it"
     assert "event: tool_result" in body
     assert body.rstrip().endswith('"text": "2 alerts are open."}'), body[-200:]

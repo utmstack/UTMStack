@@ -42,7 +42,8 @@ class AlertRequest(BaseModel):
 
 
 def _sse(event: str, data: dict[str, Any]) -> str:
-    return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False, default=str)}\n\n"
+    """The page reads only the data line and tells the steps apart by its "kind", so the kind goes there too."""
+    return f"event: {event}\ndata: {json.dumps({'kind': event, **data}, ensure_ascii=False, default=str)}\n\n"
 
 
 class Narrator:
