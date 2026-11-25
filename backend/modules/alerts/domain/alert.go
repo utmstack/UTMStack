@@ -1,6 +1,10 @@
 package domain
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/utmstack/utmstack/backend/pkg/jsonflex"
+)
 
 const FalsePositiveTag = "False positive"
 
@@ -21,6 +25,25 @@ type Geolocation struct {
 	ASO         string  `json:"aso,omitempty"`
 	CountryCode string  `json:"countryCode,omitempty"`
 	Accuracy    int     `json:"accuracy,omitempty"`
+}
+
+// UnmarshalJSON reads asn as a number or as text: the event processor writes 64-bit integers as strings, and
+// an alert with a geolocation would otherwise not be readable at all.
+func (g *Geolocation) UnmarshalJSON(b []byte) error {
+	type plain Geolocation
+
+	aux := struct {
+		*plain
+		ASN json.RawMessage `json:"asn"`
+	}{plain: (*plain)(g)}
+
+	if err := json.Unmarshal(b, &aux); err != nil {
+		return err
+	}
+
+	g.ASN = jsonflex.Int64(aux.ASN)
+
+	return nil
 }
 
 type DiskInfo struct {

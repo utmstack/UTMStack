@@ -22,6 +22,10 @@ type AlertRepository interface {
 	CountOpenAlerts(ctx context.Context) (int64, error)
 	CountByStatus(ctx context.Context, status domain.AlertStatus) (int64, error)
 	SearchByIDs(ctx context.Context, alertIDs []string) ([]domain.UtmAlert, error)
+	// SearchRecentByIDs is SearchByIDs for alerts raised within the given time. The table is keyed by
+	// name and time, not by id, so a lookup by id alone reads every alert the tenant has; saying how
+	// recent it is lets the store skip the old months, which is several times cheaper.
+	SearchRecentByIDs(ctx context.Context, alertIDs []string, within time.Duration) ([]domain.UtmAlert, error)
 	ListEchoes(ctx context.Context, parentID string, from, size int, sortBy, sortOrder string) ([]domain.UtmAlert, int64, error)
 	GetRawByID(ctx context.Context, alertID string) (json.RawMessage, error)
 	RelatedLogRefs(ctx context.Context, steps []domain.CorrelationStep, anchorTS time.Time, maxSize int) (refs []domain.LogRef, truncated bool, err error)

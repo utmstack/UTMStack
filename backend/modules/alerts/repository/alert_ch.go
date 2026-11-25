@@ -310,6 +310,23 @@ func (r *chAlertRepo) SearchByIDs(ctx context.Context, alertIDs []string) ([]dom
 	return decodeAlerts(rows), nil
 }
 
+func (r *chAlertRepo) SearchRecentByIDs(ctx context.Context, alertIDs []string, within time.Duration) ([]domain.UtmAlert, error) {
+	scope, err := alertScope(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	scope.From, scope.To = now.Add(-within), now.Add(time.Minute)
+
+	rows, err := r.store.FetchN(ctx, scope, []store.Filter{idIn(alertIDs)}, patchLimit)
+	if err != nil {
+		return nil, err
+	}
+
+	return decodeAlerts(rows), nil
+}
+
 func (r *chAlertRepo) ListEchoes(ctx context.Context, parentID string, from, size int, sortBy, sortOrder string) ([]domain.UtmAlert, int64, error) {
 	page := store.Page{
 		Offset: from,

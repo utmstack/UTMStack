@@ -19,6 +19,9 @@ type AdversaryUsecase interface {
 }
 
 type AlertMailer interface {
+	// Enabled says whether there is anybody to write to. It is a cheap check that lets the caller skip
+	// reading the alert when nobody would get the e-mail.
+	Enabled(ctx context.Context) bool
 	SendAlertRaised(ctx context.Context, alert domain.UtmAlert) error
 }
 

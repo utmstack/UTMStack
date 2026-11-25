@@ -43,10 +43,18 @@ type Triage struct {
 	score  ScoreFunc
 	docs   Docs
 	pub    Publisher
+
+	// slots bounds how many dossiers are built at once. Each one is four reads of the alerts table, which
+	// is keyed by name and time and not by what is asked, so each read is costly; a burst of alerts would
+	// otherwise run them all together and starve the database of everything else.
+	slots chan struct{}
 }
 
+// maxDossiers is how many dossiers are built at the same time.
+const maxDossiers = 2
+
 func NewTriage(config configReader, quota *AIQuota, score ScoreFunc, docs Docs, pub Publisher) *Triage {
-	return &Triage{config: config, quota: quota, score: score, docs: docs, pub: pub}
+	return &Triage{config: config, quota: quota, score: score, docs: docs, pub: pub, slots: make(chan struct{}, maxDossiers)}
 }
 
 // Message is what the service receives. Facts is the dossier; it is left out when it could not be built,
@@ -84,12 +92,21 @@ func (t *Triage) AlertRaised(ctx context.Context, tenantID, alertID string) erro
 
 	msg := Message{TenantID: tenantID, AlertID: alertID}
 
-	facts, err := t.dossier(ctx, tenantID, alertID)
-	if err != nil {
-		catcher.Warn("soc-ai: the alert's dossier could not be built; the service will ask for it", map[string]any{
-			"alertId": alertID, "error": err.Error()})
-	} else {
-		msg.Facts = facts
+	// With the slots taken the alert goes without its dossier, and the service builds it when it gets to
+	// the alert, at the pace of the model: a burst is then spread over time instead of hitting the
+	// database all at once.
+	select {
+	case t.slots <- struct{}{}:
+		facts, err := t.dossier(ctx, tenantID, alertID)
+		<-t.slots
+
+		if err != nil {
+			catcher.Warn("soc-ai: the alert's dossier could not be built; the service will ask for it", map[string]any{
+				"alertId": alertID, "error": err.Error()})
+		} else {
+			msg.Facts = facts
+		}
+	default:
 	}
 
 	data, err := json.Marshal(msg)

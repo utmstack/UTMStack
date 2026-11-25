@@ -10,6 +10,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/alerts/connectors"
 	"github.com/utmstack/utmstack/backend/modules/alerts/domain"
 	"github.com/utmstack/utmstack/backend/modules/alerts/dto"
+	"github.com/utmstack/utmstack/backend/pkg/authz"
 )
 
 type alertUsecase struct {
@@ -23,40 +24,78 @@ func NewAlertUsecase(repo connectors.AlertRepository, mailer connectors.AlertMai
 	return &alertUsecase{repo: repo, mailer: mailer}
 }
 
-func (u *alertUsecase) AddRaisedHook(h connectors.RaisedHook) {
-	u.hooks = append(u.hooks, h)
+// NotifyRaised tells what should know that an alert was raised. The event processor calls it once per new
+// alert and never for the echo of a grouped one.
+//
+// Reading the alert is the costly part: the table is keyed by name and time, so finding one by id reads a
+// large share of it. So nothing reads it that does not need it: the hooks are given the id and the
+// tenant, which is all they start from, and the e-mail, which does need the alert, is only prepared when
+// somebody is set to receive it.
+func (u *alertUsecase) NotifyRaised(ctx context.Context, alertID string) error {
+	if alertID == "" {
+		return nil
+	}
+
+	tenant := authz.TenantIDFromContext(ctx)
+
+	var errs []error
+
+	for _, h := range u.hooks {
+		if err := h(ctx, tenant, alertID); err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	if u.mailer != nil && u.mailer.Enabled(ctx) {
+		alert, err := u.awaitAlert(ctx, alertID)
+
+		switch {
+		case err != nil:
+			errs = append(errs, err)
+		case alert.ParentID == "":
+			if err := u.mailer.SendAlertRaised(ctx, alert); err != nil {
+				errs = append(errs, err)
+			}
+		}
+	}
+
+	return errors.Join(errs...)
 }
 
-func (u *alertUsecase) NotifyRaised(ctx context.Context, alertID string) error {
-	if alertID == "" || (u.mailer == nil && len(u.hooks) == 0) {
-		return nil
-	}
-	alerts, err := u.repo.SearchByIDs(ctx, []string{alertID})
-	if err != nil {
-		return err
-	}
-	if len(alerts) == 0 {
-		return domain.ErrAlertNotFound
-	}
-	alert := alerts[0]
+// notifyWindow is how far back to look for an alert that was just raised.
+const notifyWindow = 6 * time.Hour
 
-	if alert.ParentID != "" {
-		return nil
-	}
+// notifyRetryDelays is how long to wait between looks for an alert that was just written. The event
+// processor tells the backend as soon as it has written the alert, and the store takes a moment to make
+// a new row readable, so the first look often finds nothing. A variable so tests do not wait.
+var notifyRetryDelays = []time.Duration{250 * time.Millisecond, 750 * time.Millisecond, 2 * time.Second, 4 * time.Second}
 
-	// Each one is independent: a failing e-mail must not keep the AI triage from being asked, nor the other way round.
-	var errs []error
-	if u.mailer != nil {
-		if err := u.mailer.SendAlertRaised(ctx, alert); err != nil {
-			errs = append(errs, err)
+// awaitAlert reads the alert, trying again while it is not there yet.
+func (u *alertUsecase) awaitAlert(ctx context.Context, alertID string) (domain.UtmAlert, error) {
+	for attempt := 0; ; attempt++ {
+		alerts, err := u.repo.SearchRecentByIDs(ctx, []string{alertID}, notifyWindow)
+		if err != nil {
+			return domain.UtmAlert{}, err
+		}
+
+		if len(alerts) > 0 {
+			return alerts[0], nil
+		}
+
+		if attempt >= len(notifyRetryDelays) {
+			return domain.UtmAlert{}, domain.ErrAlertNotFound
+		}
+
+		select {
+		case <-ctx.Done():
+			return domain.UtmAlert{}, ctx.Err()
+		case <-time.After(notifyRetryDelays[attempt]):
 		}
 	}
-	for _, h := range u.hooks {
-		if err := h(ctx, alert.TenantID, alert.ID); err != nil {
-			errs = append(errs, err)
-		}
-	}
-	return errors.Join(errs...)
+}
+
+func (u *alertUsecase) AddRaisedHook(h connectors.RaisedHook) {
+	u.hooks = append(u.hooks, h)
 }
 
 func (u *alertUsecase) SetCorrelationResolver(r connectors.CorrelationResolver) {

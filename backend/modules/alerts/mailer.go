@@ -31,6 +31,10 @@ func NewAlertMailer(mail mail_connectors.MailService, store appconfig_connectors
 	return &alertMailer{mail: mail, store: store}
 }
 
+func (m *alertMailer) Enabled(ctx context.Context) bool {
+	return m.mail != nil && len(readList(ctx, m.store, ConfigKeyNotificationTo)) > 0
+}
+
 func (m *alertMailer) SendAlertRaised(ctx context.Context, alert domain.UtmAlert) error {
 	if m.mail == nil {
 		return nil

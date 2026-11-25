@@ -44,7 +44,6 @@ func main() {
 
 	for i := 0; i < 2*runtime.NumCPU(); i++ {
 		go plugins.SendLogsFromChannel("com.utmstack.gcp")
-		go plugins.SendNotificationsFromChannel("com.utmstack.gcp")
 	}
 
 	startGroupModuleManager()

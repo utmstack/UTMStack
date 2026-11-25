@@ -1,5 +1,11 @@
 package models
 
+import (
+	"encoding/json"
+
+	"github.com/utmstack/utmstack/backend/pkg/jsonflex"
+)
+
 type Event struct {
 	ID     string `json:"id"`
 	Origin *Side  `json:"origin,omitempty"`
@@ -99,6 +105,24 @@ type FlattenedField struct {
 	Path  string
 	Key   string
 	Value any
+}
+
+// UnmarshalJSON reads asn as a number or as text; see jsonflex.
+func (g *Geolocation) UnmarshalJSON(b []byte) error {
+	type plain Geolocation
+
+	aux := struct {
+		*plain
+		ASN json.RawMessage `json:"asn"`
+	}{plain: (*plain)(g)}
+
+	if err := json.Unmarshal(b, &aux); err != nil {
+		return err
+	}
+
+	g.ASN = int(jsonflex.Int64(aux.ASN))
+
+	return nil
 }
 
 type Geolocation struct {

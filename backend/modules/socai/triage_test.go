@@ -5,7 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/utmstack/go-sdk/v2/store"
 
@@ -20,6 +23,7 @@ type fakeConfig struct {
 func (f fakeConfig) Get(context.Context) (*dto.ConfigResponse, error) { return f.cfg, f.err }
 
 type fakeDocs struct {
+	cmu      sync.Mutex
 	alert    string
 	related  map[string][]string // by filter field
 	count    int64
@@ -45,7 +49,9 @@ func (f *fakeDocs) FetchN(_ context.Context, _ store.Scope, filters []store.Filt
 }
 
 func (f *fakeDocs) Count(_ context.Context, _ store.Scope, filters []store.Filter) (int64, error) {
+	f.cmu.Lock()
 	f.counted = filters
+	f.cmu.Unlock()
 
 	return f.count, nil
 }
@@ -56,11 +62,14 @@ type published struct {
 }
 
 type fakePub struct {
+	mu  sync.Mutex
 	got []published
 	err error
 }
 
 func (p *fakePub) Publish(_ context.Context, subject string, data []byte) error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	p.got = append(p.got, published{subject, data})
 
 	return p.err
@@ -264,5 +273,104 @@ func TestQuotaSemantics(t *testing.T) {
 		if got := c.q.Check(context.Background(), "t1").Allowed; got != c.want {
 			t.Errorf("%s: allowed=%v, want %v", name, got, c.want)
 		}
+	}
+}
+
+// blockingDocs holds every read until released, and records how many were in flight at once.
+type blockingDocs struct {
+	*fakeDocs
+	release  chan struct{}
+	inFlight atomic.Int32
+	peak     atomic.Int32
+	scopes   []store.Scope
+	mu       sync.Mutex
+}
+
+func (b *blockingDocs) FetchByID(ctx context.Context, s store.Scope, id string) (json.RawMessage, error) {
+	n := b.inFlight.Add(1)
+	defer b.inFlight.Add(-1)
+
+	for {
+		old := b.peak.Load()
+		if n <= old || b.peak.CompareAndSwap(old, n) {
+			break
+		}
+	}
+
+	b.mu.Lock()
+	b.scopes = append(b.scopes, s)
+	b.mu.Unlock()
+
+	<-b.release
+
+	return b.fakeDocs.FetchByID(ctx, s, id)
+}
+
+func TestABurstOfAlertsBuildsOnlyAFewDossiersAtOnceAndTheRestGoWithoutOne(t *testing.T) {
+	b := &blockingDocs{fakeDocs: docs(), release: make(chan struct{})}
+	pub := &fakePub{}
+	tr := NewTriage(fakeConfig{cfg: on()}, nil, func(context.Context, string) (any, error) { return nil, nil }, b, pub)
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+
+		go func() {
+			defer wg.Done()
+
+			_ = tr.AlertRaised(context.Background(), "t1", "a1")
+		}()
+	}
+
+	// Let the ones that found no free slot finish, then release the ones building a dossier.
+	deadline := time.Now().Add(5 * time.Second)
+
+	for time.Now().Before(deadline) {
+		pub.mu.Lock()
+		n := len(pub.got)
+		pub.mu.Unlock()
+
+		if n >= 8 {
+			break
+		}
+
+		time.Sleep(5 * time.Millisecond)
+	}
+
+	close(b.release)
+	wg.Wait()
+
+	if b.peak.Load() > maxDossiers {
+		t.Errorf("%d dossiers were built at once, the limit is %d", b.peak.Load(), maxDossiers)
+	}
+
+	with, without := 0, 0
+
+	for _, p := range pub.got {
+		if decode(t, p).Facts != nil {
+			with++
+		} else {
+			without++
+		}
+	}
+
+	if len(pub.got) != 10 || with != maxDossiers || without != 10-maxDossiers {
+		t.Errorf("published %d: %d with a dossier, %d without", len(pub.got), with, without)
+	}
+}
+
+func TestTheAlertIsLookedUpWithinTheLastHoursNotAmongAllOfThem(t *testing.T) {
+	b := &blockingDocs{fakeDocs: docs(), release: make(chan struct{})}
+	close(b.release)
+
+	tr := NewTriage(fakeConfig{cfg: on()}, nil, nil, b, &fakePub{})
+	if err := tr.AlertRaised(context.Background(), "t1", "a1"); err != nil {
+		t.Fatal(err)
+	}
+
+	s := b.scopes[0]
+	if s.From.IsZero() || time.Since(s.From) < 5*time.Hour || time.Since(s.From) > 7*time.Hour {
+		t.Errorf("the alert was looked up from %v: an unbounded read goes through every month", s.From)
 	}
 }

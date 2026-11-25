@@ -27,13 +27,20 @@ var (
 
 const relatedLimit = 8
 
+// recentAlert is how far back to look for the alert a dossier is about.
+const recentAlert = 6 * time.Hour
+
 // dossier is everything needed to judge one alert, as the service expects it: the alert, its score, the
 // alerts from the same adversary and the same target in the last 7 days, and how many alerts with its
 // name there were in 30 days. A part that cannot be had is left out; the alert itself is required.
 func (t *Triage) dossier(ctx context.Context, tenantID, alertID string) (map[string]any, error) {
-	scope := store.Scope{Tenant: tenantID, Dataset: eventstore.DatasetAlerts}
+	now := time.Now()
 
-	raw, err := t.docs.FetchByID(ctx, scope, alertID)
+	// The alert was raised a moment ago. Saying so lets the store skip the old months: it is keyed by name
+	// and time, so an id alone makes it read everything the tenant has.
+	recent := store.Scope{Tenant: tenantID, Dataset: eventstore.DatasetAlerts, From: now.Add(-recentAlert), To: now.Add(time.Minute)}
+
+	raw, err := t.docs.FetchByID(ctx, recent, alertID)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +62,6 @@ func (t *Triage) dossier(ctx context.Context, tenantID, alertID string) (map[str
 		}
 	}
 
-	now := time.Now()
 	week := store.Scope{Tenant: tenantID, Dataset: eventstore.DatasetAlerts, From: now.Add(-7 * 24 * time.Hour), To: now}
 
 	for label, field := range map[string]string{"same_adversary": "adversary.ip", "same_target": "target.ip"} {
