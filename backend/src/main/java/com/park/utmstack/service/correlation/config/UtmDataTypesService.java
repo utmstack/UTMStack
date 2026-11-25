@@ -189,9 +189,9 @@ public class UtmDataTypesService {
             }).filter(Objects::nonNull).collect(Collectors.toList());
             utmDataTypesRepository.saveAll(dataTypes);
 
-            // Get only excluded datatypes
+            // Get only explicitly excluded datatypes
             List<String> excludedDataTypes = dataTypes.stream()
-                .filter(cfg -> !Boolean.TRUE.equals(cfg.getIncluded()))
+                .filter(cfg -> Boolean.FALSE.equals(cfg.getIncluded()))
                 .map(UtmDataTypes::getDataType)
                 .collect(Collectors.toList());
 

@@ -163,11 +163,24 @@ public class ApiKeyService {
         return prefix + date.toString();
     }
 
+    public static String apiAccessLogsIndexForTimestamp(String timestamp) {
+        LocalDate date = LocalDate.now(ZoneOffset.UTC);
+        if (timestamp != null && !timestamp.isBlank()) {
+            try {
+                date = Instant.parse(timestamp).atZone(ZoneOffset.UTC).toLocalDate();
+            } catch (Exception ignored) {
+                // Fall back to current UTC date if timestamp is not ISO-8601 Instant
+            }
+        }
+        return apiAccessLogsIndexForDate(date);
+    }
+
     @Async
     public void logUsage(ApiKeyUsageLog apiKeyUsageLog) {
         final String ctx = CLASSNAME + ".logUsage";
         try {
-            client.getClient().index(apiAccessLogsIndexForDate(LocalDate.now(ZoneOffset.UTC)), apiKeyUsageLog);
+            String ts = apiKeyUsageLog != null ? apiKeyUsageLog.getTimestamp() : null;
+            client.getClient().index(apiAccessLogsIndexForTimestamp(ts), apiKeyUsageLog);
         } catch (Exception e) {
             log.error(ctx + ": {}", e.getMessage());
         }

@@ -80,6 +80,7 @@ class Jackson3AndHardeningTest {
     void apiAccessLogsIndexIsConcreteDailyIndexMatchingWildcardPattern() {
         String idx = ApiKeyService.apiAccessLogsIndexForDate(LocalDate.of(2026, 11, 24));
         assertEquals("v11-api-access-logs-2026-11-24", idx);
+        assertEquals("v11-api-access-logs-2026-11-23", ApiKeyService.apiAccessLogsIndexForTimestamp("2026-11-23T23:59:59Z"));
         assertFalse(idx.contains("*"), "Index name passed to OpenSearch index() must never contain wildcard *");
     }
 
