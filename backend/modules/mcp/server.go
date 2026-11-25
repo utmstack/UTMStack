@@ -172,7 +172,7 @@ func Add[In, Out any](m *Module, t *mcp.Tool, gate Gate, h Handler[In, Out]) {
 			return errorResult(err.Error()), zero, err
 		}
 		m.auditSuccess(ctx, actor, toolName)
-		return nil, out, nil
+		return nil, asObject(out), nil
 	}
 
 	mcp.AddTool(m.server, t, handler)
@@ -183,6 +183,32 @@ func Add[In, Out any](m *Module, t *mcp.Tool, gate Gate, h Handler[In, Out]) {
 		onAgent := *t
 		mcp.AddTool(m.agent, &onAgent, handler)
 	}
+}
+
+// asObject keeps structuredContent an object, which is all the protocol allows: a client validates it and
+// rejects a bare list or value. A tool that returns one gets it under "result".
+func asObject[Out any](out Out) Out {
+	v := any(out)
+	if v == nil {
+		return out
+	}
+
+	rv := reflect.ValueOf(v)
+	for rv.Kind() == reflect.Pointer && !rv.IsNil() {
+		rv = rv.Elem()
+	}
+
+	switch rv.Kind() {
+	case reflect.Slice, reflect.Array, reflect.String, reflect.Bool,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.Float32, reflect.Float64:
+		if w, ok := any(map[string]any{"result": v}).(Out); ok {
+			return w
+		}
+	}
+
+	return out
 }
 
 // errorResult builds a CallToolResult with IsError set and a TextContent

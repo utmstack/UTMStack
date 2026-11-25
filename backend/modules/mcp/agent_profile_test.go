@@ -303,3 +303,43 @@ func TestTheCallerDecidesTheServerNotTheRequest(t *testing.T) {
 		t.Error("without an agent server everything falls back to the full one")
 	}
 }
+
+// A client rejects a result whose structuredContent is not an object, and a list is what the tools that
+// rank values or list rows return. One such tool took the agent's whole chat down with it.
+func TestAToolThatReturnsAListStillAnswersWithAnObject(t *testing.T) {
+	m := testModule()
+
+	Add(m, &mcp.Tool{Name: "store.property_values", Description: "values"}, Gate{},
+		func(context.Context, *authz.Actor, struct{}) (any, error) {
+			return []map[string]any{{"value": "high", "count": 3}}, nil
+		})
+
+	srv := serve(t, m)
+	cs := connect(t, srv, map[string]string{"X-Test-Caller": "internal"})
+
+	res, err := cs.CallTool(context.Background(), &mcp.CallToolParams{Name: "store.property_values", Arguments: map[string]any{}})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	obj, ok := res.StructuredContent.(map[string]any)
+	if !ok {
+		t.Fatalf("structuredContent is %T, want an object", res.StructuredContent)
+	}
+
+	rows, ok := obj["result"].([]any)
+	if !ok || len(rows) != 1 {
+		t.Fatalf("the list must sit under \"result\": %v", obj)
+	}
+}
+
+func TestAsObjectLeavesObjectsAlone(t *testing.T) {
+	in := map[string]any{"total": 1}
+	if got, _ := any(asObject[any](in)).(map[string]any); got["total"] != 1 || len(got) != 1 {
+		t.Fatalf("an object must pass through untouched: %v", got)
+	}
+
+	if asObject[any](nil) != nil {
+		t.Fatal("nil stays nil")
+	}
+}

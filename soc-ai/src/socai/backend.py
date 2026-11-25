@@ -10,6 +10,8 @@ import asyncio
 import json
 from typing import Any, Protocol
 
+from pydantic import ValidationError
+
 
 class ToolError(Exception):
     """The backend refused or failed a tool call; the message is meant for the model."""
@@ -45,6 +47,7 @@ Scope = tuple[str | None, frozenset[str]]
 
 OPEN_TIMEOUT = 30.0
 CLOSE_TIMEOUT = 5.0
+CALL_TIMEOUT = 60.0
 
 
 class _Connection:
@@ -75,6 +78,7 @@ class McpBackend:
         self._key = internal_key
         self._lock = asyncio.Lock()
         self._conns: dict[Scope, _Connection] = {}
+        self.call_timeout = CALL_TIMEOUT
 
     def _headers(self, scope: Scope) -> dict[str, str]:
         tenant, groups = scope
@@ -157,9 +161,15 @@ class McpBackend:
             try:
                 session = await self._session_for(scope)
 
-                return _parse(await session.call_tool(tool, args))
+                return _parse(await asyncio.wait_for(session.call_tool(tool, args), self.call_timeout))
             except ToolError:
                 raise
+            except ValidationError as exc:
+                # The backend answered, with something the protocol does not allow. The connection is fine,
+                # and other calls are using it right now: closing it would leave them waiting for ever.
+                raise ToolError(f"the backend's answer to {tool} was not valid: {exc.error_count()} problem(s)") from exc
+            except asyncio.TimeoutError as exc:
+                raise ToolError(f"{tool} did not answer in {self.call_timeout:g}s") from exc
             except Exception as exc:  # noqa: BLE001
                 if attempt == 2:
                     raise ToolError(f"the backend could not be reached: {exc}") from exc

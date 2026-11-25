@@ -141,3 +141,96 @@ async def test_a_connection_opened_by_one_task_can_be_used_and_closed_by_others(
     assert first["alert"] == "a" and second["alert"] == "b"
 
     await asyncio.create_task(b.close())  # closed by a task that never opened it: this used to raise
+
+
+@pytest.mark.parametrize("json_response", [True, False])
+def test_parallel_calls_share_one_connection(json_response):
+    import asyncio
+
+    mcp = FastMCP("test", stateless_http=True, json_response=json_response)
+
+    @mcp.tool()
+    async def slow(n: int) -> dict:
+        """Answer after a moment."""
+        await asyncio.sleep(0.2)
+
+        return {"n": n}
+
+    port = free_port()
+    srv = uvicorn.Server(uvicorn.Config(mcp.streamable_http_app(), host="127.0.0.1", port=port, log_level="error"))
+    t = threading.Thread(target=srv.run, daemon=True)
+    t.start()
+
+    for _ in range(100):
+        if srv.started:
+            break
+
+        time.sleep(0.05)
+
+    try:
+        async def go():
+            b = backend_for(f"http://127.0.0.1:{port}")
+
+            try:
+                return await asyncio.wait_for(asyncio.gather(*(b.call("slow", {"n": i}) for i in range(4))), 15)
+            finally:
+                await b.close()
+
+        assert sorted(r["n"] for r in asyncio.run(go())) == [0, 1, 2, 3]
+    finally:
+        srv.should_exit = True
+        t.join(5)
+
+
+def test_a_bad_answer_does_not_take_the_other_calls_down():
+    import asyncio
+
+    from mcp.types import CallToolResult
+
+    class Session:
+        async def call_tool(self, name, args):
+            if name == "slow":
+                await asyncio.sleep(0.3)
+
+                return CallToolResult(content=[], structuredContent={"ok": True})
+
+            return CallToolResult.model_validate({"content": [], "structuredContent": [1, 2]})
+
+    b = McpBackend("http://x", "k")
+    sessions = []
+
+    async def fake_session(scope):
+        sessions.append(scope)
+
+        return Session()
+
+    async def go():
+        b._session_for = fake_session
+        slow = asyncio.ensure_future(b.call("slow", {}))
+
+        with pytest.raises(ToolError, match="not valid"):
+            await b.call("bad", {})
+
+        return await asyncio.wait_for(slow, 5)
+
+    assert asyncio.run(go()) == {"ok": True}
+    assert len(sessions) == 2, "a bad answer must not reconnect"
+
+
+def test_a_call_that_never_answers_gives_up():
+    import asyncio
+
+    class Hung:
+        async def call_tool(self, name, args):
+            await asyncio.sleep(60)
+
+    b = McpBackend("http://x", "k")
+    b.call_timeout = 0.2
+
+    async def fake_session(scope):
+        return Hung()
+
+    b._session_for = fake_session
+
+    with pytest.raises(ToolError, match="did not answer"):
+        asyncio.run(b.call("anything", {}))
