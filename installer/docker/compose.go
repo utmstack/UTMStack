@@ -369,7 +369,7 @@ func (c *Compose) Populate(conf *config.Config, stack *StackConfig) error {
 			"action.auto_create_index=true",
 			"compatibility.override_main_response_version=true",
 			"path.repo=/usr/share/opensearch",
-			fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dm -Xmx%dm", opensearchMem/2, opensearchMem/2),
+			fmt.Sprintf("OPENSEARCH_JAVA_OPTS=-Xms%dm -Xmx%dm -XX:-UseBASE64Intrinsics", opensearchMem/2, opensearchMem/2),
 			"network.host=0.0.0.0",
 		},
 		Logging: &dLogging,
