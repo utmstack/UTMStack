@@ -12,7 +12,7 @@
 
 
 ########################### Stage 0 ########################
-FROM opensearchproject/opensearch:latest
+FROM opensearchproject/opensearch:2.19.8
 
 # Set the working directory
 WORKDIR /usr/share/opensearch/
