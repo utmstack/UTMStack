@@ -66,7 +66,6 @@ type storageSecond struct {
 	TolerateFailure bool     `yaml:"tolerateFailure"`
 	FieldValueMaps  FieldMap `yaml:"fieldValueMaps"`
 }
-
 type osSecondaryInfo struct {
 	URL      string
 	Username string
@@ -99,14 +98,14 @@ func buildStorageConfig(password string, secondary *osSecondaryInfo) storageYAML
 				Engine: "opensearch",
 				OpenSearch: &storageOS{
 					URLs:              []string{"https://" + secondary.URL},
-					KeywordFields:     []string{"dataType","id"},
+					KeywordFields:     []string{"dataType","id","name", "dataSource",},
 					Username:          secondary.Username,
 					Password:          secondary.Password,
 					TenantField:       "tenantId",
 					TimestampField:    "@timestamp",
 					RetentionPolicyID: "utmstack-logs-retention",
-					Layout:            map[string]storageLayout{"logs": {Prefix: "v11-log", IncludeDataType: true},"alerts": {Prefix: "v11-alert", IncludeDataType: true}},
-			},
+					Layout:            map[string]storageLayout{"logs": {Prefix: "v11-log", IncludeDataType: true},"alerts": {Prefix: "v11-alert", DateFormat: "2006-01-02"}},
+		},
 			},
 			FieldValueMaps:  FieldMap{
 				"satus": map[string]any{
