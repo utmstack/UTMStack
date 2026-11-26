@@ -174,3 +174,8 @@ async def test_a_ranking_of_people_is_anonymised_when_the_toolbox_hides_people()
 
     assert await Toolbox(b, hide_people=True).top_values("logs", "origin.ip") == rows, "only people fields are touched"
     assert await Toolbox(b).top_values("logs", "origin.user") == rows, "the chat, which is a person's own tool, is not changed"
+
+
+def test_the_label_find_alerts_gives_for_no_window_is_accepted_back():
+    for label in ("all time", "all", "any", "forever"):
+        assert since_filter(label) == []

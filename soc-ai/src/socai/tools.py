@@ -67,6 +67,10 @@ def since_filter(since: str | None) -> list[dict[str, Any]]:
     text = since.strip().lower()
     now = _now()
 
+    # find_alerts reports "all time" as the window it used, and a model reads that back as something to pass
+    if text in ("all", "all time", "all-time", "any", "forever", "none", "everything", "always"):
+        return []
+
     if text == "today":
         start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     elif _COMPOUND.match(text):

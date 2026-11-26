@@ -56,7 +56,9 @@ def final_score(v: Verdict, facts: dict[str, Any]) -> int:
     The model used to write its own, and the same alert came out anywhere between 22 and 33 while the context
     still quoted 33. The base is worked out by the backend and is the same every time; the model only decides how
     far the facts move it."""
-    base = (facts.get("score") or {}).get("score") if isinstance(facts.get("score"), dict) else None
+    sc = facts.get("score") if isinstance(facts.get("score"), dict) else {}
+    # the scoring tool names it finalScore; "score" is kept for a caller that sends the older shape
+    base = sc.get("finalScore", sc.get("score"))
 
     if isinstance(base, (int, float)):
         return max(0, min(100, round(base) + v.adjustment))

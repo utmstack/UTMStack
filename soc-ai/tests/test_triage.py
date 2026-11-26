@@ -11,7 +11,7 @@ ALERT = {"id": "a1", "name": "Impossible travel", "severity": "high", "status": 
 def backend(notes=""):
     return FakeBackend({
         "store.search": lambda a: {"hits": [{**ALERT, "notes": notes}], "total": 1},
-        "alerts.score": {"score": 77},
+        "alerts.score": {"alertId": "a1", "finalScore": 77, "decision": "COMPLETE"},
         "alerts.update_notes": {"alert_id": "a1"},
         "alerts.update_status": {"updated": 1},
         "alerts.convert_to_incident": {"incident_id": 5},
@@ -150,12 +150,13 @@ async def test_an_alert_a_person_asked_about_is_assessed_again_even_if_it_was_be
 def test_the_score_is_the_backends_moved_by_at_most_ten_and_the_risk_follows_it():
     from socai.triage import final_score, risk_for
 
-    facts = {"score": {"score": 33}}
+    facts = {"score": {"finalScore": 33, "decision": "COMPLETE"}}
     v = lambda adj: Verdict(classification="standard alert", confident=True, adjustment=adj, threat_assessment="t",
                             context="c", analysis="a", action="x")
 
     assert [final_score(v(a), facts) for a in (-10, 0, 7)] == [23, 33, 40], "the same alert can no longer land anywhere"
-    assert final_score(v(10), {"score": {"score": 97}}) == 100 and final_score(v(-10), {"score": {"score": 4}}) == 0
+    assert final_score(v(10), {"score": {"finalScore": 97}}) == 100 and final_score(v(-10), {"score": {"finalScore": 4}}) == 0
+    assert final_score(v(0), {"score": {"score": 61}}) == 61, "the older shape still works"
     assert (risk_for(33), risk_for(40), risk_for(69), risk_for(70)) == ("Low", "Medium", "Medium", "High")
 
     # with no score to start from, the model's own is used, and 50 if it gave none
