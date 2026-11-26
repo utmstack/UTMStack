@@ -231,6 +231,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build UTMStack Collectors
+        env:
+          GOAMD64: v1
+          CGO_CFLAGS: "-march=x86-64 -mtune=generic"
+          CGO_CXXFLAGS: "-march=x86-64 -mtune=generic"
         run: |
           echo "Building UTMStack Collector..."
           cd ${{ github.workspace }}/utmstack-collector
@@ -289,6 +293,10 @@ jobs:
           path: ${{ github.workspace }}/agent-darwin
 
       - name: Prepare dependencies for Agent Manager Image
+        env:
+          GOAMD64: v1
+          CGO_CFLAGS: "-march=x86-64 -mtune=generic"
+          CGO_CXXFLAGS: "-march=x86-64 -mtune=generic"
         run: |
           cd ${{ github.workspace }}/agent-manager
           GOOS=linux GOARCH=amd64  go build -o agent-manager -v .
@@ -362,6 +370,9 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
+          GOAMD64: v1
+          CGO_CFLAGS: "-march=x86-64 -mtune=generic"
+          CGO_CXXFLAGS: "-march=x86-64 -mtune=generic"
         run: |
           cd ${{ github.workspace }}/plugins/alerts; go build -o com.utmstack.alerts.plugin -v .
           cd ${{ github.workspace }}/plugins/aws; go build -o com.utmstack.aws.plugin -v .
@@ -396,16 +407,43 @@ jobs:
           username: utmstack
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and Push the Event Processor Image
+      - name: Build Event Processor Image (local load for verification)
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./event_processor.Dockerfile
-          push: true
+          load: true
+          push: false
           provenance: false
           tags: ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}
           build-args: |
             BASE_IMAGE=ghcr.io/utmstack/eventprocessor/base:${{ needs.setup_deployment.outputs.event_processor_tag }}
+
+      - name: Verify baseline x86-64 compatibility (no AVX/AVX2) before push
+        run: |
+          set -e
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends qemu-user-static
+          docker run --rm --entrypoint /bin/sh \
+            -v /usr/bin/qemu-x86_64-static:/usr/bin/qemu-x86_64-static:ro \
+            "ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}" -c '
+              set -e
+              for bin in /usr/local/bin/eventprocessor /usr/local/bin/playground /usr/local/bin/log-pusher /usr/local/bin/opensearch-fetcher /workdir/plugins/*.plugin /workdir/plugins/utmstack/*.plugin; do
+                [ -f "$bin" ] || continue
+                set +e
+                timeout 2 /usr/bin/qemu-x86_64-static -cpu qemu64 "$bin" --help >/dev/null 2>&1
+                rc=$?
+                set -e
+                if [ "$rc" -eq 132 ]; then
+                  echo "FAIL: $bin crashed with SIGILL (rc=132) on non-AVX qemu64 CPU" >&2
+                  exit 1
+                fi
+                echo "OK (rc=$rc): $bin"
+              done
+            '
+
+      - name: Push verified Event Processor Image
+        run: docker push "ghcr.io/utmstack/utmstack/eventprocessor:${{ needs.setup_deployment.outputs.tag }}"
 
   build_backend:
     name: Build Backend Microservice
