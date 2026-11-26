@@ -172,3 +172,17 @@ def test_an_adjustment_beyond_ten_is_not_accepted():
     with pytest.raises(ValidationError):
         Verdict(classification="standard alert", confident=True, adjustment=40, threat_assessment="t", context="c",
                 analysis="a", action="x")
+
+
+async def test_an_echo_of_a_grouped_alert_is_not_assessed_unless_asked_for():
+    b = FakeBackend()
+    facts = {"alert": {"id": "e1", "name": "Impossible travel", "notes": "", "parentId": "a1"}}
+    agents = build_subagents(b, Settings(), [], groups=frozenset(), hide_people=True)
+    out = await triage_graph(Scripted(script=[]), b, Settings(), agents).ainvoke({"alert_id": "e1", "facts": facts})
+
+    assert out["outcome"].startswith("skipped") and b.calls == []
+
+    model = Scripted(script=[verdict()])
+    out = await triage_graph(model, backend(), Settings(), agents).ainvoke({"alert_id": "e1", "facts": facts, "force": True})
+
+    assert out["outcome"] == "written" and len(model.asked) == 1

@@ -13,6 +13,7 @@ import json
 import logging
 from typing import Any
 
+from .limits import is_rate_limited
 from .runtime import Runtime
 
 log = logging.getLogger("socai.worker")
@@ -22,6 +23,7 @@ SUBJECT = "socai.alerts"
 DURABLE = "soc-ai"
 MAX_DELIVER = 3
 RETRY_DELAY = 30.0
+RATE_LIMIT_DELAY = 120.0
 ACK_WAIT = 600.0
 
 
@@ -38,10 +40,18 @@ async def handle(rt: Runtime, msg: Any) -> None:
 
         return
 
+    throttled = False
+
     try:
         outcome = await rt.triage(alert_id, tenant, facts)
-    except Exception:  # noqa: BLE001 - usually the model's provider: worth trying again later
-        log.exception("triage of %s failed", alert_id)
+    except Exception as exc:  # noqa: BLE001 - usually the model's provider: worth trying again later
+        throttled = is_rate_limited(exc)
+
+        if throttled:
+            log.warning("triage of %s was rate limited by the model's provider; trying again later", alert_id)
+        else:
+            log.exception("triage of %s failed", alert_id)
+
         outcome = "failed: error"
 
     if not outcome.startswith("failed"):
@@ -51,7 +61,10 @@ async def handle(rt: Runtime, msg: Any) -> None:
 
     delivered = getattr(getattr(msg, "metadata", None), "num_delivered", 1)
 
-    if delivered >= MAX_DELIVER:
+    # A throttled model asks for patience, not for the alert to be given up on: wait longer before the next try
+    if throttled:
+        await msg.nak(delay=RATE_LIMIT_DELAY)
+    elif delivered >= MAX_DELIVER:
         log.error("giving up on %s after %d attempts: %s", alert_id, delivered, outcome)
         await msg.term()
     else:

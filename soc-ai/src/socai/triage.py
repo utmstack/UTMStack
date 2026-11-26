@@ -120,6 +120,10 @@ def triage_graph(model: BaseChatModel, backend: Backend, settings: Settings, age
             except ToolError as exc:
                 return {"outcome": f"failed: {exc}"}
 
+        # An echo repeats its parent, which is the alert a person sees and the one worth a model call.
+        if not state.get("force") and (facts.get("alert") or {}).get("parentId"):
+            return {"outcome": "skipped: echo of a grouped alert"}
+
         if not state.get("force") and MARK in str((facts.get("alert") or {}).get("notes") or ""):
             return {"outcome": "skipped: already assessed"}
 

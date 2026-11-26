@@ -15,6 +15,7 @@ from pydantic import BaseModel, Field
 
 from .config import normalize_groups
 from .generic import backend_name
+from .limits import RATE_LIMITED, is_rate_limited
 from .runtime import NotConfigured, Runtime
 
 log = logging.getLogger("socai.api")
@@ -120,9 +121,13 @@ def create_app(rt: Runtime) -> FastAPI:
                     yield _sse("error", {"text": GENERIC_ERROR})
             except NotConfigured as exc:
                 yield _sse("error", {"text": str(exc)})
-            except Exception:  # noqa: BLE001 - the page gets a generic message, the log gets the cause
-                log.exception("the chat failed")
-                yield _sse("error", {"text": GENERIC_ERROR})
+            except Exception as exc:  # noqa: BLE001 - the page gets a generic message, the log gets the cause
+                if is_rate_limited(exc):
+                    log.warning("the chat was rate limited by the model's provider")
+                    yield _sse("error", {"text": RATE_LIMITED})
+                else:
+                    log.exception("the chat failed")
+                    yield _sse("error", {"text": GENERIC_ERROR})
 
         return StreamingResponse(stream(), media_type="text/event-stream")
 

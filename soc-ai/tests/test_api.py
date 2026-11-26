@@ -91,3 +91,23 @@ async def test_the_analyze_button_refuses_what_is_not_an_alert_or_a_caller_witho
         assert (await c.post("/api/v1/analyze", json={"name": "no id"}, headers=KEY)).status_code == 400
         assert (await c.post("/api/v1/analyze", content=b"not json", headers=KEY)).status_code == 400
         assert (await c.post("/api/v1/analyze", json={"id": "a1"})).status_code == 401
+
+
+class Throttled(Exception):
+    status_code = 429
+
+
+async def test_a_throttled_model_is_reported_as_such_not_as_a_generic_error():
+    class Rt(Runtime):
+        async def chat_graph(self, **kwargs):
+            try:
+                raise Throttled("rate_limit_exceeded")
+            except Throttled as exc:
+                raise RuntimeError("the supervisor failed") from exc
+
+    rt = Rt(Settings(internal_key="k"), FakeBackend(), Scripted())
+
+    async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app(rt)), base_url="http://t") as c:
+        r = await c.post("/api/v1/agent/task", json={"task": "hi"}, headers=KEY)
+
+    assert "event: error" in r.text and "too many requests" in r.text and "An error has occurred" not in r.text

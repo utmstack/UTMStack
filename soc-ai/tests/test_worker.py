@@ -74,3 +74,28 @@ async def test_facts_that_are_not_an_object_are_ignored_not_fatal():
     await worker.handle(rt, m)
 
     assert m.log == ["ack"] and rt.seen[0][2] is None
+
+
+class Throttled(Exception):
+    status_code = 429
+
+
+async def test_a_throttled_model_makes_the_alert_wait_longer_and_never_be_given_up_on():
+    m = Msg({"alertId": "a1"}, delivered=worker.MAX_DELIVER)
+    await worker.handle(Rt(Throttled("rate_limit_exceeded")), m)
+
+    assert m.log == [("nak", worker.RATE_LIMIT_DELAY)] and worker.RATE_LIMIT_DELAY > worker.RETRY_DELAY
+
+
+def test_a_429_is_recognised_wherever_it_sits_in_the_chain_of_errors():
+    from socai.limits import is_rate_limited
+
+    try:
+        try:
+            raise Throttled("429")
+        except Throttled as exc:
+            raise ValueError("wrapped") from exc
+    except ValueError as wrapped:
+        assert is_rate_limited(wrapped)
+
+    assert not is_rate_limited(RuntimeError("boom")) and not is_rate_limited(None)
