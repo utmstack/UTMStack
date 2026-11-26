@@ -32,11 +32,23 @@ jobs:
   
       - name: Build Binary
         working-directory: ./${{inputs.image_name}}
+        env:
+          GOAMD64: v1
+          CGO_CFLAGS: "-march=x86-64 -mtune=generic"
+          CGO_CXXFLAGS: "-march=x86-64 -mtune=generic"
         run: |
           if [ -n "${{inputs.flags}}" ]; then
             go build -o ${{inputs.image_name}} -v -ldflags "${{inputs.flags}}" .
           else
             go build -o ${{inputs.image_name}} -v .
+          fi
+          if readelf -n "${{inputs.image_name}}" 2>/dev/null | grep -qE 'x86 ISA needed:.*x86-64-v[234]'; then
+            echo "FAIL: ${{inputs.image_name}} requires x86-64-v2+ ISA" >&2
+            exit 1
+          fi
+          if objdump -d "${{inputs.image_name}}" 2>/dev/null | awk '/<x_cgo_getstackbound>:/,/^$/' | grep -qE '\sv[a-z]+'; then
+            echo "FAIL: ${{inputs.image_name}} contains AVX instructions in x_cgo_getstackbound" >&2
+            exit 1
           fi
         
       - name: Login to GitHub Container Registry

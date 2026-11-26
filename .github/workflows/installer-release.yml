@@ -55,6 +55,9 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
+          GOAMD64: v1
+          CGO_CFLAGS: "-march=x86-64 -mtune=generic"
+          CGO_CXXFLAGS: "-march=x86-64 -mtune=generic"
         run: |
           echo "Building V10 Installer for dev environment"
           go build -o installer -v .
@@ -87,6 +90,9 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
+          GOAMD64: v1
+          CGO_CFLAGS: "-march=x86-64 -mtune=generic"
+          CGO_CXXFLAGS: "-march=x86-64 -mtune=generic"
         run: |
           echo "Building V10 Installer for rc environment"
           go build -o installer -v .
@@ -126,6 +132,9 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
+          GOAMD64: v1
+          CGO_CFLAGS: "-march=x86-64 -mtune=generic"
+          CGO_CXXFLAGS: "-march=x86-64 -mtune=generic"
         run: |
           echo "Building V10 Installer for prerelease"
           go build -o installer -v .
@@ -170,6 +179,9 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
+          GOAMD64: v1
+          CGO_CFLAGS: "-march=x86-64 -mtune=generic"
+          CGO_CXXFLAGS: "-march=x86-64 -mtune=generic"
           GOPRIVATE: github.com/utmstack
           GONOPROXY: github.com/utmstack
           GONOSUMDB: github.com/utmstack
@@ -222,6 +234,9 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
+          GOAMD64: v1
+          CGO_CFLAGS: "-march=x86-64 -mtune=generic"
+          CGO_CXXFLAGS: "-march=x86-64 -mtune=generic"
           GOPRIVATE: github.com/utmstack
           GONOPROXY: github.com/utmstack
           GONOSUMDB: github.com/utmstack
