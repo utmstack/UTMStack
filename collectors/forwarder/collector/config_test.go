@@ -256,6 +256,37 @@ func TestSyncCollectorConfigUserFileTypesKept(t *testing.T) {
 	}
 }
 
+func TestSyncCollectorConfigPrunesKindMismatch(t *testing.T) {
+	ensureTestLogger()
+	tmp := t.TempDir()
+	sandboxPointers(t, tmp)
+
+	// A user type is protected only in the section its kind belongs to.
+	writeCatalog(t, `{"user_datatypes":{"my-user-file":{"kind":"file"},"firewall-barracuda":{"kind":"syslog","udp":"7100"}}}`)
+	if err := os.WriteFile(config.CollectorFileName, []byte(`{
+		"integrations": {
+			"my-user-file": {"udp_port": {"enabled": false, "value": "9000"}}
+		},
+		"file_integrations": {
+			"firewall-barracuda": {"enabled": false, "paths": ["/var/log/x"]}
+		}
+	}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := SyncCollectorConfig(); err != nil {
+		t.Fatal(err)
+	}
+
+	cnf := readStored(t)
+	if _, ok := cnf.Integrations["my-user-file"]; ok {
+		t.Error("file-kind user type in Integrations was kept, want pruned")
+	}
+	if _, ok := cnf.FileIntegrations["firewall-barracuda"]; ok {
+		t.Error("syslog-kind user type in FileIntegrations was kept, want pruned")
+	}
+}
+
 func TestSyncCollectorConfigDoesNotModifyKeptPorts(t *testing.T) {
 	ensureTestLogger()
 	tmp := t.TempDir()

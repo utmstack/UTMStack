@@ -234,16 +234,19 @@ func ListAllDataTypes() []DataTypeEntry {
 	return entries
 }
 
-func UserDataTypeNames() (map[string]bool, error) {
+func UserDataTypeKinds() (map[string]map[string]bool, error) {
 	cat, err := readCatalog()
 	if err != nil {
 		return nil, err
 	}
-	names := make(map[string]bool, len(cat.UserDataTypes))
-	for name := range cat.UserDataTypes {
-		names[name] = true
+	kinds := make(map[string]map[string]bool, len(cat.UserDataTypes))
+	for name, u := range cat.UserDataTypes {
+		if kinds[u.Kind] == nil {
+			kinds[u.Kind] = make(map[string]bool)
+		}
+		kinds[u.Kind][name] = true
 	}
-	return names, nil
+	return kinds, nil
 }
 
 func readCatalog() (Catalog, error) {

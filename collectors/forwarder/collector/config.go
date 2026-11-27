@@ -44,10 +44,23 @@ func SyncCollectorConfig() error {
 
 	modified := false
 
-	userTypes, catalogErr := config.UserDataTypeNames()
+	userKinds, catalogErr := config.UserDataTypeKinds()
 	prune := catalogErr == nil
 	if catalogErr != nil {
 		utils.Logger.LogF(400, "could not read data type catalog (%v); skipping integration pruning this sync", catalogErr)
+	}
+	// Prune protection is per section: user kinds other than "file" belong in
+	// Integrations, so a name filed in the wrong section stays prunable.
+	userNetworkTypes := make(map[string]bool)
+	if prune {
+		for kind, names := range userKinds {
+			if kind == "file" {
+				continue
+			}
+			for name := range names {
+				userNetworkTypes[name] = true
+			}
+		}
 	}
 
 	if cnf.Integrations == nil {
@@ -68,7 +81,7 @@ func SyncCollectorConfig() error {
 
 	if prune {
 		for key := range cnf.Integrations {
-			if _, exists := config.ProtoPorts[config.DataType(key)]; !exists && !userTypes[key] {
+			if _, exists := config.ProtoPorts[config.DataType(key)]; !exists && !userNetworkTypes[key] {
 				integration := cnf.Integrations[key]
 				if integration.HTTP != nil || integration.HTTPS != nil {
 					continue
@@ -98,7 +111,7 @@ func SyncCollectorConfig() error {
 
 	if prune {
 		for key := range cnf.FileIntegrations {
-			if _, exists := config.FilePaths[config.DataType(key)]; !exists && !userTypes[key] {
+			if _, exists := config.FilePaths[config.DataType(key)]; !exists && !userKinds["file"][key] {
 				delete(cnf.FileIntegrations, key)
 				modified = true
 				utils.Logger.Info("Removed obsolete file integration from config: %s", key)
