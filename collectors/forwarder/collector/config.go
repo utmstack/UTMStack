@@ -198,6 +198,10 @@ func ChangeIntegrationStatus(logTyp, proto string, isEnabled bool, portSeed stri
 			return "", fmt.Errorf("integration %s has no %s port configured; set one with change-port", logTyp, proto)
 		}
 
+		if !schema.ValidatePortChange(port) {
+			return "", fmt.Errorf("port %s is out of valid range %d-%d", port, config.PortRangeMin, config.PortRangeMax)
+		}
+
 		if conflicting := CheckPortConflict(port, proto, &cnf, logTyp); conflicting != "" {
 			return "", fmt.Errorf("port %s is already in use by integration '%s'", port, conflicting)
 		}

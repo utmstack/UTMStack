@@ -158,6 +158,38 @@ func TestChangeIntegrationStatusPortConflictStillErrors(t *testing.T) {
 	}
 }
 
+func TestChangeIntegrationStatusRejectsInvalidPortSeed(t *testing.T) {
+	ensureTestLogger()
+	tmp := t.TempDir()
+	sandboxPointers(t, tmp)
+	// netflow is a built-in with no TCP default, so only the seed can supply a port.
+	if err := os.WriteFile(config.CollectorFileName, []byte(`{
+		"integrations": {
+			"netflow": {"tcp_port": {"enabled": false, "value": ""}}
+		}
+	}`), 0644); err != nil {
+		t.Fatal(err)
+	}
+	before, err := os.ReadFile(config.CollectorFileName)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, bad := range []string{"0", "99999", "abc"} {
+		if _, err := ChangeIntegrationStatus("netflow", "tcp", true, bad); err == nil {
+			t.Errorf("seed %q accepted, want range error", bad)
+		}
+	}
+
+	after, err := os.ReadFile(config.CollectorFileName)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(before) != string(after) {
+		t.Error("config file was modified even though invalid seeds were rejected")
+	}
+}
+
 func TestChangeIntegrationStatusDisableDoesNotSeed(t *testing.T) {
 	ensureTestLogger()
 	tmp := t.TempDir()
