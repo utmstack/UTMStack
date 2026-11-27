@@ -44,6 +44,29 @@ func SyncCollectorConfig() error {
 
 	modified := false
 
+	userKinds, catalogErr := config.UserDataTypeKinds()
+	prune := catalogErr == nil
+	if catalogErr != nil {
+		utils.Logger.LogF(400, "could not read data type catalog (%v); skipping integration pruning this sync", catalogErr)
+	}
+	// Prune protection is per section: user kinds other than "file" belong in
+	// Integrations, so a name filed in the wrong section stays prunable.
+	userNetworkTypes := make(map[string]bool)
+	if prune {
+		for kind, names := range userKinds {
+			if kind == "file" {
+				continue
+			}
+			for name := range names {
+				userNetworkTypes[name] = true
+			}
+		}
+	}
+
+	if cnf.Integrations == nil {
+		cnf.Integrations = make(map[string]schema.Integration)
+	}
+
 	for logTyp, pp := range config.ProtoPorts {
 		key := string(logTyp)
 		if _, exists := cnf.Integrations[key]; !exists {
@@ -56,15 +79,17 @@ func SyncCollectorConfig() error {
 		}
 	}
 
-	for key := range cnf.Integrations {
-		if _, exists := config.ProtoPorts[config.DataType(key)]; !exists {
-			integration := cnf.Integrations[key]
-			if integration.HTTP != nil || integration.HTTPS != nil {
-				continue
+	if prune {
+		for key := range cnf.Integrations {
+			if _, exists := config.ProtoPorts[config.DataType(key)]; !exists && !userNetworkTypes[key] {
+				integration := cnf.Integrations[key]
+				if integration.HTTP != nil || integration.HTTPS != nil {
+					continue
+				}
+				delete(cnf.Integrations, key)
+				modified = true
+				utils.Logger.Info("Removed obsolete integration from config: %s", key)
 			}
-			delete(cnf.Integrations, key)
-			modified = true
-			utils.Logger.Info("Removed obsolete integration from config: %s", key)
 		}
 	}
 
@@ -84,11 +109,13 @@ func SyncCollectorConfig() error {
 		}
 	}
 
-	for key := range cnf.FileIntegrations {
-		if _, exists := config.FilePaths[config.DataType(key)]; !exists {
-			delete(cnf.FileIntegrations, key)
-			modified = true
-			utils.Logger.Info("Removed obsolete file integration from config: %s", key)
+	if prune {
+		for key := range cnf.FileIntegrations {
+			if _, exists := config.FilePaths[config.DataType(key)]; !exists && !userKinds["file"][key] {
+				delete(cnf.FileIntegrations, key)
+				modified = true
+				utils.Logger.Info("Removed obsolete file integration from config: %s", key)
+			}
 		}
 	}
 
@@ -130,7 +157,7 @@ func seedIntegrationPorts(name, udpPort, tcpPort string) error {
 	return schema.WriteCollectorConfig(&cnf)
 }
 
-func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool, tlsOptions ...bool) (string, error) {
+func ChangeIntegrationStatus(logTyp, proto string, isEnabled bool, portSeed string, tlsOptions ...bool) (string, error) {
 	schema.LockCollectorConfig()
 	defer schema.UnlockCollectorConfig()
 
@@ -155,11 +182,38 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool, tlsOpt
 	}
 
 	if isEnabled {
+		if port == "" {
+			port = portSeed
+		}
+		if port == "" {
+			if entry, ok := config.ResolveDataType(logTyp); ok {
+				if proto == "tcp" {
+					port = entry.TCP
+				} else {
+					port = entry.UDP
+				}
+			}
+		}
+		if port == "" {
+			return "", fmt.Errorf("integration %s has no %s port configured; set one with change-port", logTyp, proto)
+		}
+
+		if !schema.ValidatePortChange(port) {
+			return "", fmt.Errorf("port %s is out of valid range %d-%d", port, config.PortRangeMin, config.PortRangeMax)
+		}
+
 		if conflicting := CheckPortConflict(port, proto, &cnf, logTyp); conflicting != "" {
 			return "", fmt.Errorf("port %s is already in use by integration '%s'", port, conflicting)
 		}
 		if !IsPortBindable(port, proto) {
 			return "", fmt.Errorf("port %s is already in use by another process", port)
+		}
+
+		switch proto {
+		case "tcp":
+			integration.TCP.Port = port
+		case "udp":
+			integration.UDP.Port = port
 		}
 	}
 

@@ -234,6 +234,21 @@ func ListAllDataTypes() []DataTypeEntry {
 	return entries
 }
 
+func UserDataTypeKinds() (map[string]map[string]bool, error) {
+	cat, err := readCatalog()
+	if err != nil {
+		return nil, err
+	}
+	kinds := make(map[string]map[string]bool, len(cat.UserDataTypes))
+	for name, u := range cat.UserDataTypes {
+		if kinds[u.Kind] == nil {
+			kinds[u.Kind] = make(map[string]bool)
+		}
+		kinds[u.Kind][name] = true
+	}
+	return kinds, nil
+}
+
 func readCatalog() (Catalog, error) {
 	cat := Catalog{UserDataTypes: make(map[string]UserEntry)}
 	catalogPath := CatalogFileName

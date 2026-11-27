@@ -114,7 +114,7 @@ func applyNetworkIntegration(dataType string, conf groupConfig, enabled bool) *C
 		}
 	}
 
-	if _, err := collector.ChangeIntegrationStatus(dataType, networkProto, enabled, useTLS); err != nil {
+	if _, err := collector.ChangeIntegrationStatus(dataType, networkProto, enabled, conf.port, useTLS); err != nil {
 		return rejectResult(fmt.Sprintf("integration %q: %v", dataType, err))
 	}
 	return acceptResult()

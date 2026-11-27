@@ -132,7 +132,7 @@ func enableNetworkIntegration(name, port, proto string) error {
 	}
 	fmt.Printf("Enabling %s integration %q on port %s...\n", proto, name, port)
 
-	actualPort, err := collectorpkg.ChangeIntegrationStatus(name, networkProto, true, useTLS)
+	actualPort, err := collectorpkg.ChangeIntegrationStatus(name, networkProto, true, port, useTLS)
 	if err != nil {
 		return fmt.Errorf("error enabling integration: %w", err)
 	}
