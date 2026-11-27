@@ -30,6 +30,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	mcpmod "github.com/utmstack/utmstack/backend/modules/mcp"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
+	"github.com/utmstack/utmstack/backend/modules/servefile"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
 	"github.com/utmstack/utmstack/backend/modules/storage"
@@ -215,6 +216,7 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 	eventprocessing.RegisterRoutes(api, m.eventProcessing, userAuth, platform, tenantLister)
 	compliance.RegisterRoutes(api, m.compliance, userAuth, platform)
 	dashboards.RegisterRoutes(api, m.dashboards, userAuth)
+	servefile.RegisterRoutes(api, m.servefile, userAuth)
 	loganalyzer.RegisterRoutes(api, m.loganalyzer, userAuth)
 	integrations.RegisterRoutes(api, m.integrations, userAuth)
 	incidents.RegisterRoutes(api, m.incidents, userAuth)
@@ -224,9 +226,9 @@ func registerRoutes(engine *gin.Engine, m *modules, cfg *config) {
 
 	// if data retention is disable that module gets internal only
 	if cfg.dataRetentionEnabled {
-		storage.RegisterRoutes(api, m.storage, userAuth,userAuth)
-	}else{
-		storage.RegisterRoutes(api, m.storage, internalAuth,userAuth)
+		storage.RegisterRoutes(api, m.storage, userAuth, userAuth)
+	} else {
+		storage.RegisterRoutes(api, m.storage, internalAuth, userAuth)
 	}
 
 	datasources.RegisterRoutes(api, m.datasources, userAuth)
