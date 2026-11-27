@@ -39,6 +39,7 @@ type ReportBody struct {
 type EditControlRequest struct {
 	Status domain.ComplianceStatus `json:"status,omitempty"`
 	Note   string                  `json:"note" binding:"required,max=4000"`
+	Evidences []string `json:"evidences,omitempty"`
 }
 
 type ScorePoint struct {
@@ -97,6 +98,7 @@ type ControlRow struct {
 	Checks         []CheckResult           `json:"checks,omitempty"`
 	OriginalStatus domain.ComplianceStatus `json:"originalStatus,omitempty"`
 	Note           string                  `json:"note,omitempty"`
+	Evidences      []string                `json:"evidences,omitempty"`
 	EditedBy       string                  `json:"editedBy,omitempty"`
 	EditedAt       *time.Time              `json:"editedAt,omitempty"`
 }

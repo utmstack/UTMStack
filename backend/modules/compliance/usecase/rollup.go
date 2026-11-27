@@ -150,6 +150,7 @@ func inheritEdit(row *dto.ControlRow, prev []dto.ControlRow) {
 		// The note always survives: a remediation ticket is as relevant on the
 		// run that finally passes as on the one that failed.
 		row.Note = p.Note
+		row.Evidences = p.Evidences
 		row.EditedBy = p.EditedBy
 		row.EditedAt = p.EditedAt
 		// The verdict survives only if there was one. An annotation leaves the
