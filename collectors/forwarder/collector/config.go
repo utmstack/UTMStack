@@ -144,7 +144,7 @@ func seedIntegrationPorts(name, udpPort, tcpPort string) error {
 	return schema.WriteCollectorConfig(&cnf)
 }
 
-func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool, tlsOptions ...bool) (string, error) {
+func ChangeIntegrationStatus(logTyp, proto string, isEnabled bool, portSeed string, tlsOptions ...bool) (string, error) {
 	schema.LockCollectorConfig()
 	defer schema.UnlockCollectorConfig()
 
@@ -169,11 +169,34 @@ func ChangeIntegrationStatus(logTyp string, proto string, isEnabled bool, tlsOpt
 	}
 
 	if isEnabled {
+		if port == "" {
+			port = portSeed
+		}
+		if port == "" {
+			if entry, ok := config.ResolveDataType(logTyp); ok {
+				if proto == "tcp" {
+					port = entry.TCP
+				} else {
+					port = entry.UDP
+				}
+			}
+		}
+		if port == "" {
+			return "", fmt.Errorf("integration %s has no %s port configured; set one with change-port", logTyp, proto)
+		}
+
 		if conflicting := CheckPortConflict(port, proto, &cnf, logTyp); conflicting != "" {
 			return "", fmt.Errorf("port %s is already in use by integration '%s'", port, conflicting)
 		}
 		if !IsPortBindable(port, proto) {
 			return "", fmt.Errorf("port %s is already in use by another process", port)
+		}
+
+		switch proto {
+		case "tcp":
+			integration.TCP.Port = port
+		case "udp":
+			integration.UDP.Port = port
 		}
 	}
 

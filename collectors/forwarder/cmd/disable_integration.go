@@ -45,7 +45,7 @@ Examples:
 			if useTLS {
 				networkProto = "tcp"
 			}
-			port, err := collectorpkg.ChangeIntegrationStatus(name, networkProto, false, useTLS)
+			port, err := collectorpkg.ChangeIntegrationStatus(name, networkProto, false, "", useTLS)
 			if err != nil {
 				return fmt.Errorf("error disabling integration: %w", err)
 			}
