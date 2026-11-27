@@ -35,6 +35,16 @@ export const complianceService = {
   listDataTypes: (dataset: 'logs' | 'alerts' = 'logs') =>
     api.get<string[]>(`/log-analyzer/datasets/${encodeURIComponent(dataset)}/data-types`),
 
+  // ── Evidence files ───────────────────────────────────────────────────────────
+  /** Uploads a PDF/image (≤10MB) to the backend file store; returns its URL. */
+  uploadFile: (file: File) => {
+    const fd = new FormData()
+    fd.append('file', file)
+    return api.post<{ url: string }>('/file', fd)
+  },
+  /** Fetches an uploaded file by the URL returned from uploadFile. */
+  fetchFile: (url: string) => api.get<Blob>(url.replace(/^\/api\/v1/, ''), { responseType: 'blob' }),
+
   // ── Report ──────────────────────────────────────────────────────────────
   /** The standing report. Does not re-run the framework. */
   getReport: (key: string) => api.get<Report>(`${fw(key)}/report`),

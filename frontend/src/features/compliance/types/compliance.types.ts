@@ -169,6 +169,8 @@ export interface ControlRow {
   /** What the engine said when the edit was made. */
   originalStatus?: ComplianceStatus
   note?: string
+  /** Uploaded file URLs (PDF/images) attached as proof. */
+  evidences?: string[]
   editedBy?: string
   editedAt?: string
 }
@@ -274,6 +276,8 @@ export interface EditControlInput {
   status?: ComplianceStatus
   /** Always required: an entry no one can explain is worth nothing later. */
   note: string
+  /** File URLs from POST /file, attached as proof for the verdict. */
+  evidences?: string[]
 }
 
 /* ── Schedules ───────────────────────────────────────────────────────────── */

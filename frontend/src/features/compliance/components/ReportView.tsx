@@ -26,13 +26,13 @@ export function scoreBg(score: number): string {
 }
 
 export const STATUS_TONE: Record<ComplianceStatus, string> = {
-  COMPLIANT: 'bg-emerald-500/15 text-emerald-500',
-  NON_COMPLIANT: 'bg-red-500/15 text-red-500',
-  AT_RISK: 'bg-amber-500/15 text-amber-500',
-  NOT_COVERED: 'bg-zinc-500/15 text-zinc-400',
-  NOT_EVALUATED: 'bg-slate-500/15 text-slate-400',
-  PENDING: 'bg-sky-500/15 text-sky-400',
-  OUT_OF_SCOPE: 'bg-violet-500/15 text-violet-400',
+  COMPLIANT: 'bg-muted text-emerald-700 dark:text-emerald-400',
+  NON_COMPLIANT: 'bg-muted text-red-700 dark:text-red-400',
+  AT_RISK: 'bg-muted text-amber-700 dark:text-amber-400',
+  NOT_COVERED: 'bg-muted text-zinc-700 dark:text-zinc-400',
+  NOT_EVALUATED: 'bg-muted text-slate-700 dark:text-slate-400',
+  PENDING: 'bg-muted text-sky-700 dark:text-sky-400',
+  OUT_OF_SCOPE: 'bg-muted text-violet-700 dark:text-violet-400',
 }
 
 const EMPTY_SUMMARY: ReportSummary = {
