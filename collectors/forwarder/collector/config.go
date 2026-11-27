@@ -44,6 +44,16 @@ func SyncCollectorConfig() error {
 
 	modified := false
 
+	userTypes, catalogErr := config.UserDataTypeNames()
+	prune := catalogErr == nil
+	if catalogErr != nil {
+		utils.Logger.LogF(400, "could not read data type catalog (%v); skipping integration pruning this sync", catalogErr)
+	}
+
+	if cnf.Integrations == nil {
+		cnf.Integrations = make(map[string]schema.Integration)
+	}
+
 	for logTyp, pp := range config.ProtoPorts {
 		key := string(logTyp)
 		if _, exists := cnf.Integrations[key]; !exists {
@@ -56,15 +66,17 @@ func SyncCollectorConfig() error {
 		}
 	}
 
-	for key := range cnf.Integrations {
-		if _, exists := config.ProtoPorts[config.DataType(key)]; !exists {
-			integration := cnf.Integrations[key]
-			if integration.HTTP != nil || integration.HTTPS != nil {
-				continue
+	if prune {
+		for key := range cnf.Integrations {
+			if _, exists := config.ProtoPorts[config.DataType(key)]; !exists && !userTypes[key] {
+				integration := cnf.Integrations[key]
+				if integration.HTTP != nil || integration.HTTPS != nil {
+					continue
+				}
+				delete(cnf.Integrations, key)
+				modified = true
+				utils.Logger.Info("Removed obsolete integration from config: %s", key)
 			}
-			delete(cnf.Integrations, key)
-			modified = true
-			utils.Logger.Info("Removed obsolete integration from config: %s", key)
 		}
 	}
 
@@ -84,11 +96,13 @@ func SyncCollectorConfig() error {
 		}
 	}
 
-	for key := range cnf.FileIntegrations {
-		if _, exists := config.FilePaths[config.DataType(key)]; !exists {
-			delete(cnf.FileIntegrations, key)
-			modified = true
-			utils.Logger.Info("Removed obsolete file integration from config: %s", key)
+	if prune {
+		for key := range cnf.FileIntegrations {
+			if _, exists := config.FilePaths[config.DataType(key)]; !exists && !userTypes[key] {
+				delete(cnf.FileIntegrations, key)
+				modified = true
+				utils.Logger.Info("Removed obsolete file integration from config: %s", key)
+			}
 		}
 	}
 
