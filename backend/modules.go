@@ -15,9 +15,9 @@ import (
 	"github.com/utmstack/utmstack/backend/pkg/eventstore"
 
 	"github.com/threatwinds/go-sdk/catcher"
+	"github.com/utmstack/go-sdk/v2/store/cache"
 	"github.com/utmstack/utmstack/backend/internal/mail"
 	"github.com/utmstack/utmstack/backend/modules/adaudit"
-	"github.com/utmstack/go-sdk/v2/store/cache"
 	"github.com/utmstack/utmstack/backend/modules/alerts"
 	"github.com/utmstack/utmstack/backend/modules/alertscoring"
 	"github.com/utmstack/utmstack/backend/modules/appconfig"
@@ -41,6 +41,7 @@ import (
 	"github.com/utmstack/utmstack/backend/modules/loganalyzer"
 	mcpmod "github.com/utmstack/utmstack/backend/modules/mcp"
 	"github.com/utmstack/utmstack/backend/modules/notifications"
+	servefile "github.com/utmstack/utmstack/backend/modules/servefile"
 	"github.com/utmstack/utmstack/backend/modules/soar"
 	"github.com/utmstack/utmstack/backend/modules/socai"
 	socai_repository "github.com/utmstack/utmstack/backend/modules/socai/repository"
@@ -77,6 +78,7 @@ type modules struct {
 	mail            *mail.Module
 	compliance      *compliance.Module
 	dashboards      *dashboards.Module
+	servefile       *servefile.Module
 	loganalyzer     *loganalyzer.Module
 	tenant          *tenant.Module
 	alerts          *alerts.Module
@@ -167,6 +169,7 @@ func initModules(db *gorm.DB, events *eventstore.Store, cfg *config) *modules {
 		eventReader = events
 	}
 	dashboardsMod := dashboards.NewModule(db, eventReader)
+	servefileMod := servefile.NewModule(db, cfg.encryptionKey, cfg.serveFileDir)
 	loganalyzerMod := loganalyzer.NewModule(db, events)
 
 	userRepo := iam_repository.NewUserRepository(db)
@@ -246,12 +249,17 @@ func initModules(db *gorm.DB, events *eventstore.Store, cfg *config) *modules {
 	}
 	rulesUserDir := filepath.Join(env.String(ep_repository.RulesDirEnv, ep_repository.DefaultRulesDir, false), ep_repository.UserSubdir)
 	pipelinesUserDir := filepath.Join(env.String(ep_repository.PipelinesDirEnv, ep_repository.DefaultPipelinesDir, false), ep_repository.UserSubdir)
+	serveFileDir := cfg.serveFileDir
 	extraPurgers = append(extraPurgers,
 		func(_ context.Context, id uuid.UUID) error {
 			return os.RemoveAll(filepath.Join(rulesUserDir, id.String()))
 		},
 		func(_ context.Context, id uuid.UUID) error {
 			return os.RemoveAll(filepath.Join(pipelinesUserDir, id.String()))
+		},
+		func(_ context.Context, id uuid.UUID) error {
+			// servefile stores tenant dirs in compact (dash-less) hex, not id.String().
+			return os.RemoveAll(filepath.Join(serveFileDir, strings.ReplaceAll(id.String(), "-", "")))
 		},
 	)
 	tenantMod = tenant.NewModule(db, userUsecase, extraPurgers...)
@@ -344,6 +352,7 @@ func initModules(db *gorm.DB, events *eventstore.Store, cfg *config) *modules {
 		mail:            mailMod,
 		compliance:      complianceMod,
 		dashboards:      dashboardsMod,
+		servefile:       servefileMod,
 		loganalyzer:     loganalyzerMod,
 		tenant:          tenantMod,
 		alerts:          alertsMod,

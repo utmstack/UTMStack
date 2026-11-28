@@ -236,6 +236,9 @@ func (e *evaluator) EditControl(ctx context.Context, editedBy, frameworkKey, con
 	now := time.Now().UTC()
 	row := &body.Controls[idx]
 	row.Note = req.Note
+	if req.Evidences != nil {
+		row.Evidences = req.Evidences
+	}
 	row.EditedBy = editedBy
 	row.EditedAt = &now
 

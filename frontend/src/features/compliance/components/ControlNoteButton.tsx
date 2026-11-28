@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Loader2, MessageSquare, MessageSquareText } from 'lucide-react'
+import { Loader2, MessageSquare, MessageSquareText, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/shared/components/ui/button'
 import { complianceService, ComplianceHttpError } from '../services/compliance-http.service'
+import { EvidenceFileChip } from './EvidenceFileChip'
 import type { ControlRow, Report } from '../types/compliance.types'
 
 /**
@@ -31,10 +32,12 @@ export function ControlNoteButton({
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
+  const [evidences, setEvidences] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
 
   const start = () => {
     setDraft(row.note ?? '')
+    setEvidences(row.evidences ?? [])
     setOpen(true)
   }
 
@@ -42,7 +45,7 @@ export function ControlNoteButton({
     if (!draft.trim()) return
     setBusy(true)
     try {
-      const updated = await complianceService.editControl(frameworkKey, row.controlId, { note: draft.trim() })
+      const updated = await complianceService.editControl(frameworkKey, row.controlId, { note: draft.trim(), evidences })
       setOpen(false)
       onSaved?.(updated)
     } catch (e) {
@@ -91,7 +94,7 @@ export function ControlNoteButton({
               <h2 className="text-base font-semibold">{t('compliance.noteModal.title', { defaultValue: 'Note' })}</h2>
               <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">{row.controlId}</p>
             </header>
-            <div className="px-5 py-4">
+            <div className="space-y-3 px-5 py-4">
               <p className="mb-2 text-xs text-muted-foreground">
                 {t('compliance.noteModal.description', {
                   defaultValue: 'Recorded on the report. It does not change the control’s status.',
@@ -108,6 +111,28 @@ export function ControlNoteButton({
                 })}
                 className="w-full rounded-md border border-input bg-background/40 p-2 text-xs focus-visible:border-ring focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
               />
+              {evidences.length > 0 && (
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-foreground/80">
+                    {t('compliance.evidence.title', { defaultValue: 'Evidence (optional)' })}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {evidences.map((url) => (
+                      <div key={url} className="relative">
+                        <EvidenceFileChip url={url} className="w-48" />
+                        <button
+                          onClick={() => setEvidences((prev) => prev.filter((u) => u !== url))}
+                          disabled={busy}
+                          aria-label={t('compliance.reasonModal.cancel', { defaultValue: 'Cancel' })}
+                          className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full border border-border bg-popover text-muted-foreground shadow-sm hover:text-foreground disabled:opacity-50"
+                        >
+                          <X size={9} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <footer className="flex items-center justify-end gap-2 border-t border-border bg-muted/20 px-5 py-3">
               <Button variant="outline" size="sm" onClick={() => setOpen(false)} disabled={busy}>

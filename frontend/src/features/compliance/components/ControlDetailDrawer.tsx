@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { AlertTriangle, Loader2, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { complianceService } from '../services/compliance-http.service'
+import { EvidenceFileChip } from './EvidenceFileChip'
 import type { CheckResult, Control, ControlRow, Report } from '../types/compliance.types'
 import { ControlStatusBadge } from './ControlStatusBadge'
 
@@ -83,6 +84,18 @@ export function ControlDetailDrawer({
                 {row.editedBy}
                 {row.originalStatus && ` · ${t('compliance.engineSaid', { defaultValue: 'engine said' })} ${t(`compliance.status.${row.originalStatus}`)}`}
               </p>
+            </Block>
+          )}
+
+          {(row.evidences?.length ?? 0) > 0 && (
+            <Block label={t('compliance.evidenceLabel', { defaultValue: 'Evidence' })}>
+              <ul className="flex flex-wrap gap-2">
+                {row.evidences!.map((url) => (
+                  <li key={url}>
+                    <EvidenceFileChip url={url} />
+                  </li>
+                ))}
+              </ul>
             </Block>
           )}
 
