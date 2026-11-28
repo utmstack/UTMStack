@@ -55,9 +55,9 @@ public class UtmDataTypesService {
     private UtmDataTypes save(UtmDataTypes dataType) {
         log.debug("Request to save UtmDataTypes : {}", dataType);
         final String ctx = CLASSNAME + ".save";
-        if (dataType.getId() == null) {
-            dataType.setId(utmDataTypesRepository.getNextId());
-        }
+        // Leave id == null on inserts so Spring Data calls EntityManager.persist() and
+        // CustomIdentityGenerator assigns the sequence id. Pre-setting id via getNextId()
+        // routes to merge(), which fails under Hibernate 7 for @GeneratedValue entities.
         try {
             dataType.setLastUpdate();
             return utmDataTypesRepository.save(dataType);
