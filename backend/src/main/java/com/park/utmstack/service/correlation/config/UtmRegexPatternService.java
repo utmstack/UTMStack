@@ -37,9 +37,9 @@ public class UtmRegexPatternService {
     private UtmRegexPattern save(UtmRegexPattern pattern) {
         log.debug("Request to save UtmRegexPattern : {}", pattern);
         final String ctx = CLASSNAME + ".save";
-        if (pattern.getId() == null) {
-            pattern.setId(utmRegexPatternRepository.getNextId());
-        }
+        // Leave id == null on inserts so Spring Data calls EntityManager.persist() and
+        // CustomIdentityGenerator assigns the sequence id. Pre-setting id via getNextId()
+        // routes to merge(), which fails under Hibernate 7 for @GeneratedValue entities.
         try {
             pattern.setLastUpdate();
             return utmRegexPatternRepository.save(pattern);
